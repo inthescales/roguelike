@@ -1,6 +1,8 @@
 #include "globals.h"
 #include "window.h"
 
+using namespace std;
+
 window::window(int n_x, int n_y, int n_w, int n_h) : x(n_x), y(n_y), width(n_w), height(n_h) {
 
 }
@@ -41,14 +43,14 @@ void window::display_status(){
 	printw("$%d", act_player->gold);
 }
 
-void window::print(std::string text){
-	move(0, 0);
-	std::string n = "Hello friend \033[22;31m%d";
-	printw("%s", n.c_str());
+void window::print(string text){
+	print(text, buf_main);
 }
 
-//void window::print(std::string text, buffer * buf){
+void window::print(string text, buffer * buf){
 
+	clear();
+	move(0, 0);
 	
 
-//}
+}

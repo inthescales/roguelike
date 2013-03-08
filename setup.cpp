@@ -3,8 +3,14 @@
 #include <time.h>
 
 #include "globals.h"
+#include "settings.h"
 #include "setup.h"
 #include "window.h"
+
+#include <string>
+#include <vector>
+
+using namespace std;
 
 void setup(){
 
@@ -23,8 +29,7 @@ void setup_window(){
 	win_output = new window(0, 0, 60, 4);
 	win_world  = new window(0, win_output->y + win_output->height, 60, 32);
 	win_status = new window(0, win_world->y + win_world->height, 60, 6);
-	
-	//buf_main = new buffer();
+	buf_main = new vector<string>;
 }
 
 void setup_color(){

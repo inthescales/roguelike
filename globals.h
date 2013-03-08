@@ -18,6 +18,8 @@ extern window * win_output;
 extern window * win_world;
 extern window * win_status;
 
+extern buffer * buf_main;
+
 // Current map and player
 extern map * map_current;
 extern actor * act_player;

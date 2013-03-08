@@ -6,6 +6,11 @@
 #include "map.h"
 
 #include <string>
+#include <vector>
+
+using namespace std;
+
+typedef vector<string> buffer;
 
 class window{
 
@@ -15,8 +20,8 @@ class window{
 	void clear();
 	void display_map(map *);
 	void display_status();
-	void print(std::string);
-	//void print(std::string);
+	void print(string, buffer *);
+	void print(string);
 	
 	int x, y, width, height;
 
