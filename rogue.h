@@ -15,6 +15,8 @@ window * win_output;
 window * win_world;
 window * win_status;
 
+buffer * buf_main;
+
 map * map_current = 0;
 actor * act_player = 0;
 
