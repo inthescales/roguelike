@@ -11,6 +11,6 @@ actclass aclass[] = {
 	ACT( "human", 0, '@', C_WHITE),
 
 	//#ROBOT
-	ACT( "robot", 0, 'R', C_WHITE)
+	ACT( "robot", 0, 'R', C_ORANGE)
 	
 };
