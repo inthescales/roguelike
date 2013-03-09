@@ -18,6 +18,7 @@ void setup(){
 	resize_term(win_output->height + win_world->height + win_status->height, win_output->width);
 	keypad(stdscr, TRUE);
 	start_color();
+	setup_color();
 	cbreak();
 	noecho();
 	curs_set(1);

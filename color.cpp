@@ -1,6 +1,7 @@
 #include "enums.h"
 #include "globals.h"
 
+// Map from color enum to color pairs
 int color_value[] = 
 {
 	0<<24,

@@ -8,9 +8,12 @@
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
+#include "stringutils.h"
 #include "tile.h"
 //#include "tileclass.h"
 #include "window.h"
+
+using namespace std;
 
 #define SET_SYMBOL(O,S,C) O->img = S|C
 
@@ -33,14 +36,14 @@ chtype actor::get_img(){
 	return comp(aclass[type].symbol, aclass[type].color);
 }
 
-std::string actor::get_name(){
+string actor::get_name(){
 	if(act_player == this)
 		return "you";
 	else
 		return aclass[type].name;
 }
 
-void actor::move(std::pair<int,int> offset) {
+void actor::move(pair<int,int> offset) {
 
 	map_current->tiles[x][y].my_actor = NULL;
 	
@@ -50,12 +53,13 @@ void actor::move(std::pair<int,int> offset) {
 	map_current->tiles[x][y].my_actor = this;
 }
 
-void actor::attack(std::pair<int,int> offset) {
+void actor::attack(pair<int,int> offset) {
 	tile * place;
 	place = &map_current->tiles[x + offset.first][y + offset.second];
 	attack(place->my_actor);
 }
 
 void actor::attack(actor * target){
-	win_output->print(get_name() + std::string("-> attack ->") + target->get_name());
+	string out = get_name() + color_string(" attack ", C_RED) + target->get_name();
+	win_output->print(out);
 }

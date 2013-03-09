@@ -78,11 +78,18 @@ void window::print_buf(buffer & buf){
 }
 
 void window::print_line(string in, int pos){
-	move(y + pos, x);
-	
 	int len = in.size();
+	int color = C_WHITE;
+
+	move(y + pos, x);
 	for(int i = 0; i < len; ++i){
-		addch(in.at(i));
+	
+		if(in.at(i) == '|'){ 
+			color = in.at(i+1);
+			++i;
+		} else {
+			addch(in.at(i) | color_value[color]);
+		}
 	}
 
 }
