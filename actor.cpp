@@ -57,5 +57,5 @@ void actor::attack(std::pair<int,int> offset) {
 }
 
 void actor::attack(actor * target){
-	//win_output->print(get_name() + std::string("-> attack ->") + target->get_name());
+	win_output->print(get_name() + std::string("-> attack ->") + target->get_name());
 }

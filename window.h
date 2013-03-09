@@ -20,8 +20,10 @@ class window{
 	void clear();
 	void display_map(map *);
 	void display_status();
-	void print(string, buffer *);
 	void print(string);
+	void print(string, buffer &);
+	void print_buf(buffer &);
+	void print_line(string, int);
 	
 	int x, y, width, height;
 

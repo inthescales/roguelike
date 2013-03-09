@@ -7,6 +7,7 @@
 #include "ui.h"
 #include "window.h"
 
+// Main! Setup and action loop
 int main(void){
 
 	setup_window();
@@ -32,6 +33,7 @@ int main(void){
 
 }
 
+// Initialize the starting game state
 void init_game(){
 
 	turn = 0;
@@ -39,16 +41,18 @@ void init_game(){
 	
 	act_player = new actor(0);
 	map_current->put_actor( 18, 18, act_player);
+	map_current->put_actor( 20, 20, new actor(1));
 	
 	win_world->display_map(map_current);
 	win_status->display_status();
 	
-	win_output->print("test");
+	win_output->print("Welcome to the game!");
 	
 	refresh();
 	//point_curs(act_player);
 }
 
+// Shut everything down and exit
 void exit_game(int sig){
 
 	endwin();
