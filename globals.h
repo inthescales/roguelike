@@ -4,6 +4,7 @@
 
 #include "actclass.h"
 #include "actor.h"
+#include "objclass.h"
 //#include "map.h"
 #include "window.h"
 #include "tileclass.h"
@@ -37,6 +38,7 @@ extern int turn;
 
 // Object class arrays
 extern actclass aclass[];
+extern objclass oclass[];
 extern struct tileclass tclass[];
 
 // Color setup
