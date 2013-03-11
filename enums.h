@@ -41,4 +41,12 @@ enum colorName {
 	C_TEAL, C_CYAN
 };
 
+enum material_t {
+	C_FLESH = 0,
+	C_CLOTH,
+	C_LEATHER,
+	C_METAL,
+	C_PLASTIC
+};
+
 #endif

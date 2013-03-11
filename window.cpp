@@ -61,7 +61,7 @@ void window::print(string text, buffer & buf){
 	print_buf(buf);
 }
 
-// Print as much the buffer as will fit in this window
+// Print as much of the buffer as will fit in this window
 void window::print_buf(buffer & buf){
 	int screen_pointer = 0, buffer_pointer = 0;
 	
