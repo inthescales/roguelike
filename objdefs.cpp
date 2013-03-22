@@ -1,11 +1,12 @@
-#include "actclass.h"
+#include "objclass.h"
 #include "globals.h"
 #include "graphics.h"
 
-//#define ACT( name, symbol, color, )
+#define OBJ( name, symbol, color, type, material, weight, value) \
+	{ name, "", symbol, color, 0, type, material, weight, value }
 
 objclass oclass[] = {
 
-	//ACT( "human", 0, '@', C_WHITE),
+	OBJ("burrito", '%', C_BROWN, 0, MAT_VEGETATION, 1, 5)
 	
 };

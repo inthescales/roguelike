@@ -2,6 +2,13 @@
 
 #define OBJECT_H
 
+#include "actiondefs.h"
+
+#include <utility>
+#include <vector>
+
+using namespace std;
+
 class object {
 
 	public:
