@@ -29,6 +29,7 @@ class map{
 	void add_actor( int, int, short );
 	void put_actor( int, int, struct actor *);
 	void add_object( int, int, short );
+	void put_object( int, int, short);
 	void add_feature( int, int, short );
 	
 	int id;

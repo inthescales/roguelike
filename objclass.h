@@ -8,6 +8,8 @@
 
 class objclass {
 
+	public:
+	
 	std::string name;
 	std::string assignedName; //user assigned name
 	
@@ -17,13 +19,10 @@ class objclass {
 	bool known;
 	
 	short type;
-	short subtype;
 	short material;
 	int weight;
 	int value;
 	
-	//std::vector <effect> effects;
-
 };
 
 #endif

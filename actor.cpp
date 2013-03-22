@@ -51,6 +51,8 @@ void actor::move(pair<int,int> offset) {
 	y += offset.second;
 	
 	map_current->tiles[x][y].my_actor = this;
+	
+	
 }
 
 void actor::attack(pair<int,int> offset) {

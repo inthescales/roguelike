@@ -42,11 +42,12 @@ enum colorName {
 };
 
 enum material_t {
-	C_FLESH = 0,
-	C_CLOTH,
-	C_LEATHER,
-	C_METAL,
-	C_PLASTIC
+	MAT_VEGETATION = 0,
+	MAT_FLESH,
+	MAT_CLOTH,
+	MAT_LEATHER,
+	MAT_METAL,
+	MAT_PLASTIC
 };
 
 #endif

@@ -18,7 +18,7 @@ chtype tile::get_img(){
 	} else if(my_feature != NULL){
 	
 	} else if(my_object != NULL){
-	
+		return comp(oclass[type].symbol, oclass[type].color);
 	} else {
 		return comp(tclass[type].symbol, tclass[type].color);
 	}
