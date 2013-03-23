@@ -43,25 +43,43 @@ string actor::get_name(){
 		return aclass[type].name;
 }
 
+// Move the actor to a new tile
+// Assumes the target tile has no actor already.
 void actor::move(pair<int,int> offset) {
 
-	map_current->tiles[x][y].my_actor = NULL;
-	
+	tile * old_tile = &map_current->tiles[x][y];
+	tile * new_tile = &map_current->tiles[x + offset.first][y + offset.second];
+
 	x += offset.first;
 	y += offset.second;
+	old_tile->my_actor = NULL;
+	new_tile->my_actor = this;
+
+	// If this tile has objects, print a message
+	if(!new_tile->my_objects.empty()) {
 	
-	map_current->tiles[x][y].my_actor = this;
-	
-	
+		if(new_tile->my_objects.size() == 1){
+		
+			object the_obj = new_tile->my_objects.back();
+			if(this == act_player) {
+				string out = "You see a " + color_string(the_obj.get_name(), oclass[the_obj.type].color) + " here.";
+				win_output->print(out);
+			}
+		} else {
+			win_output->print("There's a bunch of junk here.");
+		}
+	}
 }
 
+// Perform a basic attack at a specified tile
 void actor::attack(pair<int,int> offset) {
 	tile * place;
 	place = &map_current->tiles[x + offset.first][y + offset.second];
 	attack(place->my_actor);
 }
 
+// Perform a basic attack at a specified actor
 void actor::attack(actor * target){
-	string out = get_name() + color_string(" attack ", C_RED) + target->get_name();
+	string out = get_name() + color_string(" attack ", C_RED) + target->get_name() + ".";
 	win_output->print(out);
 }

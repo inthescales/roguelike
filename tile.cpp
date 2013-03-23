@@ -7,18 +7,17 @@
 tile::tile(short code){
 	type = code;
 
-	my_object = NULL;
 	my_actor = NULL;
 	my_feature = NULL;
 }
 
 chtype tile::get_img(){
 	if(my_actor != NULL){
-		return comp(aclass[my_actor->type].symbol, aclass[my_actor->type].color);
+		my_actor->get_img();
 	} else if(my_feature != NULL){
 	
-	} else if(my_object != NULL){
-		return comp(oclass[type].symbol, oclass[type].color);
+	} else if(!my_objects.empty()){
+		my_objects.back().get_img();
 	} else {
 		return comp(tclass[type].symbol, tclass[type].color);
 	}

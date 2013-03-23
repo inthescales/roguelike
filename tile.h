@@ -6,14 +6,18 @@
 #include "feature.h"
 #include "object.h"
 
+#include <vector>
+
+using namespace std;
+
 class tile{
 
 	public:
 	
 	int type;
-	object * my_object;
 	actor * my_actor;
 	feature * my_feature;
+	vector<object> my_objects;
 	
 	tile(short);
 	chtype get_img();
