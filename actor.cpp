@@ -60,9 +60,9 @@ void actor::move(pair<int,int> offset) {
 	
 		if(new_tile->my_objects.size() == 1){
 		
-			object the_obj = new_tile->my_objects.back();
+			object * the_obj = new_tile->my_objects.back();
 			if(this == act_player) {
-				string out = "You see a " + color_string(the_obj.get_name(), oclass[the_obj.type].color) + " here.";
+				string out = "You see a " + color_string(the_obj->get_name(), oclass[the_obj->type].color) + " here.";
 				win_output->print(out);
 			}
 		} else {
@@ -82,4 +82,25 @@ void actor::attack(pair<int,int> offset) {
 void actor::attack(actor * target){
 	string out = get_name() + color_string(" attack ", C_RED) + target->get_name() + ".";
 	win_output->print(out);
+}
+
+// Take an object from the ground, if able
+bool actor::take(object * target){
+	if(inventory.size() < MAX_INVENTORY){
+		get_item(target);
+		return true;
+	} else {
+		win_output->print("You cannot carry any more items.");
+		return false;
+	}
+}
+
+// Put an item into the actor's inventory, organized by type
+void actor::get_item(object * item){
+	
+	vector<object*>::iterator it = inventory.begin();
+	
+	for(; it != inventory.end() && (*it)->type > item->type; ++it);
+	
+	inventory.insert(it, item);
 }

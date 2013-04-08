@@ -8,12 +8,14 @@
 
 void init_game();
 void exit_game(int sig);
+void refresh_windows();
 
 // some globals:
 
 window * win_output;
 window * win_world;
 window * win_status;
+window * win_screen;
 
 buffer * buf_main;
 

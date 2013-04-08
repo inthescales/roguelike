@@ -9,6 +9,8 @@
 #include "window.h"
 #include "tileclass.h"
 
+#define MAX_INVENTORY 48
+
 /*
 int map_id = 1;
 object *letter[53];
@@ -18,6 +20,7 @@ object *letter[53];
 extern window * win_output;
 extern window * win_world;
 extern window * win_status;
+extern window * win_screen;
 
 extern buffer * buf_main;
 
