@@ -20,6 +20,7 @@ class window{
 	void clear();
 	void display_map(map *);
 	void display_status();
+	void display_inventory(actor &);
 	void print(string);
 	void print(string, buffer &);
 	void print_buf(buffer &);

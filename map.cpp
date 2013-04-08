@@ -65,7 +65,7 @@ void map::put_actor( int x, int y, actor * n){
 }*/
 
 void map::add_object( int x, int y, short code ){
-	tiles[x][y].my_objects.push_back( object( code ) );
+	tiles[x][y].my_objects.push_back( new object( code ) );
 }
 
 void map::add_feature( int x, int y, short code ){

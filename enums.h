@@ -15,7 +15,7 @@ enum direction {
 };
 
 //Equipment slots
-enum equipSlot {
+enum equip_slot {
 	ES_MAINHAND = 1,
 	ES_OFFHAND,
 	ES_HEAD,
@@ -27,6 +27,19 @@ enum equipSlot {
 	ES_RING2,
 	ES_AMULET,
 	ES_LIGHT
+};
+
+//Item types
+enum object_type {
+	OT_FOOD = 0,
+	OT_WEAPON,
+	OT_ARMOR,
+	OT_ACCESSORY,
+	OT_POTION,
+	OT_SCROLL,
+	OT_WAND,
+	OT_TOOL,
+	OT_MISC
 };
 
 //Color IDs

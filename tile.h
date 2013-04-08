@@ -17,12 +17,14 @@ class tile{
 	int type;
 	actor * my_actor;
 	feature * my_feature;
-	vector<object> my_objects;
+	vector<object*> my_objects;
 	
 	tile(short);
-	chtype get_img();
 	
 	bool can_walk();
+	
+	chtype get_img();
+	bool remove_object(object*);
 };
 
 #endif

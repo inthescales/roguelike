@@ -47,6 +47,24 @@ void window::display_status(){
 	printw("$%d", act_player->gold);
 }
 
+// Display actor's inventory
+void window::display_inventory(actor & act){
+
+	clear();
+	
+	vector<object*>::iterator it = act.inventory.begin();
+	
+	int i = 3, j = 3;
+	string s;
+	
+	for(; it != act.inventory.end(); ++it){
+		move(y + j++, x + i);
+		
+		s = (*it)->get_name();
+		printw("%s", s.c_str());
+	}
+}
+
 // Print a string
 void window::print(string text){
 	print(text, *buf_main);
@@ -63,6 +81,7 @@ void window::print(string text, buffer & buf){
 
 // Print as much of the buffer as will fit in this window
 void window::print_buf(buffer & buf){
+
 	int screen_pointer = 0, buffer_pointer = 0;
 	
 	while(buffer_pointer < buf.size()){
@@ -74,7 +93,6 @@ void window::print_buf(buffer & buf){
 			print_line(cut[i], height - screen_pointer++ - 1);
 		}
 	}
-	
 }
 
 void window::print_line(string in, int pos){
@@ -91,5 +109,4 @@ void window::print_line(string in, int pos){
 			addch(in.at(i) | color_value[color]);
 		}
 	}
-
 }

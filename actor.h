@@ -26,7 +26,7 @@ class actor {
 	short level;
 	
 	// inventory
-	//std::vector<object> inv;
+	std::vector<object*> inventory;
 	//std::map<int, object> equip;
 	long gold;
 	
@@ -43,12 +43,13 @@ class actor {
 	void move(std::pair<int,int>);
 	void attack(std::pair<int,int>);
 	void attack(actor *);
-	void get(object);
+	void get_item(object *);
 	//void drop(object);
 	//void eat(object);
 	//void drink(object);
 	void open(int, int);
 	void close(int, int);
+	bool take(object *);
 	//void use(object, int, int);
 	//void equip(object);
 	//void unequip(object);

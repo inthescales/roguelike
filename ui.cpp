@@ -3,6 +3,7 @@
 #include "actor.h"
 #include "globals.h"
 #include "map.h"
+#include "stringutils.h"
 #include "tile.h"
 #include "ui.h"
 
@@ -21,6 +22,11 @@ void UI::get_action(){
 		case '0' + 9:
 			command_move(input - '0');
 			break;
+		case ',':
+			command_take();
+			break;
+		case 'i':
+			command_inventory();
 		case 's':
 		case '.':
 		default:
@@ -35,6 +41,11 @@ int UI::get_input(){
 	
 	return input;
 
+}
+
+bool UI::command_inventory(){
+	win_screen->display_inventory(*act_player);
+	getch();
 }
 
 bool UI::command_move(int dir){
@@ -55,7 +66,33 @@ bool UI::command_move(int dir){
 		controlled->move(offset);
 	else if(action == UIA_ATTACK)
 		controlled->attack(offset);
+		
+	return true;	
+}
+
+bool UI::command_take(){
+	actor * controlled = act_player;
 	
+	tile * current = &map_current->tiles[controlled->x][controlled->y];
+	bool ok = true;
+	
+	if(current->my_objects.empty()){
+		win_output->print("There is nothing here to take.");
+	} else {
+		if(current->my_objects.size() == 1){
+			object * target = current->my_objects.back();
+			ok = controlled->take(target);
+			current->remove_object(target);
+			if (ok) {
+				win_output->print("You take the " + color_string(target->get_name(), oclass[target->type].color) + ".");
+			}
+		} else {
+			win_output->print("There are many items here.");
+			ok = false;
+		}
+	}
+	
+	return ok;
 }
 
 std::pair<int,int> UI::dir_to_offset(int dir){

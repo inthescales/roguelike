@@ -34,7 +34,7 @@ int main(void){
 }
 
 // Initialize the starting game state
-void init_game(){
+void init_game() {
 
 	turn = 0;
 	map_current = new map(60, 32, 2, 1, NULL);
@@ -51,6 +51,14 @@ void init_game(){
 	
 	refresh();
 	//point_curs(act_player);
+}
+
+// Redraw the main gameplay screen
+void redraw_windows() {
+
+	win_output->print_buf(*buf_main);
+	win_world->display_map(map_current);
+	win_status->display_status();
 }
 
 // Shut everything down and exit
