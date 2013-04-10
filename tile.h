@@ -21,6 +21,7 @@ class tile{
 	
 	tile(short);
 	
+	// Fancy getters
 	bool can_walk();
 	
 	chtype get_img();

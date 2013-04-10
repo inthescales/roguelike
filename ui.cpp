@@ -23,7 +23,7 @@ void UI::get_action(){
 			command_move(input - '0');
 			break;
 		case ',':
-			command_take();
+			command_pick_up();
 			break;
 		case 'i':
 			command_inventory();
@@ -70,29 +70,49 @@ bool UI::command_move(int dir){
 	return true;	
 }
 
-bool UI::command_take(){
+bool UI::command_pick_up(){
 	actor * controlled = act_player;
 	
 	tile * current = &map_current->tiles[controlled->x][controlled->y];
 	bool ok = true;
 	
 	if(current->my_objects.empty()){
+	
 		win_output->print("There is nothing here to take.");
 	} else {
 		if(current->my_objects.size() == 1){
+		
 			object * target = current->my_objects.back();
-			ok = controlled->take(target);
-			current->remove_object(target);
-			if (ok) {
-				win_output->print("You take the " + color_string(target->get_name(), oclass[target->type].color) + ".");
-			}
+			bool ok = command_pick_up_helper(current->my_objects.back());
+			if(ok) act_player->pick_up(target, current);
 		} else {
+		
 			win_output->print("There are many items here.");
 			ok = false;
 		}
 	}
 	
 	return ok;
+}
+
+bool UI::command_pick_up_helper(object * target){
+
+	int cond = 1;
+	if(act_player->inventory.size() >= MAX_INVENTORY){
+		cond = -1;
+	}
+	
+	switch(cond){
+		case 1:
+			win_output->print("You take the " + color_string(target->get_name(), oclass[target->type].color) + ".");
+			return true;
+		case -1:
+			win_output->print("You cannot carry any more items.");
+			return false;
+		default:
+			return false;
+	}
+
 }
 
 std::pair<int,int> UI::dir_to_offset(int dir){

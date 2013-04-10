@@ -8,9 +8,13 @@
 #include <utility> //pair
 #include <vector>
 
-#include "object.h"
+//#include "object.h"
 //#include "map.h"
 //#include "stair.h"
+//#include "tile.h"
+
+class object;
+class tile;
 
 class actor {
 
@@ -49,7 +53,7 @@ class actor {
 	//void drink(object);
 	void open(int, int);
 	void close(int, int);
-	bool take(object *);
+	bool pick_up(object *, tile *);
 	//void use(object, int, int);
 	//void equip(object);
 	//void unequip(object);
