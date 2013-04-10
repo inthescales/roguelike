@@ -17,7 +17,8 @@ class UI {
 	
 	static bool command_inventory();
 	static bool command_move(int);
-	static bool command_take();
+	static bool command_pick_up();
+	static bool command_pick_up_helper(object *);
 	
 	static std::pair<int,int> dir_to_offset(int);
 	

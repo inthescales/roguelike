@@ -1,3 +1,5 @@
+#include "curses.h"
+
 #include "globals.h"
 #include "stringutils.h"
 #include "window.h"
@@ -50,6 +52,7 @@ void window::display_status(){
 // Display actor's inventory
 void window::display_inventory(actor & act){
 
+	curs_set(0);
 	clear();
 	
 	vector<object*>::iterator it = act.inventory.begin();
@@ -58,11 +61,13 @@ void window::display_inventory(actor & act){
 	string s;
 	
 	for(; it != act.inventory.end(); ++it){
+	
 		move(y + j++, x + i);
-		
 		s = (*it)->get_name();
 		printw("%s", s.c_str());
 	}
+	
+	curs_set(1);
 }
 
 // Print a string

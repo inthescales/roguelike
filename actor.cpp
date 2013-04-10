@@ -85,14 +85,12 @@ void actor::attack(actor * target){
 }
 
 // Take an object from the ground, if able
-bool actor::take(object * target){
-	if(inventory.size() < MAX_INVENTORY){
-		get_item(target);
-		return true;
-	} else {
-		win_output->print("You cannot carry any more items.");
-		return false;
-	}
+bool actor::pick_up(object * target, tile * place){
+	
+	get_item(target);
+	place->remove_object(target);
+	
+	return true;
 }
 
 // Put an item into the actor's inventory, organized by type
