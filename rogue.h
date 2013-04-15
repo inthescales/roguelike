@@ -8,7 +8,6 @@
 
 void init_game();
 void exit_game(int sig);
-void refresh_windows();
 
 // some globals:
 

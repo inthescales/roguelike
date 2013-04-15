@@ -21,6 +21,8 @@ class UI {
 	static bool command_pick_up_helper(object *);
 	
 	static std::pair<int,int> dir_to_offset(int);
+	static char int_to_letter(int);
+	static int letter_to_int(char);
 	
 };
 

@@ -7,6 +7,7 @@
 
 objclass oclass[] = {
 
-	OBJ("burrito", '%', C_BROWN, OT_FOOD, MAT_VEGETATION, 1, 5)
+	OBJ("bread ration", '%', C_BROWN, OT_FOOD, MAT_VEGETATION, 1, 5),
+	OBJ("dagger", '(', C_GRAY, OT_WEAPON, MAT_METAL, 2, 8)
 	
 };

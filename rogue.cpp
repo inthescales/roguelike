@@ -20,6 +20,7 @@ int main(void){
 		curs_set(1);
 		win_world->display_map(map_current);
 		win_status->display_status();
+		win_output->print_buf(*buf_main);
 		
 		move(act_player->y - scrn_y + win_world->y, act_player->x - scrn_x + win_world->x);
 
@@ -43,6 +44,21 @@ void init_game() {
 	map_current->put_actor( 18, 18, act_player);
 	map_current->put_actor( 20, 20, new actor(1));
 	map_current->add_object( 10, 10, 0 );
+	map_current->add_object( 10, 10, 1 );
+	map_current->add_object( 10, 10, 0 );
+	map_current->add_object( 10, 10, 1 );
+	map_current->add_object( 10, 10, 0 );
+	map_current->add_object( 10, 10, 1 );
+	map_current->add_object( 10, 10, 0 );
+	map_current->add_object( 10, 10, 1 );
+	map_current->add_object( 10, 10, 0 );
+	map_current->add_object( 10, 10, 1 );
+	map_current->add_object( 10, 10, 0 );
+	map_current->add_object( 10, 10, 1 );
+	map_current->add_object( 10, 10, 0 );
+	map_current->add_object( 10, 10, 1 );
+	map_current->add_object( 10, 10, 0 );
+	map_current->add_object( 10, 10, 1 );
 	
 	win_world->display_map(map_current);
 	win_status->display_status();

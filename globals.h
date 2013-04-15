@@ -47,4 +47,7 @@ extern struct tileclass tclass[];
 // Color setup
 extern int color_value[];
 
+// Functions of general use
+void redraw_windows();
+
 #endif

@@ -86,8 +86,15 @@ bool UI::command_pick_up(){
 			bool ok = command_pick_up_helper(current->my_objects.back());
 			if(ok) act_player->pick_up(target, current);
 		} else {
-		
-			win_output->print("There are many items here.");
+			
+			vector<object*> selected = win_screen->menu_select_objects(current->my_objects);
+			bool going = true;
+			while(going && !selected.empty()){
+				going = command_pick_up_helper(selected.back());
+				if(going) act_player->pick_up(selected.back(), current);
+				selected.pop_back();
+			}
+			redraw_windows();
 			ok = false;
 		}
 	}
@@ -129,3 +136,16 @@ std::pair<int,int> UI::dir_to_offset(int dir){
 	return r;
 }
 
+char UI::int_to_letter(int in){
+	if(in < 'z' - 'a')
+		return 'a' + in;
+	else
+		return 'A' + (in - ('z' -'a'));
+}
+
+int UI::letter_to_int(char in){
+	if(in >= 'a' && in <= 'z')
+		return in - 'a';
+	else if(in >= 'A' && in <= 'Z')
+		return in - 'A' + ('z' - 'a');
+}

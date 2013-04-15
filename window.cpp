@@ -2,6 +2,7 @@
 
 #include "globals.h"
 #include "stringutils.h"
+#include "ui.h"
 #include "window.h"
 
 using namespace std;
@@ -114,4 +115,64 @@ void window::print_line(string in, int pos){
 			addch(in.at(i) | color_value[color]);
 		}
 	}
+}
+
+// MENUS (interactive) ============================================
+
+vector<object*> window::menu_select_objects(vector<object*> & items){
+	curs_set(0);
+	
+	int index = 0, x = 3, y = 3;
+	int start = 0, winsize = 10;
+	const chtype sym[] = {'-', '+'};
+	int input;
+	vector<bool> selected(items.size(), false);
+	vector<object*> ret;
+	
+	
+	while(true){
+	
+		clear();
+		move(y, x);
+		printw("Select some items:");
+		
+		for(int i = start; i - start < winsize && i < items.size(); ++i){
+		
+			move(y + i - start + 1, x - 2);
+			printw("%c ", UI::int_to_letter(i));
+			addch(sym[selected[i]]);
+			printw(" %s", items[i]->get_name().c_str());
+		}
+		
+		input = wgetch(stdscr);
+		
+		if((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z')){
+		
+			selected[UI::letter_to_int(input)] = !selected[UI::letter_to_int(input)];				
+		} else {
+		
+			switch(input){
+				case 10:			
+					for(int j = 0; j < items.size(); ++j)
+						if(selected[j])
+							ret.push_back(items[j]);
+					return ret;
+				case 27:
+					return ret;
+				case KEY_UP:
+					if(start > 0)
+						start -= 1;
+					break;
+				case KEY_DOWN:
+					if(start + winsize < items.size())
+						start += 1;
+					break;
+				default:
+					break;
+			}
+		}
+		
+	}
+		
+	curs_set(1);
 }
