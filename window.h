@@ -12,6 +12,8 @@ using namespace std;
 
 typedef vector<string> buffer;
 
+class object;
+
 class window{
 
 	public:
@@ -25,6 +27,7 @@ class window{
 	void print(string, buffer &);
 	void print_buf(buffer &);
 	void print_line(string, int);
+	vector<object*> menu_select_objects(vector<object*> &);
 	
 	int x, y, width, height;
 
