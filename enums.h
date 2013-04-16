@@ -39,6 +39,7 @@ enum object_type {
 	OT_SCROLL,
 	OT_WAND,
 	OT_TOOL,
+	OT_COIN,
 	OT_MISC
 };
 

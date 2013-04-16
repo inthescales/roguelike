@@ -27,6 +27,10 @@ void UI::get_action(){
 			break;
 		case 'i':
 			command_inventory();
+			break;
+		case 'd':
+			command_drop();
+			break;
 		case 's':
 		case '.':
 		default:
@@ -42,6 +46,8 @@ int UI::get_input(){
 	return input;
 
 }
+
+// COMMANDS ==============================================
 
 bool UI::command_inventory(){
 	win_screen->display_inventory(*act_player);
@@ -71,8 +77,8 @@ bool UI::command_move(int dir){
 }
 
 bool UI::command_pick_up(){
+
 	actor * controlled = act_player;
-	
 	tile * current = &map_current->tiles[controlled->x][controlled->y];
 	bool ok = true;
 	
@@ -87,7 +93,7 @@ bool UI::command_pick_up(){
 			if(ok) act_player->pick_up(target, current);
 		} else {
 			
-			vector<object*> selected = win_screen->menu_select_objects(current->my_objects);
+			vector<object*> selected = win_screen->menu_select_objects(current->my_objects, true);
 			bool going = true;
 			while(going && !selected.empty()){
 				going = command_pick_up_helper(selected.back());
@@ -100,6 +106,24 @@ bool UI::command_pick_up(){
 	}
 	
 	return ok;
+}
+
+bool UI::command_drop(){
+
+	actor * controlled = act_player;
+	tile * current = &map_current->tiles[controlled->x][controlled->y];
+	
+	if( !(controlled->inventory.empty() && controlled->gold == 0) ){
+	
+		vector<object*> items = prompt_inventory(controlled, "Drop what?", false, true);
+		if(items.size() > 0){
+		
+			for(int i = 0; i < items.size(); ++i){
+				controlled->drop(items[i], current);
+			}
+		} else win_output->print("Nevermind");
+		
+	} else win_output->print("You have nothing to drop.");
 }
 
 bool UI::command_pick_up_helper(object * target){
@@ -122,6 +146,52 @@ bool UI::command_pick_up_helper(object * target){
 
 }
 
+// PROMPTS =========================================
+
+vector<object*> UI::prompt_inventory(actor * controlled, string prompt, bool allow_multi, bool allow_gold){
+
+	int input;
+	vector<object*> ret;
+	
+	win_output->print(prompt);
+			
+	while(true){
+		input = wgetch(stdscr);
+		
+		if(input == '$' && allow_gold){
+			ret.push_back(prompt_gold_to_object(controlled));
+			return ret;
+		} else if(input == '*'){
+			ret = win_screen->menu_select_objects(controlled->inventory, true);
+			return ret;
+		} else if(input == 27){
+			return ret;
+		} else {
+			//query inventory for letter
+			return ret;
+		}
+	}
+}
+
+object * UI::prompt_gold_to_object(actor * controlled){
+
+	int amount;
+	
+	win_output->print("How much? (have ???)");
+	scanf("%d", &amount);
+	
+	if(amount > controlled->gold){
+		win_output->print("You don't have that much.");
+		return NULL;
+	} else {
+		object * ret = new object(3, amount);
+		controlled->gold -= amount;
+		return ret;
+	}
+}
+
+// UTILITIES =======================================
+
 std::pair<int,int> UI::dir_to_offset(int dir){
 	std::pair<int, int> r;
 
@@ -137,10 +207,11 @@ std::pair<int,int> UI::dir_to_offset(int dir){
 }
 
 char UI::int_to_letter(int in){
-	if(in < 'z' - 'a')
+	if(in >= 0 && in < 'z' - 'a')
 		return 'a' + in;
-	else
+	else if(in > 'z' && in < 'Z' - 'A')
 		return 'A' + (in - ('z' -'a'));
+	else return 0;
 }
 
 int UI::letter_to_int(char in){
@@ -148,4 +219,5 @@ int UI::letter_to_int(char in){
 		return in - 'a';
 	else if(in >= 'A' && in <= 'Z')
 		return in - 'A' + ('z' - 'a');
+	else return 0;
 }

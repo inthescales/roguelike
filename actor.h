@@ -48,12 +48,14 @@ class actor {
 	void attack(std::pair<int,int>);
 	void attack(actor *);
 	void get_item(object *);
-	//void drop(object);
+	bool remove_object(object * item);
+	
+	bool pick_up(object *, tile *);
+	bool drop(object *, tile*);
 	//void eat(object);
 	//void drink(object);
 	void open(int, int);
 	void close(int, int);
-	bool pick_up(object *, tile *);
 	//void use(object, int, int);
 	//void equip(object);
 	//void unequip(object);
