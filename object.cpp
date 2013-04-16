@@ -2,10 +2,12 @@
 #include "graphics.h"
 #include "object.h"
 
-object::object(short code){
+object::object(short code) : type(code), quantity(1) {
 
-	type = code;
-	quantity = 1;
+}
+
+object::object(short code, short quant) : type(code), quantity(quant) {
+
 }
 
 string object::get_name(){

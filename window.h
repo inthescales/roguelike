@@ -27,7 +27,7 @@ class window{
 	void print(string, buffer &);
 	void print_buf(buffer &);
 	void print_line(string, int);
-	vector<object*> menu_select_objects(vector<object*> &);
+	vector<object*> menu_select_objects(vector<object*> &, bool);
 	
 	int x, y, width, height;
 

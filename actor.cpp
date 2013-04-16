@@ -13,6 +13,8 @@
 //#include "tileclass.h"
 #include "window.h"
 
+#include <algorithm>
+
 using namespace std;
 
 #define SET_SYMBOL(O,S,C) O->img = S|C
@@ -93,6 +95,16 @@ bool actor::pick_up(object * target, tile * place){
 	return true;
 }
 
+bool actor::drop(object * target, tile * place){
+	
+	remove_object(target);
+	place->my_objects.push_back(target);
+	
+	return true;
+}
+
+// NON-COMMANDS ============================================
+
 // Put an item into the actor's inventory, organized by type
 void actor::get_item(object * item){
 	
@@ -101,4 +113,12 @@ void actor::get_item(object * item){
 	for(; it != inventory.end() && (*it)->type > item->type; ++it);
 	
 	inventory.insert(it, item);
+}
+
+bool actor::remove_object(object * item){
+	
+	vector<object*>::iterator it = std::find( inventory.begin(), inventory.end(), item);
+	inventory.erase(it);
+	
+	return true;
 }

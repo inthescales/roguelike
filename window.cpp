@@ -119,7 +119,7 @@ void window::print_line(string in, int pos){
 
 // MENUS (interactive) ============================================
 
-vector<object*> window::menu_select_objects(vector<object*> & items){
+vector<object*> window::menu_select_objects(vector<object*> & items, bool multi){
 	curs_set(0);
 	
 	int index = 0, x = 3, y = 3;
@@ -138,7 +138,7 @@ vector<object*> window::menu_select_objects(vector<object*> & items){
 		
 		for(int i = start; i - start < winsize && i < items.size(); ++i){
 		
-			move(y + i - start + 1, x - 2);
+			move(y + i - start + 1, x);
 			printw("%c ", UI::int_to_letter(i));
 			addch(sym[selected[i]]);
 			printw(" %s", items[i]->get_name().c_str());
