@@ -1,9 +1,12 @@
 #include "curses.h"
 
 #include "globals.h"
+#include "graphics.h"
 #include "stringutils.h"
 #include "ui.h"
 #include "window.h"
+
+#include <algorithm>
 
 using namespace std;
 
@@ -56,17 +59,67 @@ void window::display_inventory(actor & act){
 	curs_set(0);
 	clear();
 	
-	vector<object*>::iterator it = act.inventory.begin();
+	int index = 0, tx = x + 3, ty = y + 3;
+	int start = 0, winsize = 10;
+	int input, headers;
+	vector<object*> items = act_player->inventory;
 	
-	int i = 3, j = 3;
-	string s;
+	while(true){
 	
-	for(; it != act.inventory.end(); ++it){
+		clear();
+		move(ty++, tx);
+		printw("Inventory:");
+		
+		headers = 0;
+		for(int i = start; i - start < winsize && i < items.size(); ++i){
+		
+			if(i == start || oclass[items[i]->type].type != oclass[items[i-1]->type].type){
+				//We need to print a header
+				printcolor(tx, ty + i + headers++ - start, color_string(str_obj_type[oclass[items[i]->type].type], C_YELLOW));
+			}
+			move(ty + i + headers - start, tx);
+			printw("%c - %s", items[i]->letter, items[i]->get_name().c_str());
+			if(items[i]->equipped == true)
+				printw(" (equipped)");
+		}
 	
-		move(y + j++, x + i);
-		s = (*it)->get_name();
-		printw("%s", s.c_str());
+		input = wgetch(stdscr);
+		
+		switch(input){
+			case KEY_UP:
+				if(start > 0)
+					start -= 1;
+				break;
+			case KEY_DOWN:
+				if(start + winsize < items.size())
+					start += 1;
+				break;
+			default:
+				return;
+		}
+	}	
+	
+	curs_set(1);
+}
+
+void window::display_equipment(actor & act){
+
+	curs_set(0);
+	clear();
+	
+	int tx = x + 3, ty = y + 3;
+	
+	move(ty++, tx);
+	printw("Equipped items:");
+	
+	for(int i = 0; i < ES_MAX; ++i){
+		
+		string name = act.equipped_item[i] != NULL ? act.equipped_item[i]->get_name() : "(empty)";
+		printcolor(tx, ty + i, color_string(str_eq_slot[i] + ": ", C_YELLOW) );
+		printcolor(tx + 10, ty + i, name);
 	}
+	
+	getch();
 	
 	curs_set(1);
 }
@@ -102,33 +155,25 @@ void window::print_buf(buffer & buf){
 }
 
 void window::print_line(string in, int pos){
-	int len = in.size();
-	int color = C_WHITE;
 
-	move(y + pos, x);
-	for(int i = 0; i < len; ++i){
-	
-		if(in.at(i) == '|'){ 
-			color = in.at(i+1);
-			++i;
-		} else {
-			addch(in.at(i) | color_value[color]);
-		}
-	}
+	printcolor(x, y + pos, in);
 }
 
 // MENUS (interactive) ============================================
 
-vector<object*> window::menu_select_objects(vector<object*> & items, bool multi){
+vector<object*> window::menu_select_objects(vector<object*> & items, bool multi, bool sort){
 	curs_set(0);
 	
 	int index = 0, x = 3, y = 3;
 	int start = 0, winsize = 10;
 	const chtype sym[] = {'-', '+'};
-	int input;
+	int input, headers;
 	vector<bool> selected(items.size(), false);
 	vector<object*> ret;
 	
+	if(sort){
+		std::sort(items.begin(), items.end(), object::compare_type);
+	}
 	
 	while(true){
 	
@@ -136,9 +181,14 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi)
 		move(y, x);
 		printw("Select some items:");
 		
+		headers = 0;
 		for(int i = start; i - start < winsize && i < items.size(); ++i){
 		
-			move(y + i - start + 1, x);
+			if(i == start || oclass[items[i]->type].type != oclass[items[i-1]->type].type){
+				//We need to print a header
+				printcolor(x, y + i + headers++ - start + 1, color_string(str_obj_type[items[i]->type], C_YELLOW));
+			}
+			move(y + i + headers - start + 1, x);
 			printw("%c ", UI::int_to_letter(i));
 			addch(sym[selected[i]]);
 			printw(" %s", items[i]->get_name().c_str());

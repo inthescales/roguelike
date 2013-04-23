@@ -23,6 +23,8 @@ void setup(){
 	noecho();
 	curs_set(1);
 	srand( time( NULL ) );
+	
+	for(int i = 0; i < 52; ++i) obj_letter[i] = NULL;
 }
 
 void setup_window(){

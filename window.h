@@ -23,11 +23,12 @@ class window{
 	void display_map(map *);
 	void display_status();
 	void display_inventory(actor &);
+	void display_equipment(actor &);
 	void print(string);
 	void print(string, buffer &);
 	void print_buf(buffer &);
 	void print_line(string, int);
-	vector<object*> menu_select_objects(vector<object*> &, bool);
+	vector<object*> menu_select_objects(vector<object*> &, bool, bool);
 	
 	int x, y, width, height;
 

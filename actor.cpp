@@ -1,19 +1,16 @@
 #include "actor.h"
-//#include "ai.h"
-//#include "feature.h"
-//#include "featclass.h"
 #include "globals.h"
 #include "graphics.h"
-//#include "load.h"
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
 #include "stringutils.h"
 #include "tile.h"
-//#include "tileclass.h"
+#include "ui.h"
 #include "window.h"
 
 #include <algorithm>
+#include <sstream>
 
 using namespace std;
 
@@ -29,6 +26,10 @@ actor::actor(short code){
 	level = 1;
 	maxHP = HP = 5;
 	gold = 0;
+	
+	for(int i = 0; i < ES_MAX; ++i){
+		equipped_item[i] = NULL;
+	}
 	
 	state = 0; //STATE_STAND;
 	
@@ -64,11 +65,13 @@ void actor::move(pair<int,int> offset) {
 		
 			object * the_obj = new_tile->my_objects.back();
 			if(this == act_player) {
-				string out = "You see a " + color_string(the_obj->get_name(), oclass[the_obj->type].color) + " here.";
+				string out = "You see a " + the_obj->get_name_color() + " here.";
 				win_output->print(out);
 			}
 		} else {
-			win_output->print("There's a bunch of junk here.");
+			ostringstream convert;
+			convert << new_tile->my_objects.size();
+			win_output->print("There are " + convert.str() + " objects here.");
 		}
 	}
 }
@@ -103,6 +106,27 @@ bool actor::drop(object * target, tile * place){
 	return true;
 }
 
+bool actor::equip(object * item, int slot){
+
+	equipped_item[slot] = item;
+	item->equipped = 1;
+}
+
+bool actor::unequip(object * item){
+
+	for(int i = 0; i < ES_MAX; ++i){
+		
+		if(equipped_item[i] == item){
+		
+			equipped_item[i] = NULL;
+			item->equipped = 0;
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 // NON-COMMANDS ============================================
 
 // Put an item into the actor's inventory, organized by type
@@ -110,13 +134,22 @@ void actor::get_item(object * item){
 	
 	vector<object*>::iterator it = inventory.begin();
 	
-	for(; it != inventory.end() && (*it)->type > item->type; ++it);
+	for(; it != inventory.end() && (*it)->type < item->type; ++it);
+	
+	if(this == act_player){
+		char c = UI::get_next_letter();
+	
+		item->letter = c;
+		obj_letter[UI::letter_to_int(c)] = item;
+	}
 	
 	inventory.insert(it, item);
 }
 
 bool actor::remove_object(object * item){
 	
+	obj_letter[item->letter] = NULL;
+	item->letter = 0;
 	vector<object*>::iterator it = std::find( inventory.begin(), inventory.end(), item);
 	inventory.erase(it);
 	
