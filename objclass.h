@@ -19,6 +19,7 @@ class objclass {
 	bool known;
 	
 	object_type type;
+	object_subtype subtype;
 	short material;
 	int weight;
 	int value;

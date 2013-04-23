@@ -7,6 +7,8 @@
 #include "tile.h"
 #include "ui.h"
 
+#include <sstream>
+
 void UI::get_action(){
 
 	int input = get_input();
@@ -27,6 +29,15 @@ void UI::get_action(){
 			break;
 		case 'i':
 			command_inventory();
+			break;
+		case 'E':
+			command_equipment();
+			break;
+		case 'e':
+			command_equip();
+			break;
+		case 'u':
+			command_unequip();
 			break;
 		case 'd':
 			command_drop();
@@ -51,7 +62,10 @@ int UI::get_input(){
 
 bool UI::command_inventory(){
 	win_screen->display_inventory(*act_player);
-	getch();
+}
+
+bool UI::command_equipment(){
+	win_screen->display_equipment(*act_player);
 }
 
 bool UI::command_move(int dir){
@@ -76,6 +90,10 @@ bool UI::command_move(int dir){
 	return true;	
 }
 
+/*
+	Pick one or more objects up from the ground.
+	Multiple pickup broken by: weight, slots.
+*/
 bool UI::command_pick_up(){
 
 	actor * controlled = act_player;
@@ -84,28 +102,75 @@ bool UI::command_pick_up(){
 	
 	if(current->my_objects.empty()){
 	
+		// If no objects
 		win_output->print("There is nothing here to take.");
 	} else {
 		if(current->my_objects.size() == 1){
-		
+
+			// Take a single object		
+			string error;
+
 			object * target = current->my_objects.back();
-			bool ok = command_pick_up_helper(current->my_objects.back());
-			if(ok) act_player->pick_up(target, current);
+			error = command_pick_up_helper(current->my_objects.back());
+			if( error == ""){
+				act_player->pick_up(target, current);
+				win_output->print("You take " + target->get_name_color() + ".");
+			} else {
+				win_output->print(error);
+			}
 		} else {
 			
-			vector<object*> selected = win_screen->menu_select_objects(current->my_objects, true);
-			bool going = true;
-			while(going && !selected.empty()){
-				going = command_pick_up_helper(selected.back());
-				if(going) act_player->pick_up(selected.back(), current);
-				selected.pop_back();
+			// Take multiple objects
+			vector<object*> selected = win_screen->menu_select_objects(current->my_objects, true, true);
+			string error = "";
+			string out_string = "";
+			int taken = 0;
+			
+			while(error == "" && !selected.empty()){
+			
+				error = command_pick_up_helper(selected.back());
+				if(error == "") {
+				
+					act_player->pick_up(selected.back(), current);
+					
+					if(taken++ > 0) out_string += ", ";
+					out_string += selected.back()->get_name_color();
+					selected.pop_back();
+				}
 			}
+			
+			if(taken == 0) win_output->print(error);
+			else if(taken == 1) win_output->print("You take " + out_string);
+			else if(taken > 1) win_output->print("You take: " + out_string);
+			
 			redraw_windows();
 			ok = false;
 		}
 	}
 	
 	return ok;
+}
+
+/*
+	Checks whether you are able to pick up a particular item. Returns appropriate
+	error messages.
+*/
+string UI::command_pick_up_helper(object * target){
+
+	int cond = 1;
+	if(act_player->inventory.size() >= MAX_INVENTORY){
+		cond = -1;
+	}
+	
+	switch(cond){
+		case 1:
+			return "";
+		case -1:
+			return "You cannot carry any more items.";
+		default:
+			return "SOMETHING WENT WRONG!";
+	}
+
 }
 
 bool UI::command_drop(){
@@ -121,33 +186,91 @@ bool UI::command_drop(){
 			for(int i = 0; i < items.size(); ++i){
 				controlled->drop(items[i], current);
 			}
+			
+			if(items.size() == 1){
+				win_output->print("You drop the " + items.back()->get_name_color() + ".");
+			} else {
+				ostringstream convert;
+				convert << items.size();
+				win_output->print("You drop " + convert.str() + " objects.");
+			}
 		} else win_output->print("Nevermind");
 		
 	} else win_output->print("You have nothing to drop.");
 }
 
-bool UI::command_pick_up_helper(object * target){
-
-	int cond = 1;
-	if(act_player->inventory.size() >= MAX_INVENTORY){
-		cond = -1;
-	}
+bool UI::command_equip(){
 	
-	switch(cond){
-		case 1:
-			win_output->print("You take the " + color_string(target->get_name(), oclass[target->type].color) + ".");
-			return true;
-		case -1:
-			win_output->print("You cannot carry any more items.");
-			return false;
-		default:
-			return false;
+	actor * controlled = act_player;
+	object * item = prompt_inventory(controlled, "Equip what?", false, false).back();
+	
+	if(item != NULL){
+	
+		int slot = type_to_slot(oclass[item->type].type, oclass[item->type].subtype);
+		
+		if(slot != -1){
+		
+			if(slot == ES_RING1 && controlled->equipped_item[ES_RING1] != NULL){
+				slot = ES_RING2;
+			}
+			
+			if(controlled->equipped_item[slot] != NULL){
+				bool temp = prompt_yesno("Replace " + controlled->equipped_item[slot]->get_name() + "?");
+				if(temp){
+					controlled->unequip(item);
+					win_output->print("Unequipped " + item->get_name());
+				} else {
+					win_output->print("Nevermind");
+					return false;
+				}
+			}
+			
+			controlled->equip(item, slot);
+			win_output->print("Equipped " + item->get_name());
+		}
 	}
+}
 
+bool UI::command_unequip(){
+
+	actor * controlled = act_player;
+	object * item = prompt_inventory(controlled, "Unequip what?", false, false).back();
+	
+	if(item != NULL){
+		
+		if(item->equipped){
+			controlled->unequip(item);
+			win_output->print("Unequipped " + item->get_name());
+			return true;
+		} else {
+			win_output->print("That item is not equipped.");
+			return false;
+		}
+	}
 }
 
 // PROMPTS =========================================
 
+/*
+	Prompt for a yes/no question
+*/
+bool UI::prompt_yesno(string prompt){
+
+	win_output->print(prompt + "(y/n)");
+	
+	char r = ' ';
+	
+	while(r != 'y' && r != 'n'){
+		r = getch();
+	}
+	
+	return r == 'y';
+}
+
+/*
+	Prompt the user for a letter to select an item. $ creates a gold object, * opens
+	inventory for viewing (and multi-select, for now)
+*/
 vector<object*> UI::prompt_inventory(actor * controlled, string prompt, bool allow_multi, bool allow_gold){
 
 	int input;
@@ -162,12 +285,14 @@ vector<object*> UI::prompt_inventory(actor * controlled, string prompt, bool all
 			ret.push_back(prompt_gold_to_object(controlled));
 			return ret;
 		} else if(input == '*'){
-			ret = win_screen->menu_select_objects(controlled->inventory, true);
+			ret = win_screen->menu_select_objects(controlled->inventory, true, true);
 			return ret;
 		} else if(input == 27){
 			return ret;
 		} else {
-			//query inventory for letter
+			int slot = letter_to_int(input);
+			if(slot != -1 && obj_letter[slot] != NULL)
+				ret.push_back(obj_letter[slot]);
 			return ret;
 		}
 	}
@@ -177,7 +302,7 @@ object * UI::prompt_gold_to_object(actor * controlled){
 
 	int amount;
 	
-	win_output->print("How much? (have ???)");
+	win_output->print("How much? (have ?)");
 	scanf("%d", &amount);
 	
 	if(amount > controlled->gold){
@@ -219,5 +344,54 @@ int UI::letter_to_int(char in){
 		return in - 'a';
 	else if(in >= 'A' && in <= 'Z')
 		return in - 'A' + ('z' - 'a');
-	else return 0;
+	else return -1;
+}
+
+char UI::get_next_letter(){
+
+	int i;
+	for(i = 0; obj_letter[i] != 0 && i < 52; ++i);
+	
+	if(i == 52) return 0;
+	
+	return int_to_letter(i);
+}
+
+int UI::type_to_slot(int type, int subtype){
+	if(type == OT_WEAPON){
+		return ES_MAINHAND;
+	} else if(type == OT_ARMOR){
+		switch(subtype){
+			case OST_HAT:
+			case OST_HELM:
+				return ES_HEAD;
+			case OST_SUIT:
+				return ES_BODY;
+			case OST_CLOAK:
+				return ES_BACK;
+			case OST_GLOVES:
+				return ES_HANDS;
+			case OST_BOOTS:
+				return ES_FEET;
+			default:
+				return -1;
+		}
+	} else if(type == OT_ACCESSORY){
+		switch(subtype){
+			case OST_RING:
+				return ES_RING1;
+			case OST_AMULET:
+				return ES_AMULET;
+			default:
+				return -1;
+		}
+	} else if(type == OT_TOOL){
+		switch(subtype){
+			case OST_LAMP:
+				return ES_LIGHT;
+			default:
+				return -1;
+		}
+	} else
+		return -1;
 }

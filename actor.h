@@ -2,16 +2,13 @@
 
 #define ACTOR_H
 
+#include "enums.h"
+
 #include <curses.h>
 #include <stdlib.h>
 #include <string>
 #include <utility> //pair
 #include <vector>
-
-//#include "object.h"
-//#include "map.h"
-//#include "stair.h"
-//#include "tile.h"
 
 class object;
 class tile;
@@ -31,7 +28,7 @@ class actor {
 	
 	// inventory
 	std::vector<object*> inventory;
-	//std::map<int, object> equip;
+	object * equipped_item[ES_MAX];
 	long gold;
 	
 	//ai
@@ -52,6 +49,8 @@ class actor {
 	
 	bool pick_up(object *, tile *);
 	bool drop(object *, tile*);
+	bool equip(object *, int);
+	bool unequip(object *);
 	//void eat(object);
 	//void drink(object);
 	void open(int, int);

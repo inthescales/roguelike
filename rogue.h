@@ -11,6 +11,8 @@ void exit_game(int sig);
 
 // some globals:
 
+object * obj_letter[52];
+
 window * win_output;
 window * win_world;
 window * win_status;

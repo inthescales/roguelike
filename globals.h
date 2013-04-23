@@ -9,12 +9,17 @@
 #include "window.h"
 #include "tileclass.h"
 
+#include <string>
+
 #define MAX_INVENTORY 48
 
 /*
 int map_id = 1;
 object *letter[53];
 */
+
+// Inventory letters
+extern object * obj_letter[];
 
 // Windows
 extern window * win_output;
@@ -43,6 +48,10 @@ extern int turn;
 extern actclass aclass[];
 extern objclass oclass[];
 extern struct tileclass tclass[];
+
+// Other predefined arrays
+extern string str_obj_type[];
+extern string str_eq_slot[];
 
 // Color setup
 extern int color_value[];
