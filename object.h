@@ -2,9 +2,10 @@
 
 #define OBJECT_H
 
-#include "actiondefs.h"
-#include "curses.h"
+#include "effect.h"
+#include "enums.h"
 
+#include "curses.h"
 #include <utility>
 #include <string>
 #include <vector>
@@ -28,7 +29,9 @@ class object {
 	chtype get_img();
 	string get_name();
 	string get_name_color();
-
+	
+	bool has_trigger(trigger_t);
+	effect * get_effect(trigger_t);
 };
 
 #endif

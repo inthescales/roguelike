@@ -127,6 +127,52 @@ bool actor::unequip(object * item){
 	return false;
 }
 
+bool actor::eat(object * item){
+	
+	effect * e = item->get_effect(TRG_EAT);
+	
+	if(e != NULL){
+		do_effect(this, item, NULL, NULL, e);
+	}
+}
+
+bool actor::drink(object * item){
+	
+	effect * e = item->get_effect(TRG_DRINK);
+	
+	if(e != NULL){
+		do_effect(this, item, NULL, NULL, e);
+	}
+}
+
+bool actor::read(object * item){
+	
+	
+}
+
+bool actor::use(object * item){
+	
+	
+}
+
+// SENSES ==================================================
+
+/*void actor::taste(taste_t tst, bool real){
+
+	string msg = "";
+
+	if(real){
+		switch(tst){
+			
+			default:
+				msg = "This 
+			break;
+		}
+	} else {
+		msg = "You taste "
+	}
+}*/
+
 // NON-COMMANDS ============================================
 
 // Put an item into the actor's inventory, organized by type
@@ -154,4 +200,12 @@ bool actor::remove_object(object * item){
 	inventory.erase(it);
 	
 	return true;
+}
+
+void actor::print(string a, string b){
+	
+	if(this == act_player)
+		win_output->print(a);
+	else
+		win_output->print(b);
 }

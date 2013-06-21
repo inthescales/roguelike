@@ -5,6 +5,7 @@
 #include "actor.h"
 #include "globals.h"
 #include "window.h"
+#include "classdefs.h"
 
 void init_game();
 void exit_game(int sig);
@@ -12,6 +13,7 @@ void exit_game(int sig);
 // some globals:
 
 object * obj_letter[52];
+objclass * oclass[OBJ_MAX];
 
 window * win_output;
 window * win_world;

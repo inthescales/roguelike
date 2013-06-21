@@ -7,6 +7,8 @@
 #include "setup.h"
 #include "window.h"
 
+#include "objdefs.h"
+
 #include <string>
 #include <vector>
 
@@ -23,6 +25,8 @@ void setup(){
 	noecho();
 	curs_set(1);
 	srand( time( NULL ) );
+	
+	define_objects();
 	
 	for(int i = 0; i < 52; ++i) obj_letter[i] = NULL;
 }

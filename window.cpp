@@ -73,9 +73,9 @@ void window::display_inventory(actor & act){
 		headers = 0;
 		for(int i = start; i - start < winsize && i < items.size(); ++i){
 		
-			if(i == start || oclass[items[i]->type].type != oclass[items[i-1]->type].type){
+			if(i == start || oclass[items[i]->type]->type != oclass[items[i-1]->type]->type){
 				//We need to print a header
-				printcolor(tx, ty + i + headers++ - start, color_string(str_obj_type[oclass[items[i]->type].type], C_YELLOW));
+				printcolor(tx, ty + i + headers++ - start, color_string(str_obj_type[oclass[items[i]->type]->type], C_YELLOW));
 			}
 			move(ty + i + headers - start, tx);
 			printw("%c - %s", items[i]->letter, items[i]->get_name().c_str());
@@ -184,7 +184,7 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi,
 		headers = 0;
 		for(int i = start; i - start < winsize && i < items.size(); ++i){
 		
-			if(i == start || oclass[items[i]->type].type != oclass[items[i-1]->type].type){
+			if(i == start || oclass[items[i]->type]->type != oclass[items[i-1]->type]->type){
 				//We need to print a header
 				printcolor(x, y + i + headers++ - start + 1, color_string(str_obj_type[items[i]->type], C_YELLOW));
 			}

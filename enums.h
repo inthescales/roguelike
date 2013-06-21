@@ -1,6 +1,6 @@
-#ifndef DEFINE_H
+#ifndef ENUMS_H
 
-#define DEFINE_H
+#define ENUMS_H
 
 //Cardinal directions, for easy reference
 enum direction {
@@ -77,6 +77,7 @@ enum colorName {
 	C_TEAL, C_CYAN
 };
 
+//Object materials
 enum material_t {
 	MAT_VEGETATION = 0,
 	MAT_FLESH,
@@ -84,6 +85,31 @@ enum material_t {
 	MAT_LEATHER,
 	MAT_METAL,
 	MAT_PLASTIC
+};
+
+enum trigger_t {
+	TRG_NULL = -1,
+	TRG_EAT,
+	TRG_DRINK,
+	TRG_READ,
+	TRG_USE
+};
+
+enum target_t {
+	TAR_SELF = 0,
+	TAR_ADJ
+};
+
+enum radius_t {
+	RAD_SINGLE = 0
+};
+
+enum effect_t {
+	EFF_BREAD = 0
+};
+
+enum taste_t {
+	TST_BREAD = 0
 };
 
 #endif

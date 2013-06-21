@@ -5,7 +5,7 @@
 #include "curses.h"
 
 // Split a string into chunks of size width, not including color codes
-// and handling wraparound texter
+// and handling wraparound text
 vector<string> string_slice(string in, int width){
 	
 	vector<string> r;

@@ -4,6 +4,7 @@
 
 #include "actclass.h"
 #include "actor.h"
+#include "classdefs.h"
 #include "objclass.h"
 //#include "map.h"
 #include "window.h"
@@ -46,7 +47,7 @@ extern int turn;
 
 // Object class arrays
 extern actclass aclass[];
-extern objclass oclass[];
+extern objclass * oclass[OBJ_MAX];
 extern struct tileclass tclass[];
 
 // Other predefined arrays
