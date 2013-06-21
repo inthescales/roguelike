@@ -25,6 +25,7 @@ class window{
 	void display_inventory(actor &);
 	void display_equipment(actor &);
 	void print(string);
+	void print_twin(string, string);
 	void print(string, buffer &);
 	void print_buf(buffer &);
 	void print_line(string, int);

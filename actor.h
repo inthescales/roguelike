@@ -10,6 +10,8 @@
 #include <utility> //pair
 #include <vector>
 
+using std::string;
+
 class object;
 class tile;
 
@@ -18,7 +20,7 @@ class actor {
 	public:
 
 	// basics
-	std::string name; //special name
+	string name; //special name
 	short x, y; //position
 	int type; //actor class
 
@@ -39,7 +41,7 @@ class actor {
 	
 	actor(short code);
 	chtype get_img();
-	std::string get_name();
+	string get_name();
 	
 	void move(std::pair<int,int>);
 	void attack(std::pair<int,int>);
@@ -51,13 +53,14 @@ class actor {
 	bool drop(object *, tile*);
 	bool equip(object *, int);
 	bool unequip(object *);
-	//void eat(object);
-	//void drink(object);
-	void open(int, int);
-	void close(int, int);
-	//void use(object, int, int);
-	//void equip(object);
-	//void unequip(object);
+	bool eat(object *);
+	bool drink(object *);
+	bool read(object *);
+	bool use(object *);
+	//void open(int, int);
+	//void close(int, int);
+	
+	void print(string, string);
 	//void transition(stair);
 	//void switch_map(map, map, int, int );
 };

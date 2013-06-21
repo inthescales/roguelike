@@ -33,7 +33,7 @@ void UI::get_action(){
 		case 'E':
 			command_equipment();
 			break;
-		case 'e':
+		case 'w':
 			command_equip();
 			break;
 		case 'u':
@@ -41,6 +41,18 @@ void UI::get_action(){
 			break;
 		case 'd':
 			command_drop();
+			break;
+		case 'e':
+			command_eat();
+			break;
+		case 'q':
+			command_drink();
+			break;
+		case 'r':
+			command_read();
+			break;
+		case 'a':
+			command_use();
 			break;
 		case 's':
 		case '.':
@@ -62,10 +74,12 @@ int UI::get_input(){
 
 bool UI::command_inventory(){
 	win_screen->display_inventory(*act_player);
+	redraw_windows();
 }
 
 bool UI::command_equipment(){
 	win_screen->display_equipment(*act_player);
+	redraw_windows();
 }
 
 bool UI::command_move(int dir){
@@ -202,11 +216,11 @@ bool UI::command_drop(){
 bool UI::command_equip(){
 	
 	actor * controlled = act_player;
-	object * item = prompt_inventory(controlled, "Equip what?", false, false).back();
+	object * item = get_single( prompt_inventory(controlled, "Equip what?", false, false) );
 	
 	if(item != NULL){
 	
-		int slot = type_to_slot(oclass[item->type].type, oclass[item->type].subtype);
+		int slot = type_to_slot(oclass[item->type]->type, oclass[item->type]->subtype);
 		
 		if(slot != -1){
 		
@@ -234,7 +248,7 @@ bool UI::command_equip(){
 bool UI::command_unequip(){
 
 	actor * controlled = act_player;
-	object * item = prompt_inventory(controlled, "Unequip what?", false, false).back();
+	object * item = get_single( prompt_inventory(controlled, "Unequip what?", false, false) );
 	
 	if(item != NULL){
 		
@@ -246,6 +260,60 @@ bool UI::command_unequip(){
 			win_output->print("That item is not equipped.");
 			return false;
 		}
+	} else {
+		win_output->print("Nevermind...");
+	}
+}
+
+bool UI::command_eat(){
+	
+	actor * controlled = act_player;
+	object * item = get_single( prompt_inventory(controlled, "Eat what?", false, false) );
+
+	if(item != NULL){
+
+		controlled->eat(item);
+	} else {
+		win_output->print("Nevermind...");
+	}
+}
+
+bool UI::command_drink(){
+	
+	actor * controlled = act_player;
+	object * item = get_single( prompt_inventory(controlled, "Drink what?", false, false) );
+	
+	if(item != NULL){
+		
+		controlled->drink(item);
+	} else {
+		win_output->print("Nevermind...");
+	}
+}
+
+bool UI::command_read(){
+	
+	actor * controlled = act_player;
+	object * item = get_single( prompt_inventory(controlled, "Read what?", false, false) );
+	
+	if(item != NULL){
+		
+		controlled->read(item);
+	} else {
+		win_output->print("Nevermind...");
+	}
+}
+
+bool UI::command_use(){
+	
+	actor * controlled = act_player;
+	object * item = get_single( prompt_inventory(controlled, "Use what?", false, false) );
+	
+	if(item != NULL){
+		
+		controlled->use(item);
+	} else {
+		win_output->print("Nevermind...");
 	}
 }
 
@@ -295,6 +363,15 @@ vector<object*> UI::prompt_inventory(actor * controlled, string prompt, bool all
 				ret.push_back(obj_letter[slot]);
 			return ret;
 		}
+	}
+}
+
+// Get an element from a size-one vector.
+object * UI::get_single(vector<object*> vect){
+	if(vect.size() == 1){
+		return vect.back();
+	} else {
+		return NULL;
 	}
 }
 
