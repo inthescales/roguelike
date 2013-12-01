@@ -5,6 +5,7 @@
 #include "tile.h"
 #include "enums.h"
 #include "globals.h"
+#include "window.h"
 
 effect::effect(target_t t, radius_t r, effect_t e){
 
@@ -21,11 +22,11 @@ trigger_effect::trigger_effect(trigger_t tr, effect e) : trigger(tr), eff(e) {
 	Process an effect
 	Takes in some relevant agents
 */
-bool do_effect(actor * act, object * obj, feature * feat, tile * tile, effect * eff){
+bool do_effect(argmap * args, effect * eff){
 
 	switch(eff->type){
-		case OBJ_BREAD_RATION:
-			if(act == act_player)
+		case EFF_BREAD:
+			if(args->get_actor(ARG_AGENT) == act_player)
 				win_output->print("This bread is delicious!");
 			//act->taste(TST_BREAD, true);
 			//act->nourish(obj->bonus);

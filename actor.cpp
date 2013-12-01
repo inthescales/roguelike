@@ -1,4 +1,5 @@
 #include "actor.h"
+#include "actclass.h"
 #include "globals.h"
 #include "graphics.h"
 #include "map.h"
@@ -12,7 +13,8 @@
 #include <algorithm>
 #include <sstream>
 
-using namespace std;
+using std::pair;
+using std::ostringstream;
 
 #define SET_SYMBOL(O,S,C) O->img = S|C
 
@@ -130,18 +132,22 @@ bool actor::unequip(object * item){
 bool actor::eat(object * item){
 	
 	effect * e = item->get_effect(TRG_EAT);
+	argmap * m = new argmap();
+	m->add_actor(ARG_AGENT, this);
 	
 	if(e != NULL){
-		do_effect(this, item, NULL, NULL, e);
+		do_effect(m, e);
 	}
 }
 
 bool actor::drink(object * item){
 	
 	effect * e = item->get_effect(TRG_DRINK);
+	argmap * m = new argmap();
+	m->add_actor(ARG_AGENT, this);
 	
 	if(e != NULL){
-		do_effect(this, item, NULL, NULL, e);
+		//do_effect(new vector<void *>(1, this), e);
 	}
 }
 

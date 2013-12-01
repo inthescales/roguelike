@@ -2,17 +2,16 @@
 
 #define WINDOW_H
 
-#include "actor.h"
-#include "map.h"
-
 #include <string>
 #include <vector>
 
-using namespace std;
-
+using std::string;
+using std::vector;
 typedef vector<string> buffer;
 
+class actor;
 class object;
+class map;
 
 class window{
 

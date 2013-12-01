@@ -3,11 +3,14 @@
 #define OBJCLASS_H
 
 #include "enums.h"
-#include "effect.h"
+//#include "effect.h"
 
 #include <utility>
 #include <string>
 #include <vector>
+
+class effect;
+class trigger_effect;
 
 using std::string;
 using std::vector;

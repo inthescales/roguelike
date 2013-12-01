@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+using std::string;
+using std::vector;
 
 vector<string> string_slice(string, int);
 string escape_color(int);

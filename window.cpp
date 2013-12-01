@@ -2,13 +2,16 @@
 
 #include "globals.h"
 #include "graphics.h"
+#include "map.h"
+#include "objclass.h"
 #include "stringutils.h"
 #include "ui.h"
+#include "tile.h"
 #include "window.h"
 
 #include <algorithm>
 
-using namespace std;
+//using ;
 
 window::window(int n_x, int n_y, int n_w, int n_h) : x(n_x), y(n_y), width(n_w), height(n_h) {
 

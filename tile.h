@@ -3,12 +3,13 @@
 #define TILE_H
 
 #include "actor.h"
+#include "condition.h"
 #include "feature.h"
 #include "object.h"
 
 #include <vector>
 
-using namespace std;
+using std::vector;
 
 class tile{
 
@@ -18,7 +19,9 @@ class tile{
 	actor * my_actor;
 	feature * my_feature;
 	vector<object*> my_objects;
+	condition * conditions;
 	
+	//Functions:
 	tile(short);
 	
 	// Fancy getters

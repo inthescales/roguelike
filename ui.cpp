@@ -3,11 +3,15 @@
 #include "actor.h"
 #include "globals.h"
 #include "map.h"
+#include "objclass.h"
 #include "stringutils.h"
 #include "tile.h"
 #include "ui.h"
+#include "window.h"
 
 #include <sstream>
+
+using std::ostringstream;
 
 void UI::get_action(){
 

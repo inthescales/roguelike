@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "tile.h"
+class tile;
 
 /*
 	When I'm creating a room, sometimes rooms will want to propagate
@@ -20,7 +20,7 @@ struct roomNote {
 };
 */
 
-class map{
+class map {
 
 	public:
 
