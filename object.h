@@ -2,6 +2,7 @@
 
 #define OBJECT_H
 
+//#include "condition.h"
 #include "effect.h"
 #include "enums.h"
 
@@ -10,7 +11,10 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+using std::string;
+using std::vector;
+
+class condition;
 
 class object {
 
@@ -19,8 +23,10 @@ class object {
 	short letter;
 	int quantity;
 	int type;
-	bool equipped;
+	bool equipped; //TODO - not totally happy with this...
+	condition * conditions;
 	
+	//Functions:
 	object(short);
 	object(short, short);
 	

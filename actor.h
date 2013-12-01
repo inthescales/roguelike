@@ -3,6 +3,7 @@
 #define ACTOR_H
 
 #include "enums.h"
+#include "condition.h"
 
 #include <curses.h>
 #include <stdlib.h>
@@ -23,6 +24,7 @@ class actor {
 	string name; //special name
 	short x, y; //position
 	int type; //actor class
+	condition * conditions;
 
 	// stats
 	short HP, maxHP;
@@ -31,7 +33,7 @@ class actor {
 	// inventory
 	std::vector<object*> inventory;
 	object * equipped_item[ES_MAX];
-	long gold;
+	long gold; //TODO - change this to stacked items list eventually?
 	
 	//ai
 	int aitype;

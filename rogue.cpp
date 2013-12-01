@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "map.h"
 #include "rogue.h"
 #include "setup.h"
 #include "ui.h"

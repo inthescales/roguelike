@@ -2,6 +2,7 @@
 #include "objdefs.h"
 #include "globals.h"
 #include "graphics.h"
+#include "effect.h"
 
 #include <utility>
 

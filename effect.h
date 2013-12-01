@@ -7,6 +7,10 @@ class object;
 class tile;
 class feature;
 #include "enums.h"
+#include "argmap.h"
+#include <string>
+
+using std::string;
 
 class effect {
 
@@ -28,6 +32,6 @@ class trigger_effect {
 	effect eff;
 };
 
-bool do_effect(actor *, object *, feature *, tile *, effect *);
+bool do_effect(argmap *, effect *);
 
 #endif

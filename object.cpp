@@ -1,6 +1,7 @@
 #include "globals.h"
 #include "graphics.h"
 #include "object.h"
+#include "objclass.h"
 #include "stringutils.h"
 
 object::object(short code) : type(code), equipped(0), quantity(1) {

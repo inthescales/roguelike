@@ -3,6 +3,7 @@
 #include "tile.h"
 #include "globals.h"
 #include "graphics.h"
+#include "tileclass.h"
 
 #include <algorithm>
 

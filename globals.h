@@ -2,15 +2,27 @@
 
 #define GLOBALS_H
 
-#include "actclass.h"
-#include "actor.h"
-#include "classdefs.h"
-#include "objclass.h"
-//#include "map.h"
-#include "window.h"
-#include "tileclass.h"
-
 #include <string>
+#include <vector>
+using std::string;
+using std::vector;
+
+typedef vector<string> buffer;
+
+#include "classdefs.h"
+class object;
+class window;
+class map;
+class actor;
+class actclass;
+class objclass;
+
+// SYSTEM STUFF ========================
+
+//#define 32_BIT
+//#define 64_BIT
+
+// =====================================
 
 #define MAX_INVENTORY 48
 

@@ -1,6 +1,8 @@
 #include "enums.h"
 #include "globals.h"
 
+#include <curses.h>
+
 // Map from color enum to color pairs
 int color_value[] = 
 {
