@@ -57,8 +57,8 @@ extern short term_w, term_h;
 extern int map_id;
 extern int turn;
 
-// Object class arrays
-extern actclass aclass[];
+// Entity class arrays
+extern actclass * aclass[ACT_MAX];
 extern objclass * oclass[OBJ_MAX];
 extern struct tileclass tclass[];
 

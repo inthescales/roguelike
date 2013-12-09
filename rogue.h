@@ -12,6 +12,8 @@ void exit_game(int sig);
 
 // some globals:
 
+actclass * aclass[ACT_MAX];
+
 object * obj_letter[52];
 objclass * oclass[OBJ_MAX];
 

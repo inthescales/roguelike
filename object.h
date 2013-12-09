@@ -2,7 +2,7 @@
 
 #define OBJECT_H
 
-//#include "condition.h"
+#include "argmap.h"
 #include "effect.h"
 #include "enums.h"
 
@@ -38,6 +38,7 @@ class object {
 	
 	bool has_trigger(trigger_t);
 	effect * get_effect(trigger_t);
+	int get_stat(stats_t);
 };
 
 #endif

@@ -7,6 +7,7 @@
 #include "setup.h"
 #include "window.h"
 
+#include "actdefs.h"
 #include "objdefs.h"
 
 #include <string>
@@ -27,6 +28,7 @@ void setup(){
 	curs_set(1);
 	srand( time( NULL ) );
 	
+	define_actors();
 	define_objects();
 	
 	for(int i = 0; i < 52; ++i) obj_letter[i] = NULL;

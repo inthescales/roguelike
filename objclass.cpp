@@ -14,6 +14,8 @@ objclass::objclass(string tname, unsigned char tsym, colorName tcol, object_type
 	weight = tweigh;
 	value = tcost;
 	
+	stats = new statmap();
+	
 	known = 0;
 }
 
