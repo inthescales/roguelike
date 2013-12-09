@@ -22,7 +22,7 @@ actor::actor(short code){
 
 	type = code;
 		
-	name = aclass[type].name;
+	name = aclass[type]->name;
 	//new->aitype = aclass[code].ai;
 	
 	level = 1;
@@ -38,14 +38,14 @@ actor::actor(short code){
 }
 
 chtype actor::get_img(){
-	return comp(aclass[type].symbol, aclass[type].color);
+	return comp(aclass[type]->symbol, aclass[type]->color);
 }
 
 string actor::get_name(){
 	if(act_player == this)
 		return "you";
 	else
-		return aclass[type].name;
+		return aclass[type]->name;
 }
 
 // Move the actor to a new tile

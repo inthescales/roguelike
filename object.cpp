@@ -35,3 +35,14 @@ effect * object::get_effect(trigger_t trigger){
 		if(oclass[type]->effects[i].trigger == trigger) return &(oclass[type]->effects[i].eff);
 	}
 }
+
+int object::get_stat(stats_t code){
+
+	if (oclass[type]->stats->has_stat(code)){
+	
+		// Check conditions for modifiers
+		return oclass[type]->stats->get_stat(code);
+	}
+	
+	return -1;
+}

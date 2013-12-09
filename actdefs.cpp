@@ -1,16 +1,17 @@
 #include "actclass.h"
+#include "actdefs.h"
 #include "globals.h"
 #include "graphics.h"
 
-#define ACT( name, ai, image, color ) \
-	{ name, ai, image, color }
+void define_actors(){
 
-actclass aclass[] = {
+	int c = -1;
 
 	//#HUMAN
-	ACT( "human", 0, '@', C_WHITE),
-
-	//#ROBOT
-	ACT( "robot", 0, 'R', C_ORANGE)
+	aclass[++c] = new actclass("human", '@', C_WHITE);
+	aclass[c]->add_basic_stats(5, 5);
 	
+	//#ROBOT
+	aclass[++c] = new actclass("robot", 'R', C_ORANGE);
+	aclass[c]->add_basic_stats(8, 2);
 };
