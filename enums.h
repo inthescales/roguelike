@@ -112,4 +112,10 @@ enum taste_t {
 	TST_BREAD = 0
 };
 
+enum core_stats_t {
+	CSTAT_BODY = 0,
+	CSTAT_MIND,
+	CSTAT_MAX
+};
+
 #endif
