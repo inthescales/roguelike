@@ -17,13 +17,11 @@ class actclass {
 	unsigned char symbol;
 	colorName color;
 	
-	int core_stat[CSTAT_MAX];
 	statmap * stats;
 	short ai;
 	
 	//-----
 	actclass(string, unsigned char, colorName);
-	void add_core_stats(int, int);
 	
 };
 

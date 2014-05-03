@@ -56,3 +56,10 @@ string escape_color(int color){
 	
 	return r;
 }
+
+string int_string(int in){
+
+	ostringstream convert;
+	convert << in;
+	return convert.str();
+}

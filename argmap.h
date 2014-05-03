@@ -2,22 +2,13 @@
 
 #define ARGMAP_H
 
+#include "enums.h"
 #include "globals.h"
 #include <map>
 
 enum args_t {
 	ARG_AGENT = 0,
 	ARG_OBJECT_USED
-};
-
-enum stats_t {
-	STAT_WEP_DAMAGE = 0,
-	// Object stats
-	OSTAT_GIVE_BODY,
-	OSTAT_GIVE_MIND,
-	OSTAT_WEP_DAMAGE,
-	OSTAT_ARM_BLOCK,
-	OSTAT_NUTRITION
 };
 
 class argmap {

@@ -112,10 +112,21 @@ enum taste_t {
 	TST_BREAD = 0
 };
 
-enum core_stats_t {
-	CSTAT_BODY = 0,
-	CSTAT_MIND,
-	CSTAT_MAX
+// Stats for objects and actors
+
+enum stats_t {
+	// Actor stats
+	ASTAT_BODY = 0,
+	ASTAT_MIND,
+	// Object stats
+	OSTAT_MIN,
+	OSTAT_WEP_DMG,
+	OSTAT_ARM_BLOCK,
+	OSTAT_NUTRITION,
+	// Calculated stats
+	CSTAT_MIN,
+	CSTAT_WEP_DMG,
+	CSTAT_BLOCK
 };
 
 #endif

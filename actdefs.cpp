@@ -9,9 +9,11 @@ void define_actors(){
 
 	//#HUMAN
 	aclass[++c] = new actclass("human", '@', C_WHITE);
-	aclass[c]->add_core_stats(5, 5);
+	aclass[c]->stats->add_stat(ASTAT_BODY, 5);
+	aclass[c]->stats->add_stat(ASTAT_MIND, 5);	
 	
 	//#ROBOT
 	aclass[++c] = new actclass("robot", 'R', C_ORANGE);
-	aclass[c]->add_core_stats(8, 2);
+	aclass[c]->stats->add_stat(ASTAT_BODY, 8);
+	aclass[c]->stats->add_stat(ASTAT_MIND, 2);
 };
