@@ -37,6 +37,64 @@ actor::actor(short code){
 	
 }
 
+/*
+	Returns the current modified stat specified by the input.
+	Ideas for later:
+		- Store this somewhere to avoid recalculation (probably not necessary)
+		- Add a parameter specifying a code for what types, if any, of modifiers apply
+*/
+int actor::get_stat(stats_t code){
+
+	// If this is a calculated stat, process that elsewhere
+	if (code > CSTAT_MIN )
+		return get_calc_stat(code);
+
+	int base, equipment, total;
+	
+	// Take base stat from actor class
+	base = aclass[type]->stats->get_stat(code);
+	
+	// Check each equipped item and add any stat boost provided
+	equipment = get_equip_stat(code);
+	
+	total = base + equipment;
+	
+	return total;
+}
+
+int actor::get_equip_stat(stats_t code){
+
+	int ret = 0;
+	
+	for(int i = 0; i < ES_MAX; ++i){
+	
+		if(equipped_item[i] != 0){
+			
+			int value = equipped_item[i]->get_stat(code);
+			if(value != -1) {
+				ret += value;
+			}
+		}
+	}
+	
+	return ret;
+}
+
+int actor::get_calc_stat(stats_t code){
+
+	int val = 0;
+	
+	if(code == CSTAT_WEP_DMG){
+	
+		val = get_stat(ASTAT_BODY) + get_equip_stat(OSTAT_WEP_DMG);
+	} else if(code == CSTAT_BLOCK){
+		
+		val = (get_stat(ASTAT_BODY) / 2) + get_equip_stat(OSTAT_ARM_BLOCK);
+	}
+		
+	return val;
+}
+
 chtype actor::get_img(){
 	return comp(aclass[type]->symbol, aclass[type]->color);
 }
@@ -87,7 +145,8 @@ void actor::attack(pair<int,int> offset) {
 
 // Perform a basic attack at a specified actor
 void actor::attack(actor * target){
-	string out = get_name() + color_string(" attack ", C_RED) + target->get_name() + ".";
+	int damage = get_stat(CSTAT_WEP_DMG) - target->get_stat(CSTAT_BLOCK);
+	string out = get_name() + color_string(" attack ", C_RED) + target->get_name() + " for " + int_string(damage) + " damage.";
 	win_output->print(out);
 }
 

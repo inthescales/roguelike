@@ -51,6 +51,10 @@ class actor {
 	void get_item(object *);
 	bool remove_object(object * item);
 	
+	int get_stat(stats_t stat);
+	int get_equip_stat(stats_t stat);
+	int get_calc_stat(stats_t stat);
+	
 	bool pick_up(object *, tile *);
 	bool drop(object *, tile*);
 	bool equip(object *, int);

@@ -20,7 +20,7 @@ void define_objects(){
 	
 	//#DAGGER	
 	oclass[++c] = new objclass("dagger", '(', C_GRAY, OT_WEAPON, OST_KNIFE, MAT_METAL, 2, 8);
-	oclass[c]->stats->add_stat(OSTAT_WEP_DAMAGE, 5);
+	oclass[c]->stats->add_stat(OSTAT_WEP_DMG, 5);
 	
 	//#PLUMED_CAP	
 	oclass[++c] = new objclass("plumed cap", '[', C_RED, OT_ARMOR, OST_HAT, MAT_CLOTH, 4, 12);
