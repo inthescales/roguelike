@@ -24,7 +24,6 @@ class actor {
 	string name; //special name
 	short x, y; //position
 	int type; //actor class
-	condition * conditions;
 
 	// stats
 	short HP, maxHP;
@@ -38,6 +37,8 @@ class actor {
 	//ai
 	int aitype;
 	int state;
+	
+	std::vector<condition*> conditions;
 
 	// Functions:
 	
@@ -52,7 +53,9 @@ class actor {
 	bool remove_object(object * item);
 	
 	int get_stat(stats_t stat);
+	int get_stat(stats_t stat, bool);
 	int get_equip_stat(stats_t stat);
+	int get_cond_stat(stats_t stat);
 	int get_calc_stat(stats_t stat);
 	
 	bool pick_up(object *, tile *);
@@ -69,6 +72,14 @@ class actor {
 	void print(string, string);
 	//void transition(stair);
 	//void switch_map(map, map, int, int );
+	
+	effect * get_effect(trigger_t);
+	void resolve_trigger(trigger_t, argmap *);
+	
+	bool has_condition(int);
+	condition * get_condition(int);
+	bool add_condition(condition *);
+	bool remove_condition(int);
 };
 
 #endif

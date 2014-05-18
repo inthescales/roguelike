@@ -16,6 +16,7 @@ class map;
 class actor;
 class actclass;
 class objclass;
+class condclass;
 
 // SYSTEM STUFF ========================
 
@@ -60,6 +61,7 @@ extern int turn;
 // Entity class arrays
 extern actclass * aclass[ACT_MAX];
 extern objclass * oclass[OBJ_MAX];
+extern condclass * cclass[COND_MAX];
 extern struct tileclass tclass[];
 
 // Other predefined arrays

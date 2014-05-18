@@ -20,7 +20,7 @@ trigger_effect::trigger_effect(trigger_t tr, effect e) : trigger(tr), eff(e) {
 
 /*
 	Process an effect
-	Takes in some relevant agents
+	Takes in some relevant arguments
 */
 bool do_effect(argmap * args, effect * eff){
 

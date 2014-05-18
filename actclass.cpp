@@ -7,3 +7,8 @@ actclass::actclass(string n, unsigned char s, colorName c) {
 	color = c;
 	stats = new statmap();
 }
+
+void actclass::add_effect(trigger_effect n){
+
+	effects.push_back(n);
+}

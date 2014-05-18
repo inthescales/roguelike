@@ -87,6 +87,7 @@ enum material_t {
 	MAT_PLASTIC
 };
 
+//Triggers
 enum trigger_t {
 	TRG_NULL = -1,
 	TRG_EAT,
@@ -95,25 +96,46 @@ enum trigger_t {
 	TRG_USE
 };
 
+//Effect targets
 enum target_t {
 	TAR_SELF = 0,
 	TAR_ADJ
 };
 
+//Effect radii (patterns of tiles they affect)
 enum radius_t {
 	RAD_SINGLE = 0
 };
 
+//The actual effect that occurs
 enum effect_t {
 	EFF_BREAD = 0
 };
 
+//Condition stacking policies
+enum cond_stack_policy_t {
+	CSPOL_SET = 0,
+	CSPOL_ADD,
+	CSPOL_MAX,
+	CSPOL_MIN,
+	CSPOL_IGNORE
+};
+
+//Condition timer policies
+enum cond_timer_policy_t {
+	CTPOL_SET = 0,
+	CTPOL_ADD,
+	CTPOL_MAX,
+	CTPOL_MIN,
+	CTPOL_IGNORE
+};
+
+//Tastes for food (determines message, at least)
 enum taste_t {
 	TST_BREAD = 0
 };
 
 // Stats for objects and actors
-
 enum stats_t {
 	// Actor stats
 	ASTAT_BODY = 0,

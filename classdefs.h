@@ -11,4 +11,7 @@
 #define OBJ_GOLD_COIN 3
 #define OBJ_MAX 4
 
+#define COND_CURSED 0
+#define COND_MAX 1
+
 #endif

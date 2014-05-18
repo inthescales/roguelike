@@ -11,14 +11,13 @@ link :
 	@${CC} -o Rogue *.o ${LDFLAGS}
 	@echo Linking complete!
 	
-build : compile link
+build : compile link clean
 	@echo Build complete!
 	
 defs :
 	@makedefs.rb
 	
 clean :
-	@rm classdefs.h
 	@rm *.o
 	@rm *.rsv
 	@echo Cleaned!

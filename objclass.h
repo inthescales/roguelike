@@ -11,7 +11,6 @@
 
 class argmap;
 typedef argmap statmap;
-class effect;
 class trigger_effect;
 
 using std::string;
@@ -31,12 +30,13 @@ class objclass {
 	
 	object_type type;
 	object_subtype subtype;
-	vector<trigger_effect> effects;
-	statmap * stats;
 	
 	material_t material;
 	int weight;
 	int value;
+	
+	vector<trigger_effect> effects;
+	statmap * stats;
 	
 	objclass(string, unsigned char, colorName, object_type, object_subtype, material_t, int, int);	
 	void add_effect(trigger_effect);
