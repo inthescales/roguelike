@@ -24,7 +24,7 @@ class object {
 	int quantity;
 	int type;
 	bool equipped; //TODO - not totally happy with this...
-	condition * conditions;
+	vector<condition*> conditions;
 	
 	//Functions:
 	object(short);
@@ -36,9 +36,19 @@ class object {
 	string get_name();
 	string get_name_color();
 	
+	bool has_stat(stats_t);
+	int get_stat(stats_t);
+	int get_stat(stats_t, bool);
+	int get_cond_stat(stats_t);
+	
 	bool has_trigger(trigger_t);
 	effect * get_effect(trigger_t);
-	int get_stat(stats_t);
+	void resolve_trigger(trigger_t, argmap *);
+	
+	bool has_condition(int);
+	condition * get_condition(int);
+	bool add_condition(condition *);
+	bool remove_condition(int);
 };
 
 #endif

@@ -37,29 +37,49 @@ actor::actor(short code){
 	
 }
 
+chtype actor::get_img(){
+	return comp(aclass[type]->symbol, aclass[type]->color);
+}
+
+string actor::get_name(){
+	if(act_player == this)
+		return "you";
+	else
+		return aclass[type]->name;
+}
+
+// STATS ================================================
+
 /*
 	Returns the current modified stat specified by the input.
 	Ideas for later:
-		- Store this somewhere to avoid recalculation (probably not necessary)
+		- Store this somewhere to avoid recalculation
 		- Add a parameter specifying a code for what types, if any, of modifiers apply
 */
-int actor::get_stat(stats_t code){
+int actor::get_stat(stats_t code, bool always_return){
 
 	// If this is a calculated stat, process that elsewhere
 	if (code > CSTAT_MIN )
 		return get_calc_stat(code);
 
-	int base, equipment, total;
+	int base, equipment, condition, total;
 	
 	// Take base stat from actor class
 	base = aclass[type]->stats->get_stat(code);
 	
-	// Check each equipped item and add any stat boost provided
+	// Check each equipped item and add any stat modifiers provided
 	equipment = get_equip_stat(code);
 	
-	total = base + equipment;
+	// Check all conditions and add any stat modifiers
+	condition = get_cond_stat(code);
+	
+	total = base + equipment + condition;
 	
 	return total;
+}
+
+int actor::get_stat(stats_t code){
+	return get_stat(code, true);
 }
 
 int actor::get_equip_stat(stats_t code){
@@ -74,6 +94,21 @@ int actor::get_equip_stat(stats_t code){
 			if(value != -1) {
 				ret += value;
 			}
+		}
+	}
+	
+	return ret;
+}
+
+int actor::get_cond_stat(stats_t code) {
+	
+	int ret = 0;
+	
+	for(int i = 0; i < conditions.size(); ++i){
+	
+		int value = conditions[i]->get_stat(code);
+		if(value != -1) {
+			ret += value;
 		}
 	}
 	
@@ -95,16 +130,8 @@ int actor::get_calc_stat(stats_t code){
 	return val;
 }
 
-chtype actor::get_img(){
-	return comp(aclass[type]->symbol, aclass[type]->color);
-}
-
-string actor::get_name(){
-	if(act_player == this)
-		return "you";
-	else
-		return aclass[type]->name;
-}
+// MOVEMENT ==================================================
+// and basic attacks
 
 // Move the actor to a new tile
 // Assumes the target tile has no actor already.
@@ -150,6 +177,10 @@ void actor::attack(actor * target){
 	win_output->print(out);
 }
 
+// ITEM INTERACTION ==================================================
+// These functions assume that the action can be performed by this actor
+// on the specified object. This should be confirmed beforehand.
+
 // Take an object from the ground, if able
 bool actor::pick_up(object * target, tile * place){
 	
@@ -159,6 +190,7 @@ bool actor::pick_up(object * target, tile * place){
 	return true;
 }
 
+// Drop an object on the ground
 bool actor::drop(object * target, tile * place){
 	
 	remove_object(target);
@@ -167,12 +199,14 @@ bool actor::drop(object * target, tile * place){
 	return true;
 }
 
+// Equip an object
 bool actor::equip(object * item, int slot){
 
 	equipped_item[slot] = item;
 	item->equipped = 1;
 }
 
+// Unequip an object
 bool actor::unequip(object * item){
 
 	for(int i = 0; i < ES_MAX; ++i){
@@ -188,6 +222,7 @@ bool actor::unequip(object * item){
 	return false;
 }
 
+// Eat an object
 bool actor::eat(object * item){
 	
 	effect * e = item->get_effect(TRG_EAT);
@@ -199,6 +234,7 @@ bool actor::eat(object * item){
 	}
 }
 
+// Drink an object
 bool actor::drink(object * item){
 	
 	effect * e = item->get_effect(TRG_DRINK);
@@ -210,11 +246,13 @@ bool actor::drink(object * item){
 	}
 }
 
+// Read an object
 bool actor::read(object * item){
 	
 	
 }
 
+// Use an object
 bool actor::use(object * item){
 	
 	
@@ -239,6 +277,8 @@ bool actor::use(object * item){
 }*/
 
 // NON-COMMANDS ============================================
+// these are not controlled by the user, but handle maintenance
+// which may be done automatically or as part of another command.
 
 // Put an item into the actor's inventory, organized by type
 void actor::get_item(object * item){
@@ -257,9 +297,10 @@ void actor::get_item(object * item){
 	inventory.insert(it, item);
 }
 
+// Remove an object from the actor's inventory
 bool actor::remove_object(object * item){
 	
-	obj_letter[item->letter] = NULL;
+	obj_letter[UI::letter_to_int(item->letter)] = NULL;
 	item->letter = 0;
 	vector<object*>::iterator it = std::find( inventory.begin(), inventory.end(), item);
 	inventory.erase(it);
@@ -267,10 +308,113 @@ bool actor::remove_object(object * item){
 	return true;
 }
 
+// Print a descriptive string. The format depends on whether
+// the actor is the player or not.
 void actor::print(string a, string b){
 	
 	if(this == act_player)
 		win_output->print(a);
 	else
 		win_output->print(b);
+}
+
+// Effect management =========================
+
+effect * actor::get_effect(trigger_t trigger){
+
+	for(int i = 0; i < aclass[type]->effects.size(); ++i){
+		
+		if(aclass[type]->effects[i].trigger == trigger)
+			return &(aclass[type]->effects[i].eff);
+	}
+	
+	return NULL;
+}
+
+void actor::resolve_trigger(trigger_t trigger, argmap * args) {
+	
+	effect * my_effect = get_effect(trigger);
+	argmap * my_map = new argmap();
+	my_map->add_actor(ARG_HOLDER_ACTOR, this);
+	if (args != NULL) {
+		my_map->add_args(args);
+	}
+	
+	if (my_effect != NULL) {
+		do_effect(my_map, my_effect);
+	}
+	
+	vector<condition*>::iterator cit = conditions.begin();
+	for(; cit != conditions.end(); ++cit) {
+	
+		(*cit)->resolve_trigger(trigger, my_map);
+	}
+	
+	vector<object*>::iterator oit = inventory.begin();
+	for(; oit != inventory.end(); ++oit) {
+	
+		(*oit)->resolve_trigger(trigger, my_map);
+	}
+}
+
+// Condition management =========================
+
+bool actor::has_condition(int code) {
+
+	vector<condition*>::iterator it = conditions.begin();
+	
+	for(; it != conditions.end(); ++it) {
+		
+		if ((*it)->type == code) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+condition * actor::get_condition(int code) {
+
+	vector<condition*>::iterator it = conditions.begin();
+	
+	for(; it != conditions.end(); ++it) {
+		
+		if ((*it)->type == code) {
+			return *it;
+		}
+	}
+	
+	return NULL;
+}
+
+bool actor::add_condition(condition * cond) {
+
+	vector<condition*>::iterator it = conditions.begin();
+	
+	for(; it != conditions.end(); ++it) {
+		
+		if ((*it)->type == cond->type) {
+		
+			(*it)->add_condition(cond);
+			return true;
+		}
+	}
+	
+	conditions.push_back(cond);
+	return false;
+}
+
+bool actor::remove_condition(int code) {
+
+	vector<condition*>::iterator it = conditions.begin();
+	
+	for(; it != conditions.end(); ++it) {
+		
+		if ((*it)->type == code) {
+			conditions.erase(it);
+			return true;
+		}
+	}
+	
+	return false;
 }

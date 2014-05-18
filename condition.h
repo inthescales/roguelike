@@ -3,6 +3,7 @@
 #define CONDITION_H
 
 #include "effect.h"
+#include "argmap.h"
 
 class condition {
 
@@ -10,11 +11,25 @@ class condition {
 	
 	int type;
 	int stack;
-	int time;
-
+	int duration;
+	
+	double time_mod;
+	double strength_mod;
 	
 	//Functions:
+	condition(int, int);
 	condition(int, int, int);
+	
+	void add_condition(condition *);
+	void do_decay();
+	
+	bool has_stat(stats_t);
+	int get_stat(stats_t);
+	int get_modified_stat(stats_t);
+	int get_modified_strength();
+	
+	effect * get_effect(trigger_t);
+	void resolve_trigger(trigger_t, argmap *);
 };
 
 #endif

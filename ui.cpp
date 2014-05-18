@@ -340,7 +340,7 @@ bool UI::prompt_yesno(string prompt){
 }
 
 /*
-	Prompt the user for a letter to select an item. $ creates a gold object, * opens
+	Prompt the user for a letter to select an item. $ creates a gold object, * or ? opens
 	inventory for viewing (and multi-select, for now)
 */
 vector<object*> UI::prompt_inventory(actor * controlled, string prompt, bool allow_multi, bool allow_gold){
@@ -356,7 +356,7 @@ vector<object*> UI::prompt_inventory(actor * controlled, string prompt, bool all
 		if(input == '$' && allow_gold){
 			ret.push_back(prompt_gold_to_object(controlled));
 			return ret;
-		} else if(input == '*'){
+		} else if(input == '*' || input == '?'){
 			ret = win_screen->menu_select_objects(controlled->inventory, true, true);
 			return ret;
 		} else if(input == 27){
@@ -365,6 +365,8 @@ vector<object*> UI::prompt_inventory(actor * controlled, string prompt, bool all
 			int slot = letter_to_int(input);
 			if(slot != -1 && obj_letter[slot] != NULL)
 				ret.push_back(obj_letter[slot]);
+			if(obj_letter[slot] == NULL)
+				exit(0);
 			return ret;
 		}
 	}
@@ -431,7 +433,7 @@ int UI::letter_to_int(char in){
 char UI::get_next_letter(){
 
 	int i;
-	for(i = 0; obj_letter[i] != 0 && i < 52; ++i);
+	for(i = 0; obj_letter[i] != NULL && i < 52; ++i);
 	
 	if(i == 52) return 0;
 	

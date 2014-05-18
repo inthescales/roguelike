@@ -13,9 +13,10 @@ void exit_game(int sig);
 // some globals:
 
 actclass * aclass[ACT_MAX];
+objclass * oclass[OBJ_MAX];
+condclass * cclass[COND_MAX];
 
 object * obj_letter[52];
-objclass * oclass[OBJ_MAX];
 
 window * win_output;
 window * win_world;
