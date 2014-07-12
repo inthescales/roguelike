@@ -49,6 +49,7 @@ class object {
 	condition * get_condition(int);
 	bool add_condition(condition *);
 	bool remove_condition(int);
+	void decay_conditions();
 };
 
 #endif

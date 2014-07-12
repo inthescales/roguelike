@@ -7,12 +7,19 @@
 using std::max;
 using std::min;
 
+condition::condition(int ntype) {
+	
+	type = ntype;
+	stack = 1;
+	duration = cclass[type]->base_duration;
+	time_mod = strength_mod = 1;
+}
+
 condition::condition(int ntype, int nstack) {
 
 	type = ntype;
 	stack = nstack;
 	duration = cclass[type]->base_duration;
-	
 	time_mod = strength_mod = 1;
 }
 
@@ -54,19 +61,27 @@ void condition::add_condition(condition * other) {
 }
 
 /* 
- For effects that slowly decay, this resolves that decay.
- Reduce the stack / strengh by the decay value, and reset
- its time to the 
+ Process duration and stack decay.
+ Returns true if the condition still is ongoing after processing.
 */
-void condition::do_decay() {
+bool condition::do_decay() {
 
+	if (duration <= 0) return true;;
+	
 	duration--;
 	
-	if (stack > 0 && duration % (int)(cclass[type]->decay_interval * time_mod) == 0) {
+	if (stack > 0 && cclass[type]->decay_interval != 0 &&
+	    duration % (int)(cclass[type]->decay_interval * time_mod) == 0) {
 		stack -= cclass[type]->decay_value;
 	}
 	
-	// If duration <= 0 || stack <= 0, destroy self
+	if (duration <= 0 || stack <= 0) {
+	
+		return false;
+	}
+	else {
+		return true;
+	}
 }
 
 // STATS =========================

@@ -167,3 +167,17 @@ int object::get_cond_stat(stats_t code) {
 	
 	return ret;
 }
+
+// Process decay on my conditions, and my inventory's
+void object::decay_conditions() {
+
+	vector<condition*>::iterator it = conditions.begin();
+	for(; it != conditions.end(); ++it) {
+		
+		if(!(*it)->do_decay()) {
+			condition * dead_cond = (*it);
+			it = conditions.erase(it);
+			delete(dead_cond);
+		}
+	}
+}

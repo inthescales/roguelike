@@ -37,6 +37,9 @@ void UI::get_action(){
 		case 'E':
 			command_equipment();
 			break;
+		case 'C':
+			command_conditions();
+			break;
 		case 'w':
 			command_equip();
 			break;
@@ -83,6 +86,11 @@ bool UI::command_inventory(){
 
 bool UI::command_equipment(){
 	win_screen->display_equipment(*act_player);
+	redraw_windows();
+}
+
+bool UI::command_conditions(){
+	win_screen->display_conditions(act_player);
 	redraw_windows();
 }
 

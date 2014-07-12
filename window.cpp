@@ -1,5 +1,7 @@
 #include "curses.h"
 
+#include "condition.h"
+#include "condclass.h"
 #include "globals.h"
 #include "graphics.h"
 #include "map.h"
@@ -120,6 +122,36 @@ void window::display_equipment(actor & act){
 		string name = act.equipped_item[i] != NULL ? act.equipped_item[i]->get_name() : "(empty)";
 		printcolor(tx, ty + i, color_string(str_eq_slot[i] + ": ", C_YELLOW) );
 		printcolor(tx + 10, ty + i, name);
+	}
+	
+	getch();
+	
+	curs_set(1);
+}
+
+void window::display_conditions(actor * act){
+
+	curs_set(0);
+	clear();
+	
+	int i = 0;
+	int tx = x + 3, ty = y + 3;
+	
+	move(ty++, tx);
+	printw("Active conditions:");
+	
+	vector<condition *>::iterator it = act->conditions.begin();
+	
+	for(; it != act->conditions.end(); ++it){
+		
+		string name = cclass[(*it)->type]->name;
+		
+		char buff[10];
+		sprintf(buff, "%-3d x%-3d ", (*it)->duration, (*it)->stack);
+		string details = buff;
+		
+		printcolor(tx, ty + i, details + color_string(cclass[(*it)->type]->name, cclass[(*it)->type]->color) );
+		++i;
 	}
 	
 	getch();

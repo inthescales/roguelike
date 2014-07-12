@@ -23,6 +23,7 @@ class window{
 	void display_status();
 	void display_inventory(actor &);
 	void display_equipment(actor &);
+	void display_conditions(actor *);
 	void print(string);
 	void print_twin(string, string);
 	void print(string, buffer &);
