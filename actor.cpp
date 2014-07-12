@@ -418,3 +418,23 @@ bool actor::remove_condition(int code) {
 	
 	return false;
 }
+
+// Process decay on my conditions, and my inventory's
+void actor::decay_conditions() {
+
+	vector<condition*>::iterator it = conditions.begin();
+	for(; it != conditions.end(); ++it) {
+		
+		if(!(*it)->do_decay()) {
+			condition * dead_cond = (*it);
+			it = conditions.erase(it);
+			delete(dead_cond);
+		}
+	}
+
+	vector<object*>::iterator it2 = inventory.begin();
+	for(; it2 != inventory.end(); ++it2) {
+		
+		(*it2)->decay_conditions();
+	}
+}

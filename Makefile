@@ -11,7 +11,7 @@ link :
 	@${CC} -o Rogue *.o ${LDFLAGS}
 	@echo Linking complete!
 	
-build : compile link clean
+build : compile link
 	@echo Build complete!
 	
 defs :

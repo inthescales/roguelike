@@ -37,6 +37,7 @@ class map {
 	std::vector<std::vector<tile> > tiles;
 	//std::vector<stair> stairs;
 	std::vector<actor *> actors;
+	std::vector<object *> objects;
 	//struct roomNote * note;
 };
 

@@ -17,11 +17,12 @@ class condition {
 	double strength_mod;
 	
 	//Functions:
+	condition(int);
 	condition(int, int);
 	condition(int, int, int);
 	
 	void add_condition(condition *);
-	void do_decay();
+	bool do_decay();
 	
 	bool has_stat(stats_t);
 	int get_stat(stats_t);

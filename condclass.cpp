@@ -12,6 +12,7 @@ condclass::condclass(string nname, colorName ncolor, int nstrength, int nduratio
     decay_value = nvalue;
     stack_policy = nstackpol;
     timer_policy = ntimerpol;
+	stats = new statmap();
 }
 
 void condclass::add_effect(trigger_effect n){

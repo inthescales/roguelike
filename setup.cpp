@@ -9,6 +9,7 @@
 
 #include "actdefs.h"
 #include "objdefs.h"
+#include "conddefs.h"
 
 #include <string>
 #include <vector>
@@ -30,6 +31,7 @@ void setup(){
 	
 	define_actors();
 	define_objects();
+	define_conditions();
 	
 	for(int i = 0; i < 52; ++i) obj_letter[i] = NULL;
 }

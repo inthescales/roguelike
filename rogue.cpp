@@ -26,6 +26,7 @@ int main(void){
 		move(act_player->y - scrn_y + win_world->y, act_player->x - scrn_x + win_world->x);
 
 		UI::get_action();
+		update_world(map_current);
 		//run_ai( map_current );
 		
 		++turn;
@@ -33,6 +34,22 @@ int main(void){
 	
 	exit_game(0);
 
+}
+
+/*
+ Process behavior for everything outside the player.
+*/
+void update_world(map * m) {
+
+	vector<actor*>::iterator act_it = m->actors.begin();
+	for(; act_it != m->actors.end(); ++act_it) {
+	
+	}
+	
+	vector<actor*>::iterator act_it = m->actors.begin();
+	for(; act_it != m->actors.end(); ++act_it) {
+	
+	}
 }
 
 // Initialize the starting game state
@@ -52,7 +69,10 @@ void init_game() {
 	win_world->display_map(map_current);
 	win_status->display_status();
 	
+	
 	win_output->print("Welcome to the game!");
+	
+	act_player->add_condition(new condition(COND_CURSED));
 	
 	refresh();
 	//point_curs(act_player);

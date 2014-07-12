@@ -20,6 +20,7 @@ class UI {
 	
 	static bool command_inventory();
 	static bool command_equipment();
+	static bool command_conditions();
 	static bool command_move(int);
 	static bool command_pick_up();
 	static string command_pick_up_helper(object *);
