@@ -9,6 +9,7 @@
 
 void init_game();
 void exit_game(int sig);
+void update_world(map * m);
 
 // some globals:
 
