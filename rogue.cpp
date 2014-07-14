@@ -45,11 +45,6 @@ void update_world(map * m) {
 	for(; act_it != m->actors.end(); ++act_it) {
 	
 	}
-	
-	vector<actor*>::iterator act_it = m->actors.begin();
-	for(; act_it != m->actors.end(); ++act_it) {
-	
-	}
 }
 
 // Initialize the starting game state

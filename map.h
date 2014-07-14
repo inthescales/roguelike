@@ -2,6 +2,7 @@
 
 #define MAP_H
 
+#include "object.h"
 #include <vector>
 
 class tile;
