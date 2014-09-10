@@ -2,9 +2,11 @@
 
 #define TILECLASS_H
 
+#include "config.h"
+#include "display.h"
 #include "enums.h"
 
-#include <curses.h>
+#include LIB_CURSES
 
 struct tileclass {
 
@@ -13,7 +15,7 @@ struct tileclass {
 	unsigned int can_fly : 1;
 	unsigned int opaque : 1;
 
-	unsigned char symbol;
+	d_glyph symbol;
 	colorName color;
 
 };

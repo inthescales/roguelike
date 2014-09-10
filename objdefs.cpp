@@ -1,7 +1,7 @@
+#include "display.h"
 #include "objclass.h"
 #include "objdefs.h"
 #include "globals.h"
-#include "graphics.h"
 #include "effect.h"
 
 #include <utility>
@@ -14,7 +14,7 @@ void define_objects(){
 	int c = -1;
 	
 	//#BREAD_RATION
-	oclass[++c] = new objclass("bread ration", '%', C_BROWN, OT_FOOD, OST_FOOD, MAT_VEGETATION, 1, 5);
+	oclass[++c] = new objclass("bread ration", 165, C_BROWN, OT_FOOD, OST_FOOD, MAT_VEGETATION, 1, 5);
 	oclass[c]->add_effect(trigger_effect(TRG_EAT, effect(TAR_SELF, RAD_SINGLE, EFF_BREAD)));
 	oclass[c]->stats->add_stat(OSTAT_NUTRITION, 2);
 	

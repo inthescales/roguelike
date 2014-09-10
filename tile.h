@@ -2,14 +2,16 @@
 
 #define TILE_H
 
-#include "actor.h"
-#include "condition.h"
-#include "feature.h"
-#include "object.h"
+#include "display.h"
 
 #include <vector>
 
 using std::vector;
+
+class actor;
+class object;
+class feature;
+class condition;
 
 class tile{
 
@@ -27,7 +29,8 @@ class tile{
 	// Fancy getters
 	bool can_walk();
 	
-	chtype get_img();
+	d_glyph get_img();
+	int get_color();
 	bool remove_object(object*);
 };
 

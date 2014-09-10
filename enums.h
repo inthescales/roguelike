@@ -71,10 +71,22 @@ enum colorName {
 	C_GRAY, C_WHITE,
 	C_RED, C_ORANGE,
 	C_GREEN, C_LIME,
-	C_BLUE, C_GOLUBOI,
+	C_BLUE, C_SKY,
 	C_PURPLE, C_MAGENTA,
 	C_BROWN, C_YELLOW,
 	C_TEAL, C_CYAN
+};
+
+// Color pair IDs for non-bold colors
+enum colorPair {
+  CP_BLACK_BLACK = 0,
+  CP_GRAY_BLACK,
+  CP_RED_BLACK,
+  CP_GREEN_BLACK,
+  CP_BLUE_BLACK,
+  CP_PURPLE_BLACK,
+  CP_BROWN_BLACK,
+  CP_TEAL_BLACK
 };
 
 //Object materials

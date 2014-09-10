@@ -17,8 +17,8 @@ enum args_t {
 class argmap {
 
 	private:
-	std::map<int, void *> the_map;
-	
+        std::map<int, void *> the_map;
+
 	public:
 	argmap();
 	bool add_int(args_t, int);

@@ -2,9 +2,10 @@
 
 #define MAP_H
 
-#include "object.h"
 #include <vector>
 
+class actor;
+class object;
 class tile;
 
 /*

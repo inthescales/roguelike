@@ -2,19 +2,20 @@
 
 #define OBJCLASS_H
 
+#include "display.h"
 #include "enums.h"
-//#include "effect.h"
 
 #include <utility>
 #include <string>
 #include <vector>
 
-class argmap;
-typedef argmap statmap;
-class trigger_effect;
-
 using std::string;
 using std::vector;
+
+class argmap;
+class trigger_effect;
+
+typedef argmap statmap;
 
 class objclass {
 
@@ -23,7 +24,7 @@ class objclass {
 	string name;
 	string assigned_name; //user assigned name
 	
-	unsigned char symbol;
+	d_glyph symbol;
 	colorName color;
 	
 	bool known;
@@ -38,7 +39,7 @@ class objclass {
 	vector<trigger_effect> effects;
 	statmap * stats;
 	
-	objclass(string, unsigned char, colorName, object_type, object_subtype, material_t, int, int);	
+	objclass(string, d_glyph, colorName, object_type, object_subtype, material_t, int, int);	
 	void add_effect(trigger_effect);
 	
 };

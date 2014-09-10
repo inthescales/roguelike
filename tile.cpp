@@ -1,11 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "tile.h"
+#include "actor.h"
+#include "object.h"
 #include "globals.h"
-#include "graphics.h"
+#include "tile.h"
 #include "tileclass.h"
 
 #include <algorithm>
+#include <stdio.h>
+#include <stdlib.h>
 
 tile::tile(short code){
 	type = code;
@@ -14,7 +15,7 @@ tile::tile(short code){
 	my_feature = NULL;
 }
 
-chtype tile::get_img(){
+d_glyph tile::get_img(){
 	if(my_actor != NULL){
 		my_actor->get_img();
 	} else if(my_feature != NULL){
@@ -22,7 +23,19 @@ chtype tile::get_img(){
 	} else if(!my_objects.empty()){
 		my_objects.back()->get_img();
 	} else {
-		return comp(tclass[type].symbol, tclass[type].color);
+	  return tclass[type].symbol;
+	}
+}
+
+int tile::get_color() {
+	if(my_actor != NULL){
+		my_actor->get_color();
+	} else if(my_feature != NULL){
+	
+	} else if(!my_objects.empty()){
+		my_objects.back()->get_color();
+	} else {
+	       return tclass[type].color;
 	}
 }
 
