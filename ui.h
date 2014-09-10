@@ -31,6 +31,7 @@ class UI {
 	static bool command_drink();
 	static bool command_read();
 	static bool command_use();
+	static bool command_quit();
 	
 	static bool prompt_yesno(string);
 	static vector<object*> prompt_inventory(actor *, string, bool, bool);

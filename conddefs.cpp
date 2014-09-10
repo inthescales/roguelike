@@ -1,7 +1,7 @@
 #include "condclass.h"
 #include "conddefs.h"
+#include "display.h"
 #include "globals.h"
-#include "graphics.h"
 #include "effect.h"
 
 #include <utility>

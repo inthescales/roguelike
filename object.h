@@ -3,10 +3,11 @@
 #define OBJECT_H
 
 #include "argmap.h"
+#include "config.h"
+#include "display.h"
 #include "effect.h"
 #include "enums.h"
 
-#include "curses.h"
 #include <utility>
 #include <string>
 #include <vector>
@@ -32,7 +33,8 @@ class object {
 	
 	static bool compare_type(object *, object *);
 	
-	chtype get_img();
+	d_glyph get_img();
+	int get_color();
 	string get_name();
 	string get_name_color();
 	

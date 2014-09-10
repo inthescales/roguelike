@@ -2,10 +2,12 @@
 
 #define FEATCLASS_H
 
+#include "config.h"
 #include "enums.h"
 
+#include LIB_CURSES
+
 #include <vector>
-#include <curses.h>
 
 class featclass {
 

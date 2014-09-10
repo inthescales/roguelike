@@ -1,7 +1,10 @@
-#include "globals.h"
 #include "map.h"
-#include "tile.h"
+
+#include "actor.h"
 #include "feature.h"
+#include "globals.h"
+#include "object.h"
+#include "tile.h"
 #include "window.h"
 
 map::map(short n_width, short n_height, int n_type, int n_id, map * last_map) : width(n_width), height(n_height), id(n_id){

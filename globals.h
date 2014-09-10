@@ -72,6 +72,7 @@ extern string str_eq_slot[];
 extern int color_value[];
 
 // Functions of general use
+void exit_game(int sig);
 void redraw_windows();
 
 #endif

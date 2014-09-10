@@ -1,28 +1,30 @@
-#include <curses.h>
-#include <stdlib.h>
-#include <time.h>
-
+#include "actdefs.h"
+#include "conddefs.h"
+#include "config.h"
+#include "enums.h"
 #include "globals.h"
+#include "objdefs.h"
 #include "settings.h"
 #include "setup.h"
 #include "window.h"
 
-#include "actdefs.h"
-#include "objdefs.h"
-#include "conddefs.h"
+#include LIB_CURSES
 
+#include <stdlib.h>
+#include <time.h>
 #include <string>
 #include <vector>
+#include <clocale>
 
 using std::string;
 using std::vector;
 
 void setup(){
 
+        setlocale(LC_ALL, "en_US.UTF-8");
 	initscr();
 	resize_term(win_output->height + win_world->height + win_status->height, win_output->width);
 	keypad(stdscr, TRUE);
-	start_color();
 	setup_color();
 	cbreak();
 	noecho();
@@ -48,17 +50,19 @@ void setup_window(){
 }
 
 void setup_color(){
+
 	if(has_colors())
 	{
+
 		start_color();
 
-		init_pair(0, COLOR_BLACK, COLOR_BLACK);
-		init_pair(1, COLOR_WHITE, COLOR_BLACK);
-		init_pair(2, COLOR_RED, COLOR_BLACK);
-		init_pair(3, COLOR_GREEN, COLOR_BLACK);
-		init_pair(4, COLOR_BLUE, COLOR_BLACK);
-		init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-		init_pair(6, COLOR_YELLOW, COLOR_BLACK);
-		init_pair(7, COLOR_CYAN, COLOR_BLACK);
+		init_pair(CP_BLACK_BLACK, COLOR_BLACK, COLOR_BLACK);
+		init_pair(CP_GRAY_BLACK, COLOR_WHITE, COLOR_BLACK);
+		init_pair(CP_RED_BLACK, COLOR_RED, COLOR_BLACK);
+		init_pair(CP_GREEN_BLACK, COLOR_GREEN, COLOR_BLACK);
+		init_pair(CP_BLUE_BLACK, COLOR_BLUE, COLOR_BLACK);
+		init_pair(CP_PURPLE_BLACK, COLOR_MAGENTA, COLOR_BLACK);
+		init_pair(CP_BROWN_BLACK, COLOR_YELLOW, COLOR_BLACK);
+		init_pair(CP_TEAL_BLACK, COLOR_CYAN, COLOR_BLACK);
 	}
 }

@@ -1,7 +1,6 @@
 #include "actor.h"
 #include "actclass.h"
 #include "globals.h"
-#include "graphics.h"
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
@@ -37,8 +36,12 @@ actor::actor(short code){
 	
 }
 
-chtype actor::get_img(){
-	return comp(aclass[type]->symbol, aclass[type]->color);
+d_glyph actor::get_img(){
+        return aclass[type]->symbol;
+}
+
+int actor::get_color(){
+        return aclass[type]->color;
 }
 
 string actor::get_name(){

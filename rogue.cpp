@@ -1,16 +1,19 @@
-#include <curses.h>
-#include <stdio.h>
-#include <stdlib.h>
-
+#include "config.h"
 #include "map.h"
 #include "rogue.h"
 #include "setup.h"
 #include "ui.h"
 #include "window.h"
 
+#include LIB_CURSES
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <clocale>
+
 // Main! Setup and action loop
 int main(void){
-
+  
 	setup_window();
 	setup();
 	init_game();
@@ -33,7 +36,7 @@ int main(void){
 	}
 	
 	exit_game(0);
-
+	
 }
 
 /*
@@ -45,7 +48,7 @@ void update_world(map * m) {
 	for(; act_it != m->actors.end(); ++act_it) {
 	
 	}
-}
+	}
 
 // Initialize the starting game state
 void init_game() {

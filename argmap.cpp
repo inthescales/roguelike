@@ -1,4 +1,5 @@
 #include "argmap.h"
+#include "config.h"
 
 argmap::argmap(){
 //	the_map = std::map<args_t, void *>();
@@ -9,12 +10,22 @@ bool argmap::has_value(args_t code){
 }
 
 bool argmap::add_int(args_t code, int int_in){
-	the_map[code] = (void *)int_in;
+#ifdef size_64
+  long temp = (long)int_in;
+  the_map[code] = (void *)temp;
+#else
+  the_map[code] = (void *)int_in;
+#endif
 	return true;
 }
 
 int argmap::get_int(args_t code){
+#ifdef size_64
+  long temp = (long)the_map[code];
+  return (int)temp;
+#else
 	return (int)the_map[code];
+#endif
 }
 
 bool argmap::add_actor(args_t code, actor * act_in){
@@ -58,12 +69,22 @@ void argmap::add_args(argmap * args) {
 // stat versions (same, just for convenience)
 
 bool argmap::add_stat (stats_t code, int int_in){
+#ifdef size_64
+  long temp = (long)int_in;
+  the_map[code] = (void *)temp;
+#else
 	the_map[code] = (void *)int_in;
+#endif
 	return true;
 }
 
 int argmap::get_stat (stats_t code){
+#ifdef size_64
+  long temp = (long)the_map[code];
+  return (int)temp;
+#else
 	return (int)the_map[code];
+#endif
 }
 
 bool argmap::has_stat (stats_t code){

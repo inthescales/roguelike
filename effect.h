@@ -2,15 +2,16 @@
 
 #define EFFECT_H
 
-class actor;
-class object;
-class tile;
-class feature;
 #include "enums.h"
 #include "argmap.h"
 #include <string>
 
 using std::string;
+
+class actor;
+class object;
+class tile;
+class feature;
 
 class effect {
 

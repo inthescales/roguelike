@@ -1,15 +1,18 @@
-#include "curses.h"
-
+#include "actor.h"
 #include "condition.h"
 #include "condclass.h"
+#include "config.h"
+#include "display.h"
 #include "globals.h"
-#include "graphics.h"
 #include "map.h"
+#include "object.h"
 #include "objclass.h"
 #include "stringutils.h"
 #include "ui.h"
 #include "tile.h"
 #include "window.h"
+
+#include LIB_CURSES
 
 #include <algorithm>
 
@@ -25,7 +28,7 @@ void window::clear(){
 	for(int j = y; j < height + y; ++j){
 		move(j, x);
 		for(int i = x; i < width + x; i++){
-			addch(' ');
+		    printchar_cw(' ');
 		}
 	}
 }
@@ -39,7 +42,7 @@ void window::display_map(map * m){
 		for(int j = 0; j < width; ++j){
 		
 			tile * cur = &m->tiles[j + scrn_x][i + scrn_y];
-			addch( cur->get_img() );
+			printchar_cw(cur->get_img(), cur->get_color());
 		}
 	}
 }
@@ -201,7 +204,7 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi,
 	
 	int index = 0, x = 3, y = 3;
 	int start = 0, winsize = 10;
-	const chtype sym[] = {'-', '+'};
+	const d_glyph sym[] = {'-', '+'};
 	int input, headers;
 	vector<bool> selected(items.size(), false);
 	vector<object*> ret;
@@ -225,7 +228,7 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi,
 			}
 			move(y + i + headers - start + 1, x);
 			printw("%c ", UI::int_to_letter(i));
-			addch(sym[selected[i]]);
+			printchar_cw(sym[selected[i]]);
 			printw(" %s", items[i]->get_name().c_str());
 		}
 		

@@ -1,4 +1,4 @@
-#include "graphics.h"
+#include "display.h"
 #include "tileclass.h"
 
 struct tileclass tclass[] = {

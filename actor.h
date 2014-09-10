@@ -1,11 +1,12 @@
-#ifndef ACTOR_H
+#ifndef ACTOR_Hp
 
 #define ACTOR_H
 
 #include "enums.h"
 #include "condition.h"
+#include "config.h"
+#include "display.h"
 
-#include <curses.h>
 #include <stdlib.h>
 #include <string>
 #include <utility> //pair
@@ -43,7 +44,8 @@ class actor {
 	// Functions:
 	
 	actor(short code);
-	chtype get_img();
+	d_glyph get_img();
+	int get_color();
 	string get_name();
 	
 	void move(std::pair<int,int>);

@@ -1,7 +1,7 @@
 #include "actclass.h"
 #include "actdefs.h"
+#include "display.h"
 #include "globals.h"
-#include "graphics.h"
 
 void define_actors(){
 

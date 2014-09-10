@@ -3,6 +3,7 @@
 #include "actor.h"
 #include "globals.h"
 #include "map.h"
+#include "object.h"
 #include "objclass.h"
 #include "stringutils.h"
 #include "tile.h"
@@ -61,6 +62,9 @@ void UI::get_action(){
 		case 'a':
 			command_use();
 			break;
+	        case 'Q':
+		        command_quit();
+		        break;
 		case 's':
 		case '.':
 		default:
@@ -327,6 +331,10 @@ bool UI::command_use(){
 	} else {
 		win_output->print("Nevermind...");
 	}
+}
+
+bool UI::command_quit() {
+  exit_game(0);
 }
 
 // PROMPTS =========================================

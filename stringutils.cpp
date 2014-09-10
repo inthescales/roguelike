@@ -1,8 +1,9 @@
+#include "config.h"
 #include "enums.h"
-#include "stringutils.h"
 #include "globals.h"
+#include "stringutils.h"
 
-#include "curses.h"
+#include LIB_CURSES
 
 // Split a string into chunks of size width, not including color codes
 // and handling wraparound text
