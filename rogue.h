@@ -3,6 +3,7 @@
 #define ROGUE_H
 
 #include "actor.h"
+#include "display.h"
 #include "globals.h"
 #include "window.h"
 #include "classdefs.h"
@@ -14,7 +15,10 @@ void update_world(map * m);
 
 actclass * aclass[ACT_MAX];
 objclass * oclass[OBJ_MAX];
+tileclass * tclass[TILE_MAX];
 condclass * cclass[COND_MAX];
+
+symbol_code symboldef[CHAR_MAX];
 
 object * obj_letter[52];
 

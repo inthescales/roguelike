@@ -12,12 +12,12 @@ object::object(short code, short quant) : type(code), equipped(0), quantity(quan
 
 }
 
-d_glyph object::get_img(){
-        return oclass[type]->symbol;
+glyph object::get_glyph(){
+  return oclass[type]->get_glyph();
 }
 
 int object::get_color(){
-        return oclass[type]->color;
+  return get_glyph().get_color();
 }
 
 string object::get_name(){
@@ -25,7 +25,7 @@ string object::get_name(){
 }
 
 string object::get_name_color(){
-	return color_string(get_name(), oclass[type]->color);
+  return color_string(get_name(), oclass[type]->get_color());
 }
 
 bool object::compare_type(object * a, object * b){

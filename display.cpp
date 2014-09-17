@@ -2,17 +2,18 @@
 #include "enums.h"
 #include "display.h"
 #include "globals.h"
+#include "glyph.h"
 
 void printcolor(int x, int y, string in){
 
 	int len = in.size();
-	int color = C_WHITE;
+	colorName color = C_WHITE;
 
 	move(y, x);
 	for(int i = 0; i < len; ++i){
 	
 		if(in.at(i) == '|'){ 
-			color = in.at(i+1);
+		  color = (colorName)(in.at(i+1));
 			++i;
 		} else {
 		  printchar_cw(in.at(i), color);
@@ -21,16 +22,22 @@ void printcolor(int x, int y, string in){
 	
 }
 
-void printchar_cw(d_glyph gly) {
-  printchar_cw(gly, C_WHITE);
+void printglyph(glyph gly) {
+#if DISPLAY_TYPE == DISPLAY_CURSES || DISPLAY_TYPE == DISPLAY_WCURSES
+    printchar_cw(gly.get_symbol(), gly.get_color());
+#endif
 }
 
-void printchar_cw(d_glyph gly, int color) {
+void printchar_cw(symbol_code s) {
+  printchar_cw(s, C_WHITE);
+}
+
+void printchar_cw(symbol_code sym, colorName color) {
 #if DISPLAY_TYPE == DISPLAY_CURSES
-  addch(gly | color);
+  addch(sym | color);
 #elif DISPLAY_TYPE == DISPLAY_WCURSES
   cchar_t cc;
-  wchar_t wc = gly;
+  wchar_t wc = sym;
   long col = get_color(color);
   long attr = get_attr(color);
 
@@ -39,9 +46,3 @@ void printchar_cw(d_glyph gly, int color) {
 #endif
   
 }
-
-/*
-Future ideas - have an image descriptor class that can be passed as an input to a print function.
-This class would vary depending on graphics config - for curses would be char (ascii or unicode) plus
-color, but might include other info for tiled versions (e.g. image file plus variant flags)
- */

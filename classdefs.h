@@ -11,6 +11,12 @@
 #define OBJ_GOLD_COIN 3
 #define OBJ_MAX 4
 
+#define TILE_FLOOR 0
+#define TILE_GRASS 1
+#define TILE_WALL 2
+#define TILE_WATER 3
+#define TILE_MAX 4
+
 #define COND_CURSED 0
 #define COND_MAX 1
 

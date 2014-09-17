@@ -1,4 +1,5 @@
-// Config information for roguelike
+#ifndef CONFIG_H
+#define CONFIG_H
 
 // INTEGER SIZE ====================================
 // for void / int casts in argmap
@@ -16,4 +17,6 @@
 
 #if DISPLAY_TYPE == DISPLAY_WCURSES && !defined(_XOPEN_SOURCE_EXTENDED)
 #define _XOPEN_SOURCE_EXTENDED
+#endif
+
 #endif

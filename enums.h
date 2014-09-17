@@ -74,7 +74,8 @@ enum colorName {
 	C_BLUE, C_SKY,
 	C_PURPLE, C_MAGENTA,
 	C_BROWN, C_YELLOW,
-	C_TEAL, C_CYAN
+	C_TEAL, C_CYAN,
+	C_GRAY_INV, C_WHITE_INV
 };
 
 // Color pair IDs for non-bold colors
@@ -86,7 +87,8 @@ enum colorPair {
   CP_BLUE_BLACK,
   CP_PURPLE_BLACK,
   CP_BROWN_BLACK,
-  CP_TEAL_BLACK
+  CP_TEAL_BLACK,
+  CP_BLACK_GRAY
 };
 
 //Object materials

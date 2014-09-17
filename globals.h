@@ -2,6 +2,10 @@
 
 #define GLOBALS_H
 
+#include "classdefs.h"
+#include "display.h"
+#include "symboldefs.h"
+
 #include <string>
 #include <vector>
 using std::string;
@@ -9,13 +13,13 @@ using std::vector;
 
 typedef vector<string> buffer;
 
-#include "classdefs.h"
 class object;
 class window;
 class map;
 class actor;
 class actclass;
 class objclass;
+class tileclass;
 class condclass;
 
 // SYSTEM STUFF ========================
@@ -62,7 +66,9 @@ extern int turn;
 extern actclass * aclass[ACT_MAX];
 extern objclass * oclass[OBJ_MAX];
 extern condclass * cclass[COND_MAX];
-extern struct tileclass tclass[];
+extern tileclass * tclass[TILE_MAX];
+
+extern symbol_code symboldef[CHAR_MAX];
 
 // Other predefined arrays
 extern string str_obj_type[];

@@ -2,8 +2,8 @@
 
 #define OBJCLASS_H
 
-#include "display.h"
 #include "enums.h"
+#include "glyph.h"
 
 #include <utility>
 #include <string>
@@ -24,8 +24,7 @@ class objclass {
 	string name;
 	string assigned_name; //user assigned name
 	
-	d_glyph symbol;
-	colorName color;
+	glyph image;
 	
 	bool known;
 	
@@ -39,9 +38,10 @@ class objclass {
 	vector<trigger_effect> effects;
 	statmap * stats;
 	
-	objclass(string, d_glyph, colorName, object_type, object_subtype, material_t, int, int);	
+	objclass(string, symbol_code, colorName, object_type, object_subtype, material_t, int, int);	
 	void add_effect(trigger_effect);
-	
+	glyph get_glyph();
+	colorName get_color();
 };
 
 #endif

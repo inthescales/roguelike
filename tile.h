@@ -9,9 +9,10 @@
 using std::vector;
 
 class actor;
+class condition;
 class object;
 class feature;
-class condition;
+class glyph;
 
 class tile{
 
@@ -29,7 +30,9 @@ class tile{
 	// Fancy getters
 	bool can_walk();
 	
-	d_glyph get_img();
+	glyph get_img();
+	int get_img_color();
+	glyph get_glyph();
 	int get_color();
 	bool remove_object(object*);
 };

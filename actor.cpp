@@ -15,8 +15,6 @@
 using std::pair;
 using std::ostringstream;
 
-#define SET_SYMBOL(O,S,C) O->img = S|C
-
 actor::actor(short code){
 
 	type = code;
@@ -36,12 +34,12 @@ actor::actor(short code){
 	
 }
 
-d_glyph actor::get_img(){
-        return aclass[type]->symbol;
+glyph actor::get_glyph(){
+  return aclass[type]->image;
 }
 
 int actor::get_color(){
-        return aclass[type]->color;
+  return aclass[type]->image.color;
 }
 
 string actor::get_name(){

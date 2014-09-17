@@ -34,6 +34,21 @@ end
 
 fileout.write("#define OBJ_MAX " + count.to_s + "\n\n");
 
+#TILES
+count = 0
+filein = File.new("tiledefs.cpp", "r")
+
+while (line = filein.gets)
+
+    if (name = /\/\/#(\S*)/.match(line))
+		fileout.write("#define TILE_" + name[1] + " " + count.to_s + "\n")
+		count += 1
+	end
+	
+end
+
+fileout.write("#define TILE_MAX " + count.to_s + "\n\n");
+
 #CONDITIONS
 count = 0
 filein = File.new("conddefs.cpp", "r")
@@ -56,4 +71,4 @@ fileout.write("#endif\n");
 filein.close
 fileout.close
 
-print "Makedefs successful!"
+print "Makedefs successful!\n"

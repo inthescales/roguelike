@@ -14,6 +14,7 @@
 
 using std::string;
 
+class glyph;
 class object;
 class tile;
 
@@ -44,7 +45,7 @@ class actor {
 	// Functions:
 	
 	actor(short code);
-	d_glyph get_img();
+	glyph get_glyph();
 	int get_color();
 	string get_name();
 	
