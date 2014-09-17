@@ -15,19 +15,27 @@ tile::tile(short code){
 	my_feature = NULL;
 }
 
-d_glyph tile::get_img(){
-	if(my_actor != NULL){
-		my_actor->get_img();
-	} else if(my_feature != NULL){
-	
-	} else if(!my_objects.empty()){
-		my_objects.back()->get_img();
-	} else {
-	  return tclass[type].symbol;
-	}
+glyph tile::get_glyph() {
+  return tclass[type]->image;
 }
 
 int tile::get_color() {
+  get_glyph().color;
+}
+
+glyph tile::get_img(){
+	if(my_actor != NULL){
+		my_actor->get_glyph();
+	} else if(my_feature != NULL){
+	
+	} else if(!my_objects.empty()){
+		my_objects.back()->get_glyph();
+	} else {
+	        get_glyph();
+	}
+}
+
+int tile::get_img_color() {
 	if(my_actor != NULL){
 		my_actor->get_color();
 	} else if(my_feature != NULL){
@@ -35,13 +43,13 @@ int tile::get_color() {
 	} else if(!my_objects.empty()){
 		my_objects.back()->get_color();
 	} else {
-	       return tclass[type].color;
+   	        get_color();
 	}
 }
 
 bool tile::can_walk(){
 	
-	return tclass[type].can_walk;
+	return tclass[type]->can_walk;
 }
 
 // Remove an object from the tile's list (because it's been taken)

@@ -1,10 +1,11 @@
 #include "actclass.h"
 
-actclass::actclass(string n, unsigned char s, colorName c) {
+actclass::actclass(string n, symbol_code s, colorName c) {
 
 	name = n;
-	symbol = s;
-	color = c;
+#if DISPLAY_TYPE == DISPLAY_CURSES || DISPLAY_TYPE == DISPLAY_WCURSES
+       	image = glyph(s, c);
+#endif
 	stats = new statmap();
 }
 

@@ -9,16 +9,19 @@
 
 #include <string>
 
+class glyph;
+
 using std::string;
 
 #if DISPLAY_TYPE == DISPLAY_CURSES
-typedef chtype d_glyph;
+typedef chtype symbol_code;
 #elif DISPLAY_TYPE == DISPLAY_WCURSES
-typedef wchar_t d_glyph;
+typedef wchar_t symbol_code;
 #endif
 
 void printcolor(int, int, string);
-void printchar_cw(d_glyph);
-void printchar_cw(d_glyph, int);
+void printglyph(glyph);
+void printchar_cw(symbol_code);
+void printchar_cw(symbol_code, colorName);
 
 #endif

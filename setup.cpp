@@ -6,6 +6,7 @@
 #include "objdefs.h"
 #include "settings.h"
 #include "setup.h"
+#include "tiledefs.h"
 #include "window.h"
 
 #include LIB_CURSES
@@ -30,9 +31,11 @@ void setup(){
 	noecho();
 	curs_set(1);
 	srand( time( NULL ) );
-	
+
+	define_symbols();
 	define_actors();
 	define_objects();
+	define_tiles();
 	define_conditions();
 	
 	for(int i = 0; i < 52; ++i) obj_letter[i] = NULL;
@@ -64,5 +67,6 @@ void setup_color(){
 		init_pair(CP_PURPLE_BLACK, COLOR_MAGENTA, COLOR_BLACK);
 		init_pair(CP_BROWN_BLACK, COLOR_YELLOW, COLOR_BLACK);
 		init_pair(CP_TEAL_BLACK, COLOR_CYAN, COLOR_BLACK);
+		init_pair(CP_BLACK_GRAY, COLOR_BLACK, COLOR_WHITE);
 	}
 }

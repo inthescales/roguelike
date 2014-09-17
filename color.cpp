@@ -50,7 +50,8 @@ long get_color(short colorName) {
   case C_MAGENTA: return CP_PURPLE_BLACK;
   case C_BROWN: return CP_BROWN_BLACK;
   case C_YELLOW: return CP_BROWN_BLACK;
-      
+  case C_GRAY_INV: return CP_BLACK_GRAY;
+  case C_WHITE_INV: return CP_BLACK_GRAY;
   }
 
   return 0;
@@ -67,6 +68,7 @@ int get_attr(short colorName) {
   case C_MAGENTA:
   case C_YELLOW:
   case C_CYAN:
+  case C_WHITE_INV:
     attr |= A_BOLD;
   }
 

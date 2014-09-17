@@ -1,18 +1,22 @@
 #include "display.h"
 #include "tileclass.h"
 
-struct tileclass tclass[] = {
+tileclass::tileclass(bool walk, bool swim, bool fly, bool opa, symbol_code s, colorName c) {
+  can_walk = walk;
+  can_swim = swim;
+  can_fly = fly;
+  opaque = opa;
+  image = glyph(s, c);
+}
 
-	//#FLOOR
-	TILE( 1, 0, 1 , 0, 250, C_WHITE),
-	
-	//#GRASS
-	TILE( 1, 0, 1, 0, 250, C_GREEN),
+glyph tileclass::get_glyph() {
+  return image;
+}
 
-	//#WALL
-	TILE( 0, 0, 0, 1, 219, C_GRAY),
-	
-	//#WATER
-	TILE( 0, 1, 1, 0, 247, C_BLUE)
+symbol_code tileclass::get_symbol() {
+  return image.get_symbol();
+}
 
-};
+colorName tileclass::get_color() {
+  return image.get_color();
+}

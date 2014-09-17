@@ -8,6 +8,7 @@
 #include "object.h"
 #include "objclass.h"
 #include "stringutils.h"
+#include "symboldefs.h"
 #include "ui.h"
 #include "tile.h"
 #include "window.h"
@@ -42,7 +43,7 @@ void window::display_map(map * m){
 		for(int j = 0; j < width; ++j){
 		
 			tile * cur = &m->tiles[j + scrn_x][i + scrn_y];
-			printchar_cw(cur->get_img(), cur->get_color());
+			printglyph(cur->get_img());
 		}
 	}
 }
@@ -204,7 +205,7 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi,
 	
 	int index = 0, x = 3, y = 3;
 	int start = 0, winsize = 10;
-	const d_glyph sym[] = {'-', '+'};
+	const symbol_code sym[] = {symboldef[CHAR_MINUS], symboldef[CHAR_PLUS]};
 	int input, headers;
 	vector<bool> selected(items.size(), false);
 	vector<object*> ret;
