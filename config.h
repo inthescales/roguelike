@@ -11,9 +11,15 @@
 #define DISPLAY_WCURSES      1
 #define DISPLAY_TILES        2
 
-#define DISPLAY_TYPE DISPLAY_WCURSES
+#define DISPLAY_TYPE DISPLAY_CURSES
 
-#define LIB_CURSES <ncursesw/curses.h>
+#if DISPLAY_TYPE == DISPLAY_CURSES
+
+    #define LIB_CURSES <curses.h>
+#elif DISPLAY_TYPE == DISPLAY_WCURSES
+
+    #define LIB_CURSES <ncursesw/curses.h>
+#endif
 
 #if DISPLAY_TYPE == DISPLAY_WCURSES && !defined(_XOPEN_SOURCE_EXTENDED)
 #define _XOPEN_SOURCE_EXTENDED

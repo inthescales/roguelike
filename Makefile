@@ -1,6 +1,6 @@
 CC = g++
-#OLDLDFLAGS = -lpdcurses
-LDFLAGS = -lncursesw
+LDFLAGS = -lpdcurses
+#LDFLAGS = -lncursesw
 
 all : build
 
