@@ -6,33 +6,6 @@
 #include <stdio.h>
 #include LIB_CURSES
 
-// Map from color enum to color pairs
-#if DISPLAY_TYPE == DISPLAY_CURSES
-int color_value[] = 
-{
-	0<<24,
-	1<<24, (1<<24) | A_BOLD,
-	2<<24, (2<<24) | A_BOLD,
-	3<<24, (3<<24) | A_BOLD,
-	4<<24, (4<<24) | A_BOLD,
-	5<<24, (5<<24) | A_BOLD,
-	6<<24, (6<<24) | A_BOLD,
-	7<<24, (7<<24) | A_BOLD,
-};
-#elif DISPLAY_TYPE == DISPLAY_WCURSES
-int color_value[] =
-{
-	0<<24,
-	1<<24, (1<<24) | WA_BOLD,
-	2<<24, (2<<24) | WA_BOLD,
-	3<<24, (3<<24) | WA_BOLD,
-	4<<24, (4<<24) | WA_BOLD,
-	5<<24, (5<<24) | WA_BOLD,
-	6<<24, (6<<24) | WA_BOLD,
-	7<<24, (7<<24) | WA_BOLD,
-};
-#endif
-
 // Returns the color pair component of a color
 long get_color(short colorName) {
 
@@ -55,6 +28,23 @@ long get_color(short colorName) {
   }
 
   return 0;
+}
+
+// Returns whether the color should have the bold attribute
+bool get_bold(short colorName) {
+  switch(colorName) {
+  case C_WHITE:
+  case C_ORANGE:
+  case C_LIME:
+  case C_SKY:
+  case C_MAGENTA:
+  case C_YELLOW:
+  case C_CYAN:
+  case C_WHITE_INV:
+    return true;
+  }
+
+  return false;
 }
 
 // Returns attributes needed for a color

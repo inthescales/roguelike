@@ -3,6 +3,7 @@
 #include "display.h"
 #include "globals.h"
 #include "glyph.h"
+#include <stdlib.h>
 
 void printcolor(int x, int y, string in){
 
@@ -23,7 +24,8 @@ void printcolor(int x, int y, string in){
 }
 
 void printglyph(glyph gly) {
-#if DISPLAY_TYPE == DISPLAY_CURSES || DISPLAY_TYPE == DISPLAY_WCURSES
+#if DISPLAY_TYPE == DISPLAY_CURSES \
+ || DISPLAY_TYPE == DISPLAY_WCURSES
     printchar_cw(gly.get_symbol(), gly.get_color());
 #endif
 }
@@ -33,8 +35,13 @@ void printchar_cw(symbol_code s) {
 }
 
 void printchar_cw(symbol_code sym, colorName color) {
+
 #if DISPLAY_TYPE == DISPLAY_CURSES
-  addch(sym | color);
+  attron(COLOR_PAIR(get_color(color)));
+  if (get_bold(color)) attron(A_BOLD);
+  addch(sym);
+  attroff(COLOR_PAIR(get_color(color)));
+  if (get_bold(color)) attroff(A_BOLD);
 #elif DISPLAY_TYPE == DISPLAY_WCURSES
   cchar_t cc;
   wchar_t wc = sym;
