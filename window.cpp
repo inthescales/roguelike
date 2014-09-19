@@ -205,7 +205,7 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi,
 	
 	int index = 0, x = 3, y = 3;
 	int start = 0, winsize = 10;
-	const symbol_code sym[] = {symboldef[CHAR_MINUS], symboldef[CHAR_PLUS]};
+	const symbol_code sym[] = {symboldef[CHAR_DASH], symboldef[CHAR_PLUS]};
 	int input, headers;
 	vector<bool> selected(items.size(), false);
 	vector<object*> ret;
@@ -237,7 +237,16 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi,
 		
 		if((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z')){
 		
-			selected[UI::letter_to_int(input)] = !selected[UI::letter_to_int(input)];				
+            if(!multi) {
+                // With no multi select, return immediately
+                int num = UI::letter_to_int(input);
+                if (num < items.size()) {
+                    ret.push_back(items[num]);
+                    return ret;
+                }
+            } else {
+                selected[UI::letter_to_int(input)] = !selected[UI::letter_to_int(input)];
+            }
 		} else {
 		
 			switch(input){
