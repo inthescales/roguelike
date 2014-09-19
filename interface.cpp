@@ -2,12 +2,12 @@
 
 #include "actor.h"
 #include "globals.h"
+#include "interface.h"
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
 #include "stringutils.h"
 #include "tile.h"
-#include "ui.h"
 #include "window.h"
 
 #include <sstream>

@@ -16,7 +16,11 @@ glyph object::get_glyph(){
   return oclass[type]->get_glyph();
 }
 
-int object::get_color(){
+symbol_code object::get_symbol(){
+  return get_glyph().get_symbol();
+}
+
+colorName object::get_color(){
   return get_glyph().get_color();
 }
 

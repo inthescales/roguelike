@@ -1,8 +1,8 @@
 #include "config.h"
+#include "interface.h"
 #include "map.h"
 #include "rogue.h"
 #include "setup.h"
-#include "ui.h"
 #include "window.h"
 
 #include LIB_CURSES

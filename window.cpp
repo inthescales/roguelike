@@ -4,12 +4,12 @@
 #include "config.h"
 #include "display.h"
 #include "globals.h"
+#include "interface.h"
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
 #include "stringutils.h"
 #include "symboldefs.h"
-#include "ui.h"
 #include "tile.h"
 #include "window.h"
 
