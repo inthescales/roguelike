@@ -62,9 +62,9 @@ void UI::get_action(){
 		case 'a':
 			command_use();
 			break;
-	        case 'Q':
-		        command_quit();
-		        break;
+	    case 'Q':
+		    command_quit();
+		    break;
 		case 's':
 		case '.':
 		default:
@@ -210,7 +210,7 @@ bool UI::command_drop(){
 	
 	if( !(controlled->inventory.empty() && controlled->gold == 0) ){
 	
-		vector<object*> items = prompt_inventory(controlled, "Drop what?", false, true);
+		vector<object*> items = prompt_inventory(controlled, "Drop what?", true, true);
 		if(items.size() > 0){
 		
 			for(int i = 0; i < items.size(); ++i){
@@ -373,7 +373,7 @@ vector<object*> UI::prompt_inventory(actor * controlled, string prompt, bool all
 			ret.push_back(prompt_gold_to_object(controlled));
 			return ret;
 		} else if(input == '*' || input == '?'){
-			ret = win_screen->menu_select_objects(controlled->inventory, true, true);
+			ret = win_screen->menu_select_objects(controlled->inventory, allow_multi, true);
 			return ret;
 		} else if(input == 27){
 			return ret;

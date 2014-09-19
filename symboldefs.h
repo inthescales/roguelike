@@ -74,7 +74,6 @@ enum character {
   CHAR_SPACE,
   CHAR_AT,
   CHAR_PLUS,
-  CHAR_MINUS,
   CHAR_EQUAL,
   CHAR_DASH,
   CHAR_UNDERSCORE,
