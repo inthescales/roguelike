@@ -34,7 +34,8 @@ class object {
 	static bool compare_type(object *, object *);
 	
 	glyph get_glyph();
-	int get_color();
+    symbol_code get_symbol();
+	colorName get_color();
 	string get_name();
 	string get_name_color();
 	

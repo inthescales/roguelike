@@ -1,12 +1,12 @@
 #include "actor.h"
 #include "actclass.h"
 #include "globals.h"
+#include "interface.h"
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
 #include "stringutils.h"
 #include "tile.h"
-#include "ui.h"
 #include "window.h"
 
 #include <algorithm>
@@ -35,11 +35,15 @@ actor::actor(short code){
 }
 
 glyph actor::get_glyph(){
-  return aclass[type]->image;
+  return aclass[type]->get_glyph();
 }
 
-int actor::get_color(){
-  return aclass[type]->image.color;
+symbol_code actor::get_symbol(){
+  return get_glyph().get_symbol();
+}
+
+colorName actor::get_color(){
+  return get_glyph().get_color();
 }
 
 string actor::get_name(){
@@ -47,6 +51,10 @@ string actor::get_name(){
 		return "you";
 	else
 		return aclass[type]->name;
+}
+
+string actor::get_name_color(){
+  return color_string(get_name(), aclass[type]->get_color());
 }
 
 // STATS ================================================

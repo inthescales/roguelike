@@ -2,6 +2,7 @@
 
 #define OBJCLASS_H
 
+#include "display.h"
 #include "enums.h"
 #include "glyph.h"
 
@@ -39,9 +40,12 @@ class objclass {
 	statmap * stats;
 	
 	objclass(string, symbol_code, colorName, object_type, object_subtype, material_t, int, int);	
-	void add_effect(trigger_effect);
+	
 	glyph get_glyph();
+    symbol_code get_symbol();
 	colorName get_color();
+    
+    void add_effect(trigger_effect);
 };
 
 #endif

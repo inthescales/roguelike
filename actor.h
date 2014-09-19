@@ -46,8 +46,10 @@ class actor {
 	
 	actor(short code);
 	glyph get_glyph();
-	int get_color();
+    symbol_code get_symbol();
+	colorName get_color();
 	string get_name();
+    string get_name_color();
 	
 	void move(std::pair<int,int>);
 	void attack(std::pair<int,int>);

@@ -27,6 +27,10 @@ glyph objclass::get_glyph() {
   return image;
 }
 
+symbol_code objclass::get_symbol() {
+  return image.get_symbol();
+}
+
 colorName objclass::get_color() {
   return image.get_color();
 }

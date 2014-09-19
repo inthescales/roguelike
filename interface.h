@@ -1,6 +1,8 @@
-#ifndef UI_H
-#define UI_H
+#ifndef INTERFACE_H
+#define INTERFACE_H
 
+#include <string>
+#include <vector>
 #include <utility> //pair
 
 enum ui_action{
@@ -8,6 +10,9 @@ enum ui_action{
 	UIA_MOVE,
 	UIA_ATTACK
 };
+
+using std::string;
+using std::vector;
 
 class actor;
 class object;
