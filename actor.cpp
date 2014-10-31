@@ -7,6 +7,7 @@
 #include "objclass.h"
 #include "stringutils.h"
 #include "tile.h"
+#include "timer.h"
 #include "window.h"
 
 #include <algorithm>
@@ -139,8 +140,22 @@ int actor::get_calc_stat(stats_t code){
 	return val;
 }
 
-// MOVEMENT ==================================================
-// and basic attacks
+// GAME ACTIONS ====================================================================
+
+int actor::take_turn() {
+
+    if (this == act_player) {
+        UI::get_action(); // This should return delay until next turn
+    }
+    
+    return 5; // Return time until next action - effect resolutio will handle requeueing
+}
+
+void actor::queue_turn(int t) {
+    argmap * args = new argmap();
+    args->add_actor(ARG_AGENT, this);
+    map_current->add_timer(new timer(new effect(EFF_TURN), args, t, 0, 0));
+}
 
 // Move the actor to a new tile
 // Assumes the target tile has no actor already.

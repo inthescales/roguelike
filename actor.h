@@ -43,26 +43,43 @@ class actor {
 	std::vector<condition*> conditions;
 
 	// Functions:
-	
 	actor(short code);
+    
+    // Display
 	glyph get_glyph();
     symbol_code get_symbol();
 	colorName get_color();
 	string get_name();
     string get_name_color();
-	
-	void move(std::pair<int,int>);
-	void attack(std::pair<int,int>);
-	void attack(actor *);
-	void get_item(object *);
-	bool remove_object(object * item);
-	
+	void print(string, string);
+    
+    // Getting properties
 	int get_stat(stats_t stat);
 	int get_stat(stats_t stat, bool);
 	int get_equip_stat(stats_t stat);
 	int get_cond_stat(stats_t stat);
 	int get_calc_stat(stats_t stat);
-	
+	effect * get_effect(trigger_t);
+    
+    // State management
+    void get_item(object *);
+	bool remove_object(object * item);
+    void resolve_trigger(trigger_t, argmap *);
+    bool add_condition(condition *);
+    bool remove_condition(int);
+    bool has_condition(int);
+    condition * get_condition(int);
+    void decay_conditions();
+    //void transition(stair);
+	//void switch_map(map, map, int, int );
+    
+    // Actions
+    int take_turn();
+    void queue_turn(int);
+    void move(std::pair<int,int>);
+	void attack(std::pair<int,int>);
+	void attack(actor *);
+    
 	bool pick_up(object *, tile *);
 	bool drop(object *, tile*);
 	bool equip(object *, int);
@@ -73,19 +90,6 @@ class actor {
 	bool use(object *);
 	//void open(int, int);
 	//void close(int, int);
-	
-	void print(string, string);
-	//void transition(stair);
-	//void switch_map(map, map, int, int );
-	
-	effect * get_effect(trigger_t);
-	void resolve_trigger(trigger_t, argmap *);
-	
-	bool has_condition(int);
-	condition * get_condition(int);
-	bool add_condition(condition *);
-	bool remove_condition(int);
-	void decay_conditions();
 };
 
 #endif

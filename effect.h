@@ -16,6 +16,7 @@ class feature;
 class effect {
 
 	public:
+    effect(effect_t);
 	effect(target_t, radius_t, effect_t);
 	
 	target_t target;

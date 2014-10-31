@@ -163,7 +163,7 @@ void window::display_conditions(actor * act){
 	curs_set(1);
 }
 
-// Print a string
+// Add a string to the main buffer and print it
 void window::print(string text){
 	print(text, *buf_main);
 }
@@ -172,7 +172,7 @@ void window::print(string text){
 void window::print(string text, buffer & buf){
 
 	clear();
-	move(0, 0);
+	move(0, 0); // TODO - make text window position more configurable
 	buf.push_back(text);
 	print_buf(buf);
 }
@@ -196,6 +196,13 @@ void window::print_buf(buffer & buf){
 void window::print_line(string in, int pos){
 
 	printcolor(x, y + pos, in);
+}
+
+void window::print_error(string text) {
+
+    /*
+    come back to this - need to be able to take in args. Here but in all text really
+    */
 }
 
 // MENUS (interactive) ============================================
