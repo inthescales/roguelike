@@ -9,7 +9,7 @@
 #include "classdefs.h"
 
 void init_game();
-void update_world(map * m);
+void game_loop();
 
 // some globals:
 

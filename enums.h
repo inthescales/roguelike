@@ -112,18 +112,24 @@ enum trigger_t {
 
 //Effect targets
 enum target_t {
-	TAR_SELF = 0,
+    TAR_NONE = 0,
+	TAR_SELF,
 	TAR_ADJ
 };
 
 //Effect radii (patterns of tiles they affect)
 enum radius_t {
-	RAD_SINGLE = 0
+    RAD_NONE = 0,
+	RAD_SINGLE
 };
 
 //The actual effect that occurs
 enum effect_t {
-	EFF_BREAD = 0
+    EFF_TURN = 0,
+	EFF_BREAD,
+    EFF_PRINT_INT,
+    EFF_PRINT_INT_2,
+    EFF_PRINT_INT_3    //FOR DEBUG
 };
 
 //Condition stacking policies
