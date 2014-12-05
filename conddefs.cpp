@@ -18,7 +18,7 @@ void define_conditions(){
 	int c = -1;
 
 	//#CURSED
-	cclass[++c] = new condclass("cursed", C_RED, 1, 30, 30, 1, CSPOL_ADD, CTPOL_ADD);
+	cclass[++c] = new condclass("cursed", C_RED, 1, 30, -1, 0, 0, -1, 1, false, true, CSPOL_ADD, CTPOL_ADD);
 	//cclass[c]->add_effect(trigger_effect(TRG_, effect(TAR_, RAD_, EFF_)));
 	cclass[c]->stats->add_stat(ASTAT_BODY, -1);
     cclass[c]->stats->add_stat(ASTAT_MIND, -1);

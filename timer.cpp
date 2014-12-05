@@ -1,6 +1,7 @@
 #include "timer.h"
 
 #include "argmap.h"
+#include "condition.h"
 #include "effect.h"
 
 timer::timer(effect * my_effect, argmap * my_args, int my_time, int my_iter, int my_delta) {
@@ -12,10 +13,20 @@ timer::timer(effect * my_effect, argmap * my_args, int my_time, int my_iter, int
 }
 
 // Execute the effect contained in this timer
-void timer::execute() {
+// Returns true if nothing is preventing the timer from being reset, false otherwise
+bool timer::execute() {
 
-    // Can update args against saved entity if necessary. Entity will probably tend to be the argument anyway though.
+    bool can_continue = true;
+    
     do_effect(effect_args, executed_effect);
+      
+    // Process decay on any linked conditions. Check whetehr the effect is able to continue.
+    if (effect_args->get_condition(ARG_HOLDER_CONDITION) != NULL) {
+        condition * linked_cond = effect_args->get_condition(ARG_HOLDER_CONDITION);
+        can_continue = linked_cond->do_decay();
+    }
+    
+    return can_continue;
 }
 
 // Create a new instance of this timer modifying the iterations and time as necessary

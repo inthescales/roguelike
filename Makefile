@@ -5,7 +5,7 @@ LDFLAGS = -lpdcurses
 all : build
 
 compile :
-	@${CC} -c *.cpp
+	@${CC} -c -g *.cpp
 	@echo Compilation complete!
 
 link :

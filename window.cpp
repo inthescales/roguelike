@@ -151,7 +151,7 @@ void window::display_conditions(actor * act){
 		string name = cclass[(*it)->type]->name;
 		
 		char buff[10];
-		sprintf(buff, "%-3d x%-3d ", (*it)->duration, (*it)->stack);
+		sprintf(buff, "x%-3d ", (*it)->stack);
 		string details = buff;
 		
 		printcolor(tx, ty + i, details + color_string(cclass[(*it)->type]->name, cclass[(*it)->type]->color) );
