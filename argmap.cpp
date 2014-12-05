@@ -33,17 +33,44 @@ bool argmap::add_actor(args_t code, actor * act_in){
 	return true;
 }
 
-actor * argmap::get_actor(args_t code){
-	return (actor *)the_map[code];
-}
-
 bool argmap::add_object(args_t code, object * obj_in){
 	the_map[code] = obj_in;
 	return true;
 }
 
+bool argmap::add_feature(args_t code, feature * obj_in){
+	the_map[code] = obj_in;
+	return true;
+}
+
+bool argmap::add_tile(args_t code, tile * obj_in){
+	the_map[code] = obj_in;
+	return true;
+}
+
+bool argmap::add_condition(args_t code, condition * obj_in){
+	the_map[code] = obj_in;
+	return true;
+}
+
+actor * argmap::get_actor(args_t code){
+	return (actor *)the_map[code];
+}
+
 object * argmap::get_object (args_t code){
 	return (object *)the_map[code];
+}
+
+feature * argmap::get_feature (args_t code){
+	return (feature *)the_map[code];
+}
+
+tile * argmap::get_tile (args_t code){
+	return (tile *)the_map[code];
+}
+
+condition * argmap::get_condition (args_t code){
+	return (condition *)the_map[code];
 }
 
 // Add args from another map to this one.

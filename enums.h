@@ -104,6 +104,9 @@ enum material_t {
 //Triggers
 enum trigger_t {
 	TRG_NULL = -1,
+    TRG_COND_END,
+    TRG_COND_TIMEOUT,
+    TRG_COND_REMOVED,
 	TRG_EAT,
 	TRG_DRINK,
 	TRG_READ,
@@ -126,6 +129,7 @@ enum radius_t {
 //The actual effect that occurs
 enum effect_t {
     EFF_TURN = 0,
+    EFF_COND_TIMEOUT,
 	EFF_BREAD,
     EFF_PRINT_INT,
     EFF_PRINT_INT_2,
@@ -134,7 +138,8 @@ enum effect_t {
 
 //Condition stacking policies
 enum cond_stack_policy_t {
-	CSPOL_SET = 0,
+	CSPOL_STACK = 0,
+    CSPOL_SET,
 	CSPOL_ADD,
 	CSPOL_MAX,
 	CSPOL_MIN,

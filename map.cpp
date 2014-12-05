@@ -44,6 +44,7 @@ void map::add_actor( int x, int y, short code ){
 	put_actor( x, y, n );
 }
 
+// TODO - separate out these errors
 void map::put_actor( int x, int y, actor * n){
 
 	if( tiles[x][y].my_actor != NULL ) {
@@ -105,10 +106,10 @@ void map::add_timer(timer * n_timer) {
 
     long ttp = 0;
     vector<timer *>::iterator it = timer_list->begin();
-
+    
     // Find the last event before the new one, and count the ticks until that point
     for(; it != timer_list->end(); ++it) {
-        
+
         int nextVal;
         if (it == timer_list->begin()) nextVal = time_until_event();
         else nextVal = (*it)->time;
@@ -132,6 +133,24 @@ void map::add_timer(timer * n_timer) {
     }
 }
 
+void map::remove_timer(timer * o_timer) {
+    
+    vector<timer *>::iterator it = timer_list->begin();
+
+    // Find the last event before the specified one, and count the ticks until that point
+    for(; it != timer_list->end() && (*it) != o_timer; ++it);
+    
+    if (it != timer_list->end()) {
+    
+        int o_time = (*it)->time;
+        it = timer_list->erase(it);
+        
+        if (it != timer_list->end()) {
+            (*it)->time += o_time;
+        }
+    }
+}
+
 void map::advance_time() {
 
     if (timer_list->empty()) {
@@ -139,13 +158,16 @@ void map::advance_time() {
     }
     
     timer * current = timer_list->at(0);
-    
-    current->execute();
-    timer * new_timer = current->create_child();
     timer_list->erase(timer_list->begin());
     
-    if (new_timer != NULL) {
-        add_timer(new_timer);
+    bool can_continue = current->execute();
+
+    if (can_continue) {
+        timer * new_timer = current->create_child();
+        
+        if (new_timer != NULL) {
+            add_timer(new_timer);
+        }
     }
 }
 

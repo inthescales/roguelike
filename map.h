@@ -41,6 +41,7 @@ class map {
 	
     // Handle timing of events
     void add_timer(timer *);
+    void remove_timer(timer *);
     void advance_time();
     int time_until_event();
     

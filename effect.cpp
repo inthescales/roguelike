@@ -28,6 +28,14 @@ trigger_effect::trigger_effect(trigger_t tr, effect e) : trigger(tr), eff(e) {
 
 }
 
+timer_effect::timer_effect(int n_time, int n_iters, int n_delta, effect * n_effect) {
+    
+    time = n_time;
+    iterations = n_iters;
+    delta = n_delta;
+    eff = n_effect;
+}
+
 /*
 	Process an effect
 	Takes in some relevant arguments
@@ -44,6 +52,12 @@ bool do_effect(argmap * args, effect * eff){
                 agent->queue_turn(post_time);
             }
             
+            break;
+        }
+        
+        case EFF_COND_TIMEOUT:
+        {
+            //TODO
             break;
         }
             
