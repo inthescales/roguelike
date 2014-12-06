@@ -103,7 +103,7 @@ enum material_t {
 
 //Triggers
 enum trigger_t {
-	TRG_NULL = -1,
+    TRG_NULL = -1,
     TRG_COND_END,
     TRG_COND_TIMEOUT,
     TRG_COND_REMOVED,

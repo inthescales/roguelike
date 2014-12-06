@@ -43,7 +43,7 @@ void window::display_map(map * m){
 		for(int j = 0; j < width; ++j){
 		
 			tile * cur = &m->tiles[j + scrn_x][i + scrn_y];
-			printglyph(cur->get_img());
+			printglyph(cur->get_display_glyph());
 		}
 	}
 }
@@ -71,7 +71,7 @@ void window::display_inventory(actor & act){
 	int index = 0, tx = x + 3, ty = y + 3;
 	int start = 0, winsize = 10;
 	int input, headers;
-	vector<object*> items = act_player->inventory;
+	vector<object*> * items = act_player->inventory;
 	
 	while(true){
 	
@@ -80,15 +80,15 @@ void window::display_inventory(actor & act){
 		printw("Inventory:");
 		
 		headers = 0;
-		for(int i = start; i - start < winsize && i < items.size(); ++i){
+		for(int i = start; i - start < winsize && i < items->size(); ++i){
 		
-			if(i == start || oclass[items[i]->type]->type != oclass[items[i-1]->type]->type){
+			if(i == start || items->at(i)->get_type() != items->at(i-1)->get_type()){
 				//We need to print a header
-				printcolor(tx, ty + i + headers++ - start, color_string(str_obj_type[oclass[items[i]->type]->type], C_YELLOW));
+				printcolor(tx, ty + i + headers++ - start, color_string(str_obj_type[items->at(i)->get_type()], C_YELLOW));
 			}
 			move(ty + i + headers - start, tx);
-			printw("%c - %s", items[i]->letter, items[i]->get_name().c_str());
-			if(items[i]->equipped == true)
+			printw("%c - %s", items->at(i)->letter, items->at(i)->get_name().c_str());
+			if(items->at(i)->equipped == true)
 				printw(" (equipped)");
 		}
 	
@@ -100,7 +100,7 @@ void window::display_inventory(actor & act){
 					start -= 1;
 				break;
 			case KEY_DOWN:
-				if(start + winsize < items.size())
+				if(start + winsize < items->size())
 					start += 1;
 				break;
 			default:
@@ -144,17 +144,17 @@ void window::display_conditions(actor * act){
 	move(ty++, tx);
 	printw("Active conditions:");
 	
-	vector<condition *>::iterator it = act->conditions.begin();
+	vector<condition *>::iterator it = act->condition_list->begin();
 	
-	for(; it != act->conditions.end(); ++it){
+	for(; it != act->condition_list->end(); ++it){
 		
-		string name = cclass[(*it)->type]->name;
+		string name = (*it)->get_name_color();
 		
 		char buff[10];
 		sprintf(buff, "x%-3d ", (*it)->stack);
 		string details = buff;
 		
-		printcolor(tx, ty + i, details + color_string(cclass[(*it)->type]->name, cclass[(*it)->type]->color) );
+		printcolor(tx, ty + i, details + name);
 		++i;
 	}
 	
@@ -207,18 +207,19 @@ void window::print_error(string text) {
 
 // MENUS (interactive) ============================================
 
-vector<object*> window::menu_select_objects(vector<object*> & items, bool multi, bool sort){
+vector<object*> window::menu_select_objects(vector<object*> * items, bool multi, bool sort){
+
 	curs_set(0);
 	
 	int index = 0, x = 3, y = 3;
 	int start = 0, winsize = 10;
 	const symbol_code sym[] = {symboldef[CHAR_DASH], symboldef[CHAR_PLUS]};
 	int input, headers;
-	vector<bool> selected(items.size(), false);
+	vector<bool> selected(items->size(), false);
 	vector<object*> ret;
 	
 	if(sort){
-		std::sort(items.begin(), items.end(), object::compare_type);
+		std::sort(items->begin(), items->end(), object::compare_type);
 	}
 	
 	while(true){
@@ -228,16 +229,16 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi,
 		printw("Select some items:");
 		
 		headers = 0;
-		for(int i = start; i - start < winsize && i < items.size(); ++i){
+		for(int i = start; i - start < winsize && i < items->size(); ++i){
 		
-			if(i == start || oclass[items[i]->type]->type != oclass[items[i-1]->type]->type){
+			if(i == start ||items->at(i)->get_type() != items->at(i-1)->get_type()){
 				//We need to print a header
-				printcolor(x, y + i + headers++ - start + 1, color_string(str_obj_type[items[i]->type], C_YELLOW));
+				printcolor(x, y + i + headers++ - start + 1, color_string(str_obj_type[items->at(i)->get_type()], C_YELLOW));
 			}
 			move(y + i + headers - start + 1, x);
 			printw("%c ", UI::int_to_letter(i));
 			printchar_cw(sym[selected[i]]);
-			printw(" %s", items[i]->get_name().c_str());
+			printw(" %s", items->at(i)->get_name().c_str());
 		}
 		
 		input = wgetch(stdscr);
@@ -247,8 +248,8 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi,
             if(!multi) {
                 // With no multi select, return immediately
                 int num = UI::letter_to_int(input);
-                if (num < items.size()) {
-                    ret.push_back(items[num]);
+                if (num < items->size()) {
+                    ret.push_back(items->at(num));
                     return ret;
                 }
             } else {
@@ -258,9 +259,9 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi,
 		
 			switch(input){
 				case 10:			
-					for(int j = 0; j < items.size(); ++j)
+					for(int j = 0; j < items->size(); ++j)
 						if(selected[j])
-							ret.push_back(items[j]);
+							ret.push_back(items->at(j));
 					return ret;
 				case 27:
 					return ret;
@@ -269,7 +270,7 @@ vector<object*> window::menu_select_objects(vector<object*> & items, bool multi,
 						start -= 1;
 					break;
 				case KEY_DOWN:
-					if(start + winsize < items.size())
+					if(start + winsize < items->size())
 						start += 1;
 					break;
 				default:

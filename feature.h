@@ -2,16 +2,14 @@
 
 #define FEATURE_H
 
-class feature {
+#include "mapentity.h"
+
+class feature : public mapentity {
 
 	public:
 	
-	int status;
-	int type;
-	
 	feature(short);
-	void on_open();
-	void on_close();
+    void init();
 
 };
 

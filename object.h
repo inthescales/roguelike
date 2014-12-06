@@ -1,5 +1,4 @@
 #ifndef OBJECT_H
-
 #define OBJECT_H
 
 #include "argmap.h"
@@ -7,6 +6,7 @@
 #include "display.h"
 #include "effect.h"
 #include "enums.h"
+#include "mapentity.h"
 
 #include <utility>
 #include <string>
@@ -17,42 +17,28 @@ using std::vector;
 
 class condition;
 
-class object {
+class object : public mapentity {
 
 	public:
 
+    string individual_name;
 	short letter;
 	int quantity;
-	int type;
-	bool equipped; //TODO - not totally happy with this...
-	vector<condition*> conditions;
+	bool equipped; //TODO - change to flag
 	
 	//Functions:
 	object(short);
 	object(short, short);
-	
+    void init();
+    
+    objclass * get_class();
+    string get_name();
+    string get_name_color();
+    object_type get_type();
+    object_subtype get_subtype();
 	static bool compare_type(object *, object *);
-	
-	glyph get_glyph();
-    symbol_code get_symbol();
-	colorName get_color();
-	string get_name();
-	string get_name_color();
-	
-	bool has_stat(stats_t);
-	int get_stat(stats_t);
-	int get_stat(stats_t, bool);
-	int get_cond_stat(stats_t);
-	
-	bool has_trigger(trigger_t);
-	effect * get_effect(trigger_t);
+
 	void resolve_trigger(trigger_t, argmap *);
-	
-	bool has_condition(int);
-	condition * get_condition(int);
-	bool add_condition(condition *);
-	bool remove_condition(int);
-	void decay_conditions();
 };
 
 #endif
