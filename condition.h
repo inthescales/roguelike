@@ -4,32 +4,40 @@
 
 #include "argmap.h"
 #include "effect.h"
+#include "entity.h"
 #include "timer.h"
 #include <vector>
 
 using std::vector;
 
-class condition {
+class condclass;
+class map;
+class mapentity;
+
+class condition : public entity {
 
 	public:
 	
-	int type;
 	int stack;
     int strength;
     int duration;
     
+    mapentity * host;
+    
     vector<timer *> * timer_list;
 	
 	//Functions:
-	condition(int);
-	condition(int, int);
-	condition(int, int, int);
-	
+	condition(mapentity *, int);
+	condition(mapentity *, int, int);
+	condition(mapentity *, int, int, int);
+    void init();
     void destroy();
     
-    void start_timers();
-    void destroy_timers();
+    condclass * get_class();
+    colorName get_color();
+    string get_name_color();
     
+    void start_timers(map *);
 	void add_condition(condition *);
 	bool do_decay();
 	

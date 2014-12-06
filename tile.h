@@ -3,6 +3,8 @@
 #define TILE_H
 
 #include "display.h"
+#include "glyph.h"
+#include "mapentity.h"
 
 #include <vector>
 
@@ -12,29 +14,25 @@ class actor;
 class condition;
 class object;
 class feature;
-class glyph;
 
-class tile{
+class tile : public mapentity {
 
 	public:
-	
-	int type;
+
 	actor * my_actor;
 	feature * my_feature;
-	vector<object*> my_objects;
-	condition * conditions;
+	vector<object*> * my_objects;
 	
 	//Functions:
 	tile(short);
+    void init();
 	
-	// Fancy getters
+    tileclass * get_class();
+    glyph get_display_glyph();
 	bool can_walk();
 	
-	glyph get_img();
-	int get_img_color();
-	glyph get_glyph();
-	int get_color();
-	bool remove_object(object*);
+    bool get_object(object *);
+	bool remove_object(object *);
 };
 
 #endif

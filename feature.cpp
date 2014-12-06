@@ -7,14 +7,10 @@
 
 feature::feature(short code){
 
-	status = 0;
-	type = code;
+	//my_class = (entityclass*)featclass[code];
+    init();
 }
 
-void feature::on_open(){
-	
-}
-
-void feature::on_close(){
-
+void feature::init() {
+    mapentity::init();
 }

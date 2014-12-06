@@ -24,7 +24,7 @@ effect::effect(target_t t, radius_t r, effect_t e){
 	type = e;
 }
 
-trigger_effect::trigger_effect(trigger_t tr, effect e) : trigger(tr), eff(e) {
+trigger_effect::trigger_effect(trigger_t tr, effect * e) : trigger(tr), eff(e) {
 
 }
 
@@ -42,6 +42,9 @@ timer_effect::timer_effect(int n_time, int n_iters, int n_delta, effect * n_effe
 */
 bool do_effect(argmap * args, effect * eff){
 
+    if (eff == NULL)
+        return false;
+    
 	switch(eff->type){
     
         case EFF_TURN:

@@ -7,29 +7,27 @@
 #include "effect.h"
 #include "enums.h"
 #include "glyph.h"
+#include "mapentityclass.h"
 
 #include <string>
 
 using std::string;
 
-class actclass {
+class actclass : public mapentityclass {
 
 	public:
 	
-	std::string name;
-	glyph image;
+	std::string assigned_name;
 	short ai;
 	
-	vector<trigger_effect> effects;
-	statmap * stats;
-	
+    // Functions ===
 	actclass(string, symbol_code, colorName);
+    void init();
     
     glyph get_glyph();
     symbol_code get_symbol();
 	colorName get_color();
-    
-	void add_effect(trigger_effect n);
+
 };
 
 #endif

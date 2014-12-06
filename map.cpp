@@ -87,7 +87,7 @@ void map::add_object(int x, int y, short code ){
 }
 
 void map::put_object(int x, int y, object * obj) {
-    tiles[x][y].my_objects.push_back(obj);
+    tiles[x][y].my_objects->push_back(obj);
 }
 
 void map::add_feature(int x, int y, short code ){

@@ -1,4 +1,4 @@
-#ifndef ACTOR_Hp
+#ifndef ACTOR_H
 
 #define ACTOR_H
 
@@ -6,6 +6,7 @@
 #include "condition.h"
 #include "config.h"
 #include "display.h"
+#include "mapentity.h"
 
 #include <stdlib.h>
 #include <string>
@@ -13,69 +14,57 @@
 #include <vector>
 
 using std::string;
+using std::vector;
 
-class glyph;
 class object;
 class tile;
 
-class actor {
+class actor : public mapentity {
 
 	public:
 
 	// basics
-	string name; //special name
-	short x, y; //position
-	int type; //actor class
+	string individual_name;
 
 	// stats
 	short HP, maxHP;
 	short level;
 	
 	// inventory
-	std::vector<object*> inventory;
-	object * equipped_item[ES_MAX];
+	vector<object*> * inventory;
+	object * equipped_item[ES_MAX]; // TODO - implement body plans
 	long gold; //TODO - change this to stacked items list eventually?
 	
 	//ai
 	int aitype;
 	int state;
-	
-	std::vector<condition*> conditions;
 
-	// Functions:
+	// Functions =====================
 	actor(short code);
+    void init();
+    
+    actclass * get_class();
+    string get_name();
+    string get_name_color();
     
     // Display
-	glyph get_glyph();
-    symbol_code get_symbol();
-	colorName get_color();
-	string get_name();
-    string get_name_color();
 	void print(string, string);
+    
+    // Effects
+    void resolve_trigger(trigger_t, argmap *);
     
     // Getting properties
 	int get_stat(stats_t stat);
-	int get_stat(stats_t stat, bool);
 	int get_equip_stat(stats_t stat);
-	int get_cond_stat(stats_t stat);
 	int get_calc_stat(stats_t stat);
-	effect * get_effect(trigger_t);
     
     // State management
-    void get_item(object *);
+    void get_object(object *);
 	bool remove_object(object * item);
-    void resolve_trigger(trigger_t, argmap *);
-    bool add_condition(condition *);
-    bool remove_condition(int);
-    bool has_condition(int);
-    condition * get_condition(int);
-    void decay_conditions();
-    //void transition(stair);
-	//void switch_map(map, map, int, int );
+    void queue_turn(int);
     
     // Actions
     int take_turn();
-    void queue_turn(int);
     void move(std::pair<int,int>);
 	void attack(std::pair<int,int>);
 	void attack(actor *);

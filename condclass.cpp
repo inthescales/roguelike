@@ -22,10 +22,10 @@ condclass::condclass(string nname, colorName ncolor, int nstrength, int nduratio
     stack_policy = nstackpol;
     timer_policy = ntimerpol;
     
-	stats = new statmap();
+    init();
 }
 
-void condclass::add_effect(trigger_effect n){
+void condclass::init() {
 
-	effects.push_back(n);
+    entityclass::init();
 }

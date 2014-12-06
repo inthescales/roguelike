@@ -5,6 +5,7 @@
 #include "display.h"
 #include "enums.h"
 #include "glyph.h"
+#include "mapentityclass.h"
 
 #include <utility>
 #include <string>
@@ -18,34 +19,24 @@ class trigger_effect;
 
 typedef argmap statmap;
 
-class objclass {
+class objclass : public mapentityclass {
 
 	public:
 
-	string name;
 	string assigned_name; //user assigned name
-	
-	glyph image;
-	
-	bool known;
 	
 	object_type type;
 	object_subtype subtype;
-	
 	material_t material;
 	int weight;
 	int value;
+    bool known;
 	
-	vector<trigger_effect> effects;
-	statmap * stats;
-	
-	objclass(string, symbol_code, colorName, object_type, object_subtype, material_t, int, int);	
-	
-	glyph get_glyph();
-    symbol_code get_symbol();
-	colorName get_color();
+    // Functions ========
     
-    void add_effect(trigger_effect);
+	objclass(string, symbol_code, colorName, object_type, object_subtype, material_t, int, int);	
+    
+    string get_name();
 };
 
 #endif

@@ -104,10 +104,10 @@ bool UI::command_move(int dir){
 	
 	ui_action action = UIA_NONE;
 	
-	tile dest = map_current->tiles[controlled->x + offset.first][controlled->y + offset.second];
+	tile * dest = &map_current->tiles[controlled->x + offset.first][controlled->y + offset.second];
 	
-	if(dest.my_actor == NULL) {
-		if(dest.can_walk())
+	if(dest->my_actor == NULL) {
+		if(dest->can_walk())
 			action = UIA_MOVE;
 	} else
 		action = UIA_ATTACK;
@@ -130,18 +130,18 @@ bool UI::command_pick_up(){
 	tile * current = &map_current->tiles[controlled->x][controlled->y];
 	bool ok = true;
 	
-	if(current->my_objects.empty()){
+	if(current->my_objects->empty()){
 	
 		// If no objects
 		win_output->print("There is nothing here to take.");
 	} else {
-		if(current->my_objects.size() == 1){
+		if(current->my_objects->size() == 1){
 
 			// Take a single object		
 			string error;
 
-			object * target = current->my_objects.back();
-			error = command_pick_up_helper(current->my_objects.back());
+			object * target = current->my_objects->back();
+			error = command_pick_up_helper(current->my_objects->back());
 			if( error == ""){
 				act_player->pick_up(target, current);
 				win_output->print("You take " + target->get_name_color() + ".");
@@ -188,7 +188,7 @@ bool UI::command_pick_up(){
 string UI::command_pick_up_helper(object * target){
 
 	int cond = 1;
-	if(act_player->inventory.size() >= MAX_INVENTORY){
+	if(act_player->inventory->size() >= MAX_INVENTORY){
 		cond = -1;
 	}
 	
@@ -208,7 +208,7 @@ bool UI::command_drop(){
 	actor * controlled = act_player;
 	tile * current = &map_current->tiles[controlled->x][controlled->y];
 	
-	if( !(controlled->inventory.empty() && controlled->gold == 0) ){
+	if( !(controlled->inventory->empty() && controlled->gold == 0) ){
 	
 		vector<object*> items = prompt_inventory(controlled, "Drop what?", true, true);
 		if(items.size() > 0){
@@ -236,7 +236,7 @@ bool UI::command_equip(){
 	
 	if(item != NULL){
 	
-		int slot = type_to_slot(oclass[item->type]->type, oclass[item->type]->subtype);
+		int slot = type_to_slot(item->get_type(), item->get_subtype());
 		
 		if(slot != -1){
 		

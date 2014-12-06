@@ -49,7 +49,7 @@ void init_game() {
 	act_player = new actor(0);
     
 	map_current->put_actor( 18, 18, act_player);
-    act_player->add_condition(new condition(COND_CURSED));
+    act_player->add_condition(new condition(act_player, COND_CURSED));
 	//map_current->add_actor( 20, 20, 1);
     
 	map_current->add_object( 10, 10, 0 );

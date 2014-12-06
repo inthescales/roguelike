@@ -28,10 +28,10 @@ class effect {
 class trigger_effect {
 	
 	public:
-	trigger_effect(trigger_t, effect);
+	trigger_effect(trigger_t, effect *);
 	
 	trigger_t trigger;
-	effect eff;
+	effect * eff;
 };
 
 /*

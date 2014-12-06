@@ -6,31 +6,23 @@ objclass::objclass(string tname, symbol_code tsym, colorName tcol, object_type t
 
 	name = tname;
 	assigned_name = "";
-	image = glyph(tsym, tcol);
+    #if DISPLAY_TYPE == DISPLAY_CURSES || DISPLAY_TYPE == DISPLAY_WCURSES
+        my_glyph = glyph(tsym, tcol);
+    #endif
 	type = ttyp;
 	subtype = tstyp;
 	material = tmat;
 	weight = tweigh;
 	value = tcost;
-	
-	stats = new statmap();
-	
 	known = 0;
+		
+    mapentityclass::init();
 }
 
-void objclass::add_effect(trigger_effect n){
-
-	effects.push_back(n);
-}
-
-glyph objclass::get_glyph() {
-  return image;
-}
-
-symbol_code objclass::get_symbol() {
-  return image.get_symbol();
-}
-
-colorName objclass::get_color() {
-  return image.get_color();
+string objclass::get_name() {
+    if (assigned_name.size() <= 0) {
+        return assigned_name;
+    } else {
+        return name;
+    }
 }

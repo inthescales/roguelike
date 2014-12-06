@@ -3,44 +3,60 @@
 #include "enums.h"
 #include "globals.h"
 #include "map.h"
+#include "mapentity.h"
+#include "stringutils.h"
 
 #include <algorithm>
 
 using std::max;
 using std::min;
 
-condition::condition(int ntype) {
+// Setup and teardown ============================
+
+condition::condition(mapentity * n_host, int ntype) {
 	
-	type = ntype;
+    my_class = (entityclass *)cclass[ntype];
 	stack = 1;
-	duration = cclass[type]->base_duration;
-    start_timers();
+	duration = get_class()->base_duration;
+    host = n_host;
+
+    init();
 }
 
-condition::condition(int ntype, int ntime) {
+condition::condition(mapentity * n_host, int ntype, int ntime) {
 
-	type = ntype;
+    my_class = (entityclass *)cclass[ntype];
 	stack = 1;
 	duration = ntime;
-    start_timers();
+    host = n_host;
+
+    init();
 }
 
-condition::condition(int ntype, int nstack, int ntime) {
+condition::condition(mapentity * n_host, int ntype, int nstack, int ntime) {
 
-	type = ntype;
+    my_class = (entityclass *)cclass[ntype];
 	stack = nstack;
 	duration = ntime;
-    start_timers();
+    host = n_host;
+
+    init();
+}
+
+void condition::init() {
+
+    entity::init();
+    start_timers(host->current_map);
 }
 
 void condition::destroy() {
-
-    
-    destroy_timers();
+    destroy_timers(host->current_map);
 }
 
-void condition::start_timers() {
-
+void condition::start_timers(map * n_map) {
+    
+    entity::start_timers(n_map);
+    
     // Create timeout timer
     if (duration != -1) {
         effect * kill_effect = new effect(EFF_COND_TIMEOUT);
@@ -48,25 +64,23 @@ void condition::start_timers() {
         kill_args->add_condition(ARG_HOLDER_CONDITION ,this);
         map_current->add_timer(new timer(kill_effect, kill_args, duration, 0, 0));
     }
-    
-    // Create timers for timed effects in the condition's class
-    std::vector<timer_effect>::iterator it = cclass[type]->timed_effects.begin();
-    for (;it != cclass[type]->timed_effects.end(); ++it) {
-        argmap * newmap = new argmap();
-        newmap->add_condition(ARG_HOLDER_CONDITION, this);
-        map_current->add_timer(new timer(it->eff, newmap, it->time, it->iterations, it->delta));
-    }
 }
 
-void condition::destroy_timers() {
-    
-    vector<timer *>::iterator it = timer_list->begin();
-    
-    for(; it != timer_list->end(); ++it) {
-    
-        map_current->remove_timer(*it);
-    }
+// Basic info ========================
+
+condclass * condition::get_class() {
+    return (condclass *)entity::get_class();
 }
+
+colorName condition::get_color(){
+    return get_class()->color;
+}
+
+string condition::get_name_color(){
+    return color_string(get_name(), get_color());
+}
+
+// Condition mechanics ================================
 
 /*
  Handles adding a condition to a holder that already has a condition
@@ -74,7 +88,7 @@ void condition::destroy_timers() {
 */
 void condition::add_condition(condition * other) {
 
-	switch(cclass[type]->timer_policy) {
+	switch(get_class()->timer_policy) {
 		case CTPOL_SET : duration = other->duration; return;
 		case CTPOL_ADD : duration += other->duration; return;
 		case CTPOL_MAX : duration = max(duration, other->duration); return;
@@ -84,7 +98,7 @@ void condition::add_condition(condition * other) {
 			return;
 	}
 	
-	switch(cclass[type]->stack_policy) {
+	switch(get_class()->stack_policy) {
         case CSPOL_STACK: stack += other->stack; return;
 		case CSPOL_SET  : strength = other->strength; return;
 		case CSPOL_ADD  : strength += other->strength; return;
@@ -103,15 +117,15 @@ void condition::add_condition(condition * other) {
 */
 bool condition::do_decay() {
 
-    stack += cclass[type]->stack_delta;
-    if (stack > cclass[type]->max_stack) {
-        stack = cclass[type]->max_stack;
+    stack += get_class()->stack_delta;
+    if (stack > get_class()->max_stack) {
+        stack = get_class()->max_stack;
     }
     if (stack < 0) {
         return false;
     }
     
-    strength += cclass[type]->strength_delta;
+    strength += get_class()->strength_delta;
     if (strength < 0) {
         return false;
     }
@@ -123,7 +137,7 @@ bool condition::do_decay() {
 
 bool condition::has_stat(stats_t code){
 
-	return cclass[type]->stats->has_stat(code);
+	return get_class()->stats->has_stat(code);
 }
 
 int condition::get_stat(stats_t code){
@@ -132,44 +146,34 @@ int condition::get_stat(stats_t code){
 
 	if (has_stat(code)){
 	
-		value = cclass[type]->stats->get_stat(code);
+		value = get_class()->stats->get_stat(code);
 	}
 	
 	return value;
 }
 
 int condition::get_modified_stat(stats_t code) {
-	return get_stat(code) * (stack * cclass[type]->stack_stats);
+	return get_stat(code) * (stack * get_class()->stack_stats);
 }
 
 int condition::get_modified_strength() {
-	return strength * (stack * cclass[type]->stack_strength);
+	return strength * (stack * get_class()->stack_strength);
 }
 
 // EFFECTS ============================================
 
-effect * condition::get_effect(trigger_t trigger){
-
-	for(int i = 0; i < cclass[type]->effects.size(); ++i){
-		
-		if(cclass[type]->effects[i].trigger == trigger) return &(cclass[type]->effects[i].eff);
-	}
-	
-	return NULL;
-}
-
 void condition::resolve_trigger(trigger_t trigger, argmap * args) {
 	
-	effect * my_effect = get_effect(trigger);
+    argmap * my_map = new argmap();
+    my_map->add_condition(ARG_HOLDER_CONDITION, this);
     
-    if (my_effect != NULL) {
-        argmap * my_map = new argmap();
-        my_map->add_condition(ARG_HOLDER_CONDITION, this);
-
-        if (args != NULL) {
-            my_map->add_args(args);
-        }
-	
-		do_effect(my_map, my_effect);
+	if (args != NULL) {
+		my_map->add_args(args);
 	}
+    
+    // Execute all these effects
+    vector<effect*> * my_effects = get_class()->get_effects(trigger);
+    for(int i = 0; i < my_effects->size(); ++i) {
+        do_effect(my_map, my_effects->at(i));
+    }
 }
