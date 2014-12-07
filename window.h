@@ -30,8 +30,8 @@ class window{
     // Text output
 	void print(string);
 	void print_twin(string, string);
-	void print(string, buffer &);
-	void print_buf(buffer &);
+	void print(string, buffer *);
+	void print_buf(buffer *);
 	void print_line(string, int);
     void print_error(string);
     

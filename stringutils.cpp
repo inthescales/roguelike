@@ -11,7 +11,7 @@ vector<string> string_slice(string in, int width){
 	
 	vector<string> r;
 	
-	int count = 0, lastcolor = -1;
+	int count = 0;
 	
 	for(int i = 0; i < in.size(); ++i){
 	
@@ -19,10 +19,10 @@ vector<string> string_slice(string in, int width){
 	
 		r.back() += in.at(i);
 	
-		// Ignore pipes and the color codes that follow
+		// Ignore color code information in count
 		if(in.at(i) == '|'){
 			r.back() += in.at(++i);
-		} else {
+		} else if (in.at(i) != '~'){
 			++count;
 		}
 		
@@ -44,9 +44,9 @@ vector<string> string_slice(string in, int width){
 	return r;
 }
 
-// Put a color tag before the string, and return to default color after
+// Put a color tag before the string, and a color end tag at the end
 string color_string(string text, int color){
-	string r = escape_color(color) + text + escape_color(C_WHITE);
+	string r = escape_color(color) + text + '~';
 	return r;
 }
 
@@ -54,7 +54,7 @@ string color_string(string text, int color){
 string escape_color(int color){
 	string r = "|";
 	r += (char)color;
-	
+    
 	return r;
 }
 

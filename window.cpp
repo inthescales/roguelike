@@ -23,6 +23,8 @@ window::window(int n_x, int n_y, int n_w, int n_h) : x(n_x), y(n_y), width(n_w),
 
 }
 
+// Window display =============================================
+
 // Clear the window
 void window::clear(){
 
@@ -34,7 +36,7 @@ void window::clear(){
 	}
 }
 
-// Display the player's map
+// Display a map
 void window::display_map(map * m){
 
 	for(int i = 0; i < height; ++i){
@@ -42,8 +44,10 @@ void window::display_map(map * m){
 		move(i + y, x);
 		for(int j = 0; j < width; ++j){
 		
-			tile * cur = &m->tiles[j + scrn_x][i + scrn_y];
-			printglyph(cur->get_display_glyph());
+            if (i + scrn_y < m->height && j + scrn_x < m->width) {
+                tile * cur = &(m->tiles[j + scrn_x][i + scrn_y]);
+                printglyph(cur->get_display_glyph());
+            }
 		}
 	}
 }
@@ -163,49 +167,7 @@ void window::display_conditions(actor * act){
 	curs_set(1);
 }
 
-// Add a string to the main buffer and print it
-void window::print(string text){
-	print(text, *buf_main);
-}
-
-// Add a string to the buffer and print it
-void window::print(string text, buffer & buf){
-
-	clear();
-	move(0, 0); // TODO - make text window position more configurable
-	buf.push_back(text);
-	print_buf(buf);
-}
-
-// Print as much of the buffer as will fit in this window
-void window::print_buf(buffer & buf){
-
-	int screen_pointer = 0, buffer_pointer = 0;
-	
-	while(buffer_pointer < buf.size()){
-		
-		string next = buf[buf.size() - buffer_pointer++ - 1];
-		vector<string> cut = string_slice(next, width);
-		
-		for(int i = cut.size() - 1; i >= 0 && screen_pointer < height; --i){
-			print_line(cut[i], height - screen_pointer++ - 1);
-		}
-	}
-}
-
-void window::print_line(string in, int pos){
-
-	printcolor(x, y + pos, in);
-}
-
-void window::print_error(string text) {
-
-    /*
-    come back to this - need to be able to take in args. Here but in all text really
-    */
-}
-
-// MENUS (interactive) ============================================
+// Interactive menus ============================================
 
 vector<object*> window::menu_select_objects(vector<object*> * items, bool multi, bool sort){
 
@@ -281,4 +243,48 @@ vector<object*> window::menu_select_objects(vector<object*> * items, bool multi,
 	}
 		
 	curs_set(1);
+}
+
+// Text output ================================================
+
+// Add a string to the main buffer and print it
+void window::print(string text){
+	print(text, buf_main);
+}
+
+// Add a string to the buffer and print it
+void window::print(string text, buffer * buf){
+
+	clear();
+	move(0, 0); // TODO - make text window position more configurable
+	buf->push_back(text);
+	print_buf(buf);
+}
+
+// Print as much of the buffer as will fit in this window
+void window::print_buf(buffer * buf){
+
+	int screen_pointer = 0, buffer_pointer = 0;
+	
+	while(buffer_pointer < buf->size()){
+		
+		string next = buf->at(buf->size() - buffer_pointer++ - 1);
+		vector<string> cut = string_slice(next, width);
+		
+		for(int i = cut.size() - 1; i >= 0 && screen_pointer < height; --i){
+			print_line(cut[i], height - screen_pointer++ - 1);
+		}
+	}
+}
+
+void window::print_line(string in, int pos){
+
+	printcolor(x, y + pos, in);
+}
+
+void window::print_error(string text) {
+
+    /*
+    come back to this - need to be able to take in args. Here but in all text really
+    */
 }
