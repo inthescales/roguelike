@@ -72,6 +72,33 @@ int mapentity::get_stat(stats_t code) {
 
 }
 
+// Flag management ============================
+
+bool mapentity::has_cond_flag(flags_t code) {
+	
+	bool ret = 0;
+	
+    vector<condition *>::iterator it = condition_list->begin();
+	for(; it != condition_list->end(); ++it){
+	
+		if((*it)->has_flag(code)) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+bool mapentity::has_flag(flags_t code) {
+
+	bool conds = has_cond_flag(code);
+    if (conds) {
+        return true;
+    } else {
+        return entity::has_flag(code);
+    }
+}
+
 // Trigger effect management =============================
 
 void mapentity::resolve_trigger(trigger_t trigger, argmap * args)

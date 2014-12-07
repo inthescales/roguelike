@@ -1,5 +1,6 @@
 #include "actor.h"
 #include "actclass.h"
+#include "flagset.h"
 #include "globals.h"
 #include "interface.h"
 #include "map.h"
@@ -63,7 +64,7 @@ string actor::get_name_color() {
     return color_string(get_name(), get_color());
 }
 
-// STATS ================================================
+// Stats ================================================
 
 /*
 	Returns the current modified stat specified by the input.
@@ -124,6 +125,42 @@ int actor::get_calc_stat(stats_t code){
 	}
 		
 	return val;
+}
+
+// Flags ================================================
+
+bool actor::has_flag(flags_t code){
+
+	// Take base stat from actor class
+	if (get_class()->has_flag(code)){
+        return true;
+    }
+	
+	// Check each equipped item and add any stat modifiers provided
+	if (has_equip_flag(code)) {
+        return true;
+    }
+	
+	// Check all conditions and add any stat modifiers
+	if (has_cond_flag(code)) {
+        return true;
+    }
+
+    return false;
+}
+
+bool actor::has_equip_flag(flags_t code){
+
+	for(int i = 0; i < ES_MAX; ++i){
+		if(equipped_item[i] != 0){
+			
+			if(equipped_item[i]->has_flag(code)) {
+				return true;
+			}
+		}
+	}
+	
+	return false;
 }
 
 // EFFECTS ==================================
@@ -278,11 +315,9 @@ bool actor::use(object * item){
 	
 }
 
-// SENSES ==================================================
+// Senses ==================================================
 
-// NON-COMMANDS ============================================
-// These are not controlled by the user, but handle maintenance,
-// which may be done automatically or as part of another command.
+// Helpers ============================================
 
 // Put an item into the actor's inventory, organized by type
 void actor::get_object(object * item){
@@ -320,4 +355,22 @@ void actor::print(string a, string b){
 		win_output->print(a);
 	else
 		win_output->print(b);
+}
+
+// Returns true if this actor is able to enter the tile
+bool actor::can_travel(tile * t) {
+
+    if (has_flag(FLAG_ACT_CAN_WALK) && t->has_flag(FLAG_TILE_CAN_WALK)){
+        return true;
+    }
+    
+    if (has_flag(FLAG_ACT_CAN_SWIM) && t->has_flag(FLAG_TILE_CAN_SWIM)){
+        return true;
+    }
+    
+    if (has_flag(FLAG_ACT_CAN_FLY) && t->has_flag(FLAG_TILE_CAN_FLY)){
+        return true;
+    }
+    
+    return false;
 }

@@ -9,17 +9,23 @@
 
 void define_tiles() {
 
-  int c = -1;
+    int c = -1;
 
-  //#FLOOR
-  tclass[++c] = new tileclass(1, 0, 1, 0, symboldef[SYM_FLOOR], C_WHITE);
+    //#FLOOR
+    tclass[++c] = new tileclass(symboldef[SYM_FLOOR], C_WHITE);
+    tclass[c]->add_flag(FLAG_TILE_CAN_WALK);
+    tclass[c]->add_flag(FLAG_TILE_CAN_FLY);
 
-  //#GRASS
-  tclass[++c] = new tileclass(1, 0, 1, 0, symboldef[SYM_GRASS], C_GREEN);
-
-  //#WALL
-  tclass[++c] = new tileclass(0, 0, 0, 1, symboldef[SYM_WALL], C_WHITE_INV);
-
-  //#WATER
-  tclass[++c] = new tileclass(0, 1, 1, 0, symboldef[SYM_WATER], C_BLUE);
+    //#GRASS
+    tclass[++c] = new tileclass(symboldef[SYM_GRASS], C_GREEN);
+    tclass[c]->add_flag(FLAG_TILE_CAN_WALK);
+    tclass[c]->add_flag(FLAG_TILE_CAN_FLY);
+    
+    //#WALL
+    tclass[++c] = new tileclass(symboldef[SYM_WALL], C_WHITE_INV);
+    
+    //#WATER
+    tclass[++c] = new tileclass(symboldef[SYM_WATER], C_BLUE);
+    tclass[c]->add_flag(FLAG_TILE_CAN_SWIM);
+    tclass[c]->add_flag(FLAG_TILE_CAN_FLY);
 }

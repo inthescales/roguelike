@@ -7,6 +7,7 @@ actclass::actclass(string n, symbol_code s, colorName c) {
     my_glyph = glyph(s, c);
     #endif
     mapentityclass::init();
+    
     init();
 }
 

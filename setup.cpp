@@ -22,7 +22,7 @@ using std::vector;
 
 void setup(){
 
-        setlocale(LC_ALL, "en_US.UTF-8");
+    setlocale(LC_ALL, "en_US.UTF-8");
 	initscr();
 	resize_term(win_output->height + win_world->height + win_status->height, win_output->width);
 	keypad(stdscr, TRUE);

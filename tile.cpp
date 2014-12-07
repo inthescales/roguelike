@@ -46,11 +46,6 @@ glyph tile::get_display_glyph() {
 	}
 }
 
-bool tile::can_walk(){
-	
-	return get_class()->can_walk;
-}
-
 // Contents management ===========================
 
 bool tile::get_object(object * in) {
