@@ -57,6 +57,8 @@ class actor : public mapentity {
 	int get_stat(stats_t stat);
 	int get_equip_stat(stats_t stat);
 	int get_calc_stat(stats_t stat);
+    bool has_flag(flags_t);
+    bool has_equip_flag(flags_t stat);
     
     // State management
     void get_object(object *);
@@ -79,6 +81,8 @@ class actor : public mapentity {
 	bool use(object *);
 	//void open(int, int);
 	//void close(int, int);
+    
+    bool can_travel(tile *);
 };
 
 #endif

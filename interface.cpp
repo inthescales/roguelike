@@ -107,15 +107,17 @@ bool UI::command_move(int dir){
 	tile * dest = &map_current->tiles[controlled->x + offset.first][controlled->y + offset.second];
 	
 	if(dest->my_actor == NULL) {
-		if(dest->can_walk())
+		if(controlled->can_travel(dest)) {
 			action = UIA_MOVE;
+        }
 	} else
 		action = UIA_ATTACK;
 	
-	if(action == UIA_MOVE)
+	if(action == UIA_MOVE) {
 		controlled->move(offset);
-	else if(action == UIA_ATTACK)
+	} else if(action == UIA_ATTACK) {
 		controlled->attack(offset);
+    }
 		
 	return true;	
 }

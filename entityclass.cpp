@@ -1,6 +1,7 @@
 #include "argmap.h"
 #include "effect.h"
 #include "entityclass.h"
+#include "flagset.h"
 
 // Setup and teardown ================================
 
@@ -11,6 +12,7 @@ entityclass::entityclass() {
 
 void entityclass::init() {
 
+    flags = new flagset();
 	stats = new statmap();
     trigger_effects = new std::map<trigger_t, vector<effect *> *>();
     timer_effects = new vector<timer_effect *>();
@@ -28,6 +30,13 @@ int entityclass::get_stat(stats_t code) {
     return stats->get_stat(code);
 }
 
+// Flags management ==============================
+
+bool entityclass::has_flag(flags_t code) {
+
+    return flags->has_flag(code);
+}
+
 // Effect and trigger management =========================
 
 vector<effect *> * entityclass::get_effects(trigger_t trigger){
@@ -40,6 +49,11 @@ vector<effect *> * entityclass::get_effects(trigger_t trigger){
 void entityclass::add_stat(stats_t code, int val) {
 
     stats->add_stat(code, val);
+}
+
+void entityclass::add_flag(flags_t code) {
+
+    flags->add_flag(code);
 }
 
 void entityclass::add_trigger_effect(trigger_effect * n){

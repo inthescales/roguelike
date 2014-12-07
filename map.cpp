@@ -33,6 +33,7 @@ map::map(short n_width, short n_height, int n_id, map * last_map) {
 		}
 	}
 	
+    //tiles[20][20] = tile(3);
 }
 
 //===============================================

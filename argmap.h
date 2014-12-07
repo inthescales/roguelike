@@ -25,7 +25,7 @@ class condition;
 class argmap {
 
 	private:
-        std::map<int, void *> the_map;
+    std::map<int, void *> * the_map;
 
 	public:
 	argmap();

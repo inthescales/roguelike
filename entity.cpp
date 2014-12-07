@@ -74,3 +74,10 @@ int entity::get_stat(stats_t code) {
     
     return 0;
 }
+
+// Flag management ================
+
+bool entity::has_flag(flags_t code) {
+
+    return get_class()->has_flag(code);
+}

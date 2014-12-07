@@ -1,11 +1,13 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-#include "argmap.h"
 #include "entityclass.h"
 #include "enums.h"
 #include "timer.h"
 #include <vector>
+
+#include "argmap.h"
+#include "flagset.h"
 
 using std::vector;
 
@@ -28,6 +30,7 @@ class entity {
     
     int has_stat(stats_t);
     int get_stat(stats_t);
+    bool has_flag(flags_t);    
     
     void resolve_trigger(trigger_t, argmap *);
     
