@@ -12,7 +12,6 @@
 #include "window.h"
 
 #include <algorithm>
-#include <sstream>
 
 using std::pair;
 using std::ostringstream;
@@ -217,13 +216,10 @@ void actor::move(pair<int,int> offset) {
 		
 			object * the_obj = new_tile->my_objects->back();
 			if(this == act_player) {
-				string out = "You see a " + the_obj->get_name_color() + " here.";
-				win_output->print(out);
+                win_output->print("You see a " + the_obj->get_name_color() + " here.");
 			}
 		} else {
-			ostringstream convert;
-			convert << new_tile->my_objects->size();
-			win_output->print("There are " + convert.str() + " objects here.");
+			win_output->print("There are " + int_string(new_tile->my_objects->size()) + " objects here.");
 		}
 	}
 }

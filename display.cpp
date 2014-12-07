@@ -3,6 +3,7 @@
 #include "display.h"
 #include "globals.h"
 #include "glyph.h"
+#include "stringutils.h"
 
 #include <stdlib.h>
 #include <stack>
@@ -19,9 +20,9 @@ void printcolor(int x, int y, string in){
 	move(y, x);
 	for(int i = 0; i < len; ++i){
 	
-		if(in.at(i) == '|'){ 
+		if(in.at(i) == color_escape_start){ 
             colorStack.push((colorName)(in.at(++i)));
-		} else if (in.at(i) == '~') {
+		} else if (in.at(i) == color_escape_end) {
             colorStack.pop();
         } else {
             printchar_cw(in.at(i), colorStack.top());
