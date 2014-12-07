@@ -284,7 +284,7 @@ void window::print_line(string in, int pos){
 
 void window::print_error(string text) {
 
-    /*
-    come back to this - need to be able to take in args. Here but in all text really
-    */
+    clear();
+    print_line("ERROR -- " + text, 0);
+    getch();
 }

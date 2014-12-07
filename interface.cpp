@@ -10,10 +10,6 @@
 #include "tile.h"
 #include "window.h"
 
-#include <sstream>
-
-using std::ostringstream;
-
 void UI::get_action(){
 
 	int input = get_input();
@@ -222,9 +218,7 @@ bool UI::command_drop(){
 			if(items.size() == 1){
 				win_output->print("You drop the " + items.back()->get_name_color() + ".");
 			} else {
-				ostringstream convert;
-				convert << items.size();
-				win_output->print("You drop " + convert.str() + " objects.");
+				win_output->print("You drop " + int_string(items.size()) + " objects.");
 			}
 		} else win_output->print("Nevermind");
 		

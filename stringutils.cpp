@@ -3,7 +3,12 @@
 #include "globals.h"
 #include "stringutils.h"
 
+#include <ostream>
+
 #include LIB_CURSES
+
+char color_escape_start = '|';
+char color_escape_end = '~';
 
 // Split a string into chunks of size width, not including color codes
 // and handling wraparound text
@@ -46,21 +51,32 @@ vector<string> string_slice(string in, int width){
 
 // Put a color tag before the string, and a color end tag at the end
 string color_string(string text, int color){
-	string r = escape_color(color) + text + '~';
+	string r = escape_color(color) + text + color_escape_end;
 	return r;
 }
 
 // Get a color code string for the input color
 string escape_color(int color){
-	string r = "|";
-	r += (char)color;
-    
-	return r;
+	return char_string(color_escape_start) + char_string((char)color);
 }
 
+string end_color() {
+
+    return char_string(color_escape_end);
+}
+
+// Convert int to string
 string int_string(int in){
 
 	ostringstream convert;
 	convert << in;
 	return convert.str();
+}
+
+// Convert char to string
+string char_string(char in) {
+
+    ostringstream convert;
+    convert << in;
+    return convert.str();
 }

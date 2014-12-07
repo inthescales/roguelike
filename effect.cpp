@@ -7,9 +7,6 @@
 #include "globals.h"
 #include "window.h"
 
-#include <sstream>
-using std::ostringstream;
-
 effect::effect(effect_t e){
 
 	target = TAR_NONE;
@@ -73,8 +70,6 @@ bool do_effect(argmap * args, effect * eff){
             
         case EFF_PRINT_INT:
         {
-            ostringstream convert;
-			convert << args->get_int((args_t)0);
             win_output->print("TIMER DEBUG 1");
             getch();
         }
@@ -82,8 +77,6 @@ bool do_effect(argmap * args, effect * eff){
             
         case EFF_PRINT_INT_2:
         {
-            ostringstream convert;
-			convert << args->get_int((args_t)0);
             win_output->print("TIMER DEBUG 2");
             getch();
         }
@@ -91,8 +84,6 @@ bool do_effect(argmap * args, effect * eff){
             
         case EFF_PRINT_INT_3:
         {
-            ostringstream convert;
-			convert << args->get_int((args_t)0);
             win_output->print("TIMER DEBUG 3");
             getch();
         }
