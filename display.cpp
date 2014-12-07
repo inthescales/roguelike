@@ -3,26 +3,34 @@
 #include "display.h"
 #include "globals.h"
 #include "glyph.h"
-#include <stdlib.h>
 
+#include <stdlib.h>
+#include <stack>
+
+using std::stack;
+
+// Print a string, using color codes included
 void printcolor(int x, int y, string in){
 
 	int len = in.size();
-	colorName color = C_WHITE;
+    stack<colorName> colorStack;
+    colorStack.push(C_WHITE);
 
 	move(y, x);
 	for(int i = 0; i < len; ++i){
 	
 		if(in.at(i) == '|'){ 
-		  color = (colorName)(in.at(i+1));
-			++i;
-		} else {
-		  printchar_cw(in.at(i), color);
+            colorStack.push((colorName)(in.at(++i)));
+		} else if (in.at(i) == '~') {
+            colorStack.pop();
+        } else {
+            printchar_cw(in.at(i), colorStack.top());
 		}
 	}
 	
 }
 
+// Print a glyph using its symbol and color
 void printglyph(glyph gly) {
 #if DISPLAY_TYPE == DISPLAY_CURSES \
  || DISPLAY_TYPE == DISPLAY_WCURSES
@@ -30,10 +38,12 @@ void printglyph(glyph gly) {
 #endif
 }
 
+// Print a symbol in white
 void printchar_cw(symbol_code s) {
   printchar_cw(s, C_WHITE);
 }
 
+// Print symbol in color
 void printchar_cw(symbol_code sym, colorName color) {
 
 #if DISPLAY_TYPE == DISPLAY_CURSES

@@ -49,6 +49,7 @@ void setup_window(){
 	win_world  = new window(0, win_output->y + win_output->height, width, 32);
 	win_status = new window(0, win_world->y + win_world->height, width, 6);
 	win_screen = new window(0, 0, width, win_status->y + win_status->height);
+    
 	buf_main = new vector<string>;
 }
 
