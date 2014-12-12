@@ -9,6 +9,14 @@
 #include "argmap.h"
 #include "flagset.h"
 
+enum entity_type {
+    ENT_TYPE_ACTOR = 0,
+    ENT_TYPE_OBJECT,
+    ENT_TYPE_FEATURE,
+    ENT_TYPE_TILE,
+    ENT_TYPE_CONDITION
+};
+
 using std::vector;
 
 class argmap;

@@ -193,7 +193,7 @@ int actor::take_turn() {
 
 void actor::queue_turn(int t) {
     argmap * args = new argmap();
-    args->add_actor(ARG_AGENT, this);
+    args->add_actor(ARG_EFFECT_AGENT, this);
     map_current->add_timer(new timer(new effect(EFF_TURN), args, t, 0, 0));
 }
 
@@ -287,7 +287,7 @@ bool actor::unequip(object * item){
 bool actor::eat(object * item){
 	
     argmap * m = new argmap();
-	m->add_actor(ARG_AGENT, this);
+	m->add_actor(ARG_EFFECT_AGENT, this);
     item->resolve_trigger(TRG_EAT, m); 
 }
 
@@ -295,7 +295,7 @@ bool actor::eat(object * item){
 bool actor::drink(object * item){
 	
     argmap * m = new argmap();
-	m->add_actor(ARG_AGENT, this);
+	m->add_actor(ARG_EFFECT_AGENT, this);
     item->resolve_trigger(TRG_DRINK, m); 
 }
 

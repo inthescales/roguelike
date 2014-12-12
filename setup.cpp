@@ -3,6 +3,7 @@
 #include "config.h"
 #include "enums.h"
 #include "globals.h"
+#include "interface.h"
 #include "objdefs.h"
 #include "settings.h"
 #include "setup.h"
@@ -27,6 +28,7 @@ void setup(){
 	resize_term(win_output->height + win_world->height + win_status->height, win_output->width);
 	keypad(stdscr, TRUE);
 	setup_color();
+    setup_ui();
 	cbreak();
 	noecho();
 	curs_set(1);
@@ -70,4 +72,8 @@ void setup_color(){
 		init_pair(CP_TEAL_BLACK, COLOR_CYAN, COLOR_BLACK);
 		init_pair(CP_BLACK_GRAY, COLOR_BLACK, COLOR_WHITE);
 	}
+}
+
+void setup_ui() {
+    UI::setup_ui();
 }
