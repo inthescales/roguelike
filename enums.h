@@ -2,18 +2,6 @@
 
 #define ENUMS_H
 
-//Cardinal directions, for easy reference
-enum direction {
-	DIR_UP = 2,
-	DIR_RIGHT = 5,
-	DIR_DOWN = 7,
-	DIR_LEFT = 4,
-	DIR_UPRIGHT = 9,
-	DIR_UPLEFT = 7,
-	DIR_DOWNLEFT = 1,
-	DIR_DOWNRIGHT = 3
-};
-
 //Equipment slots
 enum equip_slot {
 	ES_MAINHAND = 0,

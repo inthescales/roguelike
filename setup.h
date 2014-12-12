@@ -7,5 +7,6 @@
 void setup();
 void setup_window();
 void setup_color();
+void setup_ui();
 
 #endif

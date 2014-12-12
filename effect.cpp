@@ -46,7 +46,7 @@ bool do_effect(argmap * args, effect * eff){
     
         case EFF_TURN:
         {
-            actor * agent = args->get_actor(ARG_AGENT);
+            actor * agent = args->get_actor(ARG_EFFECT_AGENT);
             if(agent != NULL) {
                 int post_time = agent->take_turn();
                 agent->queue_turn(post_time);
@@ -62,7 +62,7 @@ bool do_effect(argmap * args, effect * eff){
         }
             
 		case EFF_BREAD:
-			if(args->get_actor(ARG_AGENT) == act_player)
+			if(args->get_actor(ARG_EFFECT_AGENT) == act_player)
 				win_output->print("This bread is delicious!");
 			//act->taste(TST_BREAD, true);
 			//act->nourish(obj->bonus);

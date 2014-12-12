@@ -10,21 +10,34 @@
 #include "tile.h"
 #include "window.h"
 
+std::map<int, direction_t> * direction_key;
+
+void UI::setup_ui() {
+
+    direction_key = new std::map<int, direction_t>();
+    
+    (*direction_key)['0'+1] = DIR_DOWNLEFT;
+    (*direction_key)['0'+2] = DIR_DOWN;
+    (*direction_key)['0'+3] = DIR_DOWNRIGHT;
+    (*direction_key)['0'+4] = DIR_LEFT;
+    (*direction_key)['0'+5] = DIR_CENTER;
+    (*direction_key)['0'+6] = DIR_RIGHT;
+    (*direction_key)['0'+7] = DIR_UPLEFT;
+    (*direction_key)['0'+8] = DIR_UP;
+    (*direction_key)['0'+9] = DIR_UPRIGHT;
+
+}
+
 void UI::get_action(){
 
 	int input = get_input();
 	
+    // Player pressed a motion key
+    if (direction_key->count(input)) {
+        command_move(direction_key->at(input));
+    }
+    
 	switch(input){
-		case '0' + 1:
-		case '0' + 2:
-		case '0' + 3:
-		case '0' + 4:
-		case '0' + 6:
-		case '0' + 7:
-		case '0' + 8:
-		case '0' + 9:
-			command_move(input - '0');
-			break;
 		case ',':
 			command_pick_up();
 			break;
@@ -71,7 +84,7 @@ void UI::get_action(){
 
 int UI::get_input(){
 
-	int input = getch();
+	int input = wgetch(stdscr);
 	
 	return input;
 
@@ -94,7 +107,8 @@ bool UI::command_conditions(){
 	redraw_windows();
 }
 
-bool UI::command_move(int dir){
+bool UI::command_move(direction_t dir){
+
 	std::pair<int, int> offset = dir_to_offset(dir);
 	actor * controlled = act_player;
 	
@@ -333,7 +347,7 @@ bool UI::command_quit() {
   exit_game(0);
 }
 
-// PROMPTS =========================================
+// Interface =========================================
 
 /*
 	Prompt for a yes/no question
@@ -345,7 +359,7 @@ bool UI::prompt_yesno(string prompt){
 	char r = ' ';
 	
 	while(r != 'y' && r != 'n'){
-		r = getch();
+		r = wgetch(stdscr);
 	}
 	
 	return r == 'y';
@@ -384,15 +398,6 @@ vector<object*> UI::prompt_inventory(actor * controlled, string prompt, bool all
 	}
 }
 
-// Get an element from a size-one vector.
-object * UI::get_single(vector<object*> vect){
-	if(vect.size() == 1){
-		return vect.back();
-	} else {
-		return NULL;
-	}
-}
-
 object * UI::prompt_gold_to_object(actor * controlled){
 
 	int amount;
@@ -410,18 +415,58 @@ object * UI::prompt_gold_to_object(actor * controlled){
 	}
 }
 
+direction_t UI::prompt_direction(string prompt) {
+
+    win_output->print(prompt);
+    
+    int input = 0;
+    
+    while (input == 0) {
+        input = wgetch(stdscr);
+        
+        if (direction_key->count(input) != 0) {
+            return direction_key->at(input);
+        }
+    }
+}
+
 // UTILITIES =======================================
 
-std::pair<int,int> UI::dir_to_offset(int dir){
+// Get an element from a size-one vector.
+object * UI::get_single(vector<object*> vect){
+	if(vect.size() == 1){
+		return vect.back();
+	} else {
+		return NULL;
+	}
+}
+
+std::pair<int,int> UI::dir_to_offset(direction_t dir){
 	std::pair<int, int> r;
 
-	if(dir % 3 == 1) r.first = -1;
-	else if(dir % 3 == 2) r.first = 0;
-	else r.first = 1;
-	
-	if(dir <= 3) r.second = 1;
-	else if(dir <= 6) r.second = 0;
-	else if(dir <= 9) r.second = -1;
+    switch(dir) {
+        case DIR_UPLEFT:
+            r.first = -1; r.second = -1; break;
+        case DIR_UP:
+            r.first = 0; r.second = -1; break;
+        case DIR_UPRIGHT:
+            r.first = 1; r.second = -1; break;
+        case DIR_LEFT:
+            r.first = -1; r.second = 0; break;
+        case DIR_RIGHT:
+            r.first = 1; r.second = 0; break;
+        case DIR_DOWNLEFT:
+            r.first = -1; r.second = 1; break;
+        case DIR_DOWN:
+            r.first = 0; r.second = 1; break;
+        case DIR_DOWNRIGHT:
+            r.first = 1; r.second = 1; break;
+            
+        case DIR_CENTER:
+        case DIR_NULL:
+        default:
+            r.first = r.second = 0; break;
+    }
 	
 	return r;
 }
