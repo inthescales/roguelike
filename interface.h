@@ -11,7 +11,10 @@ using std::vector;
 
 class action;
 class actor;
+class argmap;
 class object;
+class requirement;
+class targetActionBlock;
 
 enum ui_action{
 	UIA_NONE = 0,
@@ -43,7 +46,7 @@ class UI {
     
 	static void get_action();
 	static int get_input();
-	
+    
 	static bool command_inventory();
 	static bool command_equipment();
 	static bool command_conditions();
@@ -59,12 +62,14 @@ class UI {
 	static bool command_use();
 	static bool command_quit();
 	
+    static vector<void*> * prompt_target(targetActionBlock *);
+    static actor * prompt_self(vector<requirement*> *);
+    static vector<object*> * prompt_inventory(string, argmap *, vector<requirement*> *);
 	static bool prompt_yesno(string);
-	static vector<object*> prompt_inventory(actor *, string, bool, bool);
-	static object * prompt_gold_to_object(actor *);
+	static object * prompt_gold_to_object();
     static direction_t prompt_direction(string);
 	
-	static object * get_single(vector<object*>);
+	static object * get_single(vector<object*> *);
 	static std::pair<int,int> dir_to_offset(direction_t);
 	static char int_to_letter(int);
 	static int letter_to_int(char);

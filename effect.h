@@ -17,12 +17,10 @@ class effect {
 
 	public:
     effect(effect_t);
-	effect(target_t, radius_t, effect_t);
-	
-	target_t target;
+	effect(radius_t, effect_t);
+
 	radius_t radius;
 	effect_t type;
-
 };
 
 class trigger_effect {

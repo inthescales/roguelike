@@ -36,8 +36,10 @@ class object : public mapentity {
     string get_name_color();
     object_type get_type();
     object_subtype get_subtype();
+    
 	static bool compare_type(object *, object *);
-
+    static bool can_stack(object *, object *);
+    
 	void resolve_trigger(trigger_t, argmap *);
 };
 

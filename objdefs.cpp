@@ -1,3 +1,4 @@
+#include "action.h"
 #include "display.h"
 #include "objclass.h"
 #include "objdefs.h"
@@ -16,7 +17,7 @@ void define_objects() {
 	
 	//#BREAD_RATION
 	oclass[++c] = new objclass("bread ration", symboldef[SYM_FOOD], C_BROWN, OT_FOOD, OST_FOOD, MAT_VEGETATION, 1, 5);
-	oclass[c]->add_trigger_effect(new trigger_effect(TRG_EAT, new effect(TAR_SELF, RAD_SINGLE, EFF_BREAD)));
+	oclass[c]->add_trigger_effect(new trigger_effect(TRG_EAT, new effect(RAD_SINGLE, EFF_BREAD)));
 	oclass[c]->add_stat(OSTAT_NUTRITION, 2);
 	
 	//#DAGGER	

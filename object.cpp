@@ -60,6 +60,10 @@ bool object::compare_type(object * a, object * b){
 	return a->get_type() < b->get_type();
 }
 
+bool object::can_stack(object * a, object * b) {
+    return a->get_class() == b->get_class();
+}
+
 // Effect management =========================
 
 void object::resolve_trigger(trigger_t trigger, argmap * args)

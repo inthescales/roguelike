@@ -169,16 +169,17 @@ void window::display_conditions(actor * act){
 
 // Interactive menus ============================================
 
-vector<object*> window::menu_select_objects(vector<object*> * items, bool multi, bool sort){
+vector<object*> * window::menu_select_objects(string prompt, vector<object*> * items, int max_select, bool sort){
 
 	curs_set(0);
 	
 	int index = 0, x = 3, y = 3;
 	int start = 0, winsize = 10;
+    int sel_count = 0;
 	const symbol_code sym[] = {symboldef[CHAR_DASH], symboldef[CHAR_PLUS]};
 	int input, headers;
 	vector<bool> selected(items->size(), false);
-	vector<object*> ret;
+	vector<object*> * ret = new vector<object*>();
 	
 	if(sort){
 		std::sort(items->begin(), items->end(), object::compare_type);
@@ -188,7 +189,7 @@ vector<object*> window::menu_select_objects(vector<object*> * items, bool multi,
 	
 		clear();
 		move(y, x);
-		printw("Select some items:");
+		printw("%s", prompt.c_str());
 		
 		headers = 0;
 		for(int i = start; i - start < winsize && i < items->size(); ++i){
@@ -207,15 +208,20 @@ vector<object*> window::menu_select_objects(vector<object*> * items, bool multi,
 		
 		if((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z')){
 		
-            if(!multi) {
+            if(max_select == 1) {
                 // With no multi select, return immediately
                 int num = UI::letter_to_int(input);
                 if (num < items->size()) {
-                    ret.push_back(items->at(num));
+                    ret->push_back(items->at(num));
                     return ret;
                 }
-            } else {
-                selected[UI::letter_to_int(input)] = !selected[UI::letter_to_int(input)];
+            } else if (max_select == -1 || max_select > sel_count) {
+                // Toggle selection for this letter, and update count
+                if (selected[UI::letter_to_int(input)] = !selected[UI::letter_to_int(input)]) {
+                    ++sel_count;
+                } else {
+                    --sel_count;
+                }
             }
 		} else {
 		
@@ -223,7 +229,7 @@ vector<object*> window::menu_select_objects(vector<object*> * items, bool multi,
 				case 10:			
 					for(int j = 0; j < items->size(); ++j)
 						if(selected[j])
-							ret.push_back(items->at(j));
+							ret->push_back(items->at(j));
 					return ret;
 				case 27:
 					return ret;

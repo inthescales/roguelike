@@ -5,6 +5,7 @@
 #include "enums.h"
 #include "globals.h"
 #include <map>
+#include <vector>
 
 enum args_t {
     ARG_HOLDER_ENTITY = 0, // vvv - for effects that are carried by these things' classes
@@ -15,10 +16,18 @@ enum args_t {
 	ARG_EFFECT_AGENT, // vvv - standard semantic roles for effects
     ARG_EFFECT_PATIENT,
 	ARG_EFFECT_INSTRUMENT, // ^^^
-    ARG_TARGET_NUMBER, // vvv - arguments for targeting functions
-    ARG_TARGET_DISTANCE, // ^^^
+    ARG_TARGET_ENTITY_TYPE,// vvv - arguments for targeting
+    ARG_TARGET_NUMBER,
+    ARG_TARGET_DISTANCE,
+    ARG_TARGET_GOLDOK, // ^^^
+    ARG_REQUIRE_STAT, // vvv - arguments for requirements
+    ARG_REQUIRE_FLAG,
+    ARG_REQUIRE_VALUE,
+    ARG_REQUIRE_PATIENT// ^^^
     
 };
+
+using std::vector;
 
 class entity;
 class feature;
@@ -40,7 +49,8 @@ class argmap {
     bool add_feature(args_t, feature *);
     bool add_tile(args_t, tile *);
     bool add_condition(args_t, condition *);
-	
+	bool add_vector(args_t, vector<void*> *);
+    
 	bool has_value(args_t);
 	int get_int(args_t);
     entity * get_entity(args_t);
@@ -49,7 +59,8 @@ class argmap {
 	feature * get_feature(args_t);
 	tile * get_tile(args_t);
     condition * get_condition(args_t);
-	
+	vector<void*> * get_vector(args_t);
+    
 	void add_args(argmap *);
 	void add_args(argmap *, bool);
 	

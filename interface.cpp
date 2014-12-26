@@ -1,11 +1,14 @@
 #include <stdio.h>
 
+#include "action.h"
 #include "actor.h"
+#include "argmap.h"
 #include "globals.h"
 #include "interface.h"
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
+#include "requirement.h"
 #include "stringutils.h"
 #include "tile.h"
 #include "window.h"
@@ -110,23 +113,22 @@ bool UI::command_conditions(){
 bool UI::command_move(direction_t dir){
 
 	std::pair<int, int> offset = dir_to_offset(dir);
-	actor * controlled = act_player;
 	
 	ui_action action = UIA_NONE;
 	
-	tile * dest = &map_current->tiles[controlled->x + offset.first][controlled->y + offset.second];
+	tile * dest = &map_current->tiles[act_player->x + offset.first][act_player->y + offset.second];
 	
 	if(dest->my_actor == NULL) {
-		if(controlled->can_travel(dest)) {
+		if(act_player->can_travel(dest)) {
 			action = UIA_MOVE;
         }
 	} else
 		action = UIA_ATTACK;
 	
 	if(action == UIA_MOVE) {
-		controlled->move(offset);
+		act_player->move(offset);
 	} else if(action == UIA_ATTACK) {
-		controlled->attack(offset);
+		act_player->attack(offset);
     }
 		
 	return true;	
@@ -138,8 +140,7 @@ bool UI::command_move(direction_t dir){
 */
 bool UI::command_pick_up(){
 
-	actor * controlled = act_player;
-	tile * current = &map_current->tiles[controlled->x][controlled->y];
+	tile * current = &map_current->tiles[act_player->x][act_player->y];
 	bool ok = true;
 	
 	if(current->my_objects->empty()){
@@ -163,21 +164,21 @@ bool UI::command_pick_up(){
 		} else {
 			
 			// Take multiple objects
-			vector<object*> selected = win_screen->menu_select_objects(current->my_objects, true, true);
+			vector<object*> * selected = win_screen->menu_select_objects("Pick up what?", current->my_objects, -1, true);
 			string error = "";
 			string out_string = "";
 			int taken = 0;
 			
-			while(error == "" && !selected.empty()){
+			while(error == "" && !selected->empty()){
 			
-				error = command_pick_up_helper(selected.back());
+				error = command_pick_up_helper(selected->back());
 				if(error == "") {
 				
-					act_player->pick_up(selected.back(), current);
+					act_player->pick_up(selected->back(), current);
 					
 					if(taken++ > 0) out_string += ", ";
-					out_string += selected.back()->get_name_color();
-					selected.pop_back();
+					out_string += selected->back()->get_name_color();
+					selected->pop_back();
 				}
 			}
 			
@@ -217,22 +218,26 @@ string UI::command_pick_up_helper(object * target){
 
 bool UI::command_drop(){
 
-	actor * controlled = act_player;
-	tile * current = &map_current->tiles[controlled->x][controlled->y];
+	tile * current = &map_current->tiles[act_player->x][act_player->y];
 	
-	if( !(controlled->inventory->empty() && controlled->gold == 0) ){
+	if( !(act_player->inventory->empty() && act_player->gold == 0) ){
 	
-		vector<object*> items = prompt_inventory(controlled, "Drop what?", true, true);
-		if(items.size() > 0){
+        argmap * args = new argmap();
+        args->add_int(ARG_TARGET_NUMBER, -1);
+        args->add_int(ARG_TARGET_GOLDOK, 1);
+        vector<requirement*> * reqs = new vector<requirement*>();
+		vector<object*> * items = prompt_inventory("Drop what?", args, reqs);
+        
+		if(items->size() > 0){
 		
-			for(int i = 0; i < items.size(); ++i){
-				controlled->drop(items[i], current);
+			for(int i = 0; i < items->size(); ++i){
+				act_player->drop(items->at(i), current);
 			}
 			
-			if(items.size() == 1){
-				win_output->print("You drop the " + items.back()->get_name_color() + ".");
+			if(items->size() == 1){
+				win_output->print("You drop the " + items->back()->get_name_color() + ".");
 			} else {
-				win_output->print("You drop " + int_string(items.size()) + " objects.");
+				win_output->print("You drop " + int_string(items->size()) + " objects.");
 			}
 		} else win_output->print("Nevermind");
 		
@@ -241,8 +246,12 @@ bool UI::command_drop(){
 
 bool UI::command_equip(){
 	
-	actor * controlled = act_player;
-	object * item = get_single( prompt_inventory(controlled, "Equip what?", false, false) );
+    argmap * args = new argmap();
+    args->add_int(ARG_TARGET_NUMBER, 1);
+    args->add_int(ARG_TARGET_GOLDOK, 0);
+    vector<requirement*> * reqs = new vector<requirement*>();
+      
+	object * item = get_single( prompt_inventory("Equip what?", args, reqs) );
 	
 	if(item != NULL){
 	
@@ -250,14 +259,14 @@ bool UI::command_equip(){
 		
 		if(slot != -1){
 		
-			if(slot == ES_RING1 && controlled->equipped_item[ES_RING1] != NULL){
+			if(slot == ES_RING1 && act_player->equipped_item[ES_RING1] != NULL){
 				slot = ES_RING2;
 			}
 			
-			if(controlled->equipped_item[slot] != NULL){
-				bool temp = prompt_yesno("Replace " + controlled->equipped_item[slot]->get_name() + "?");
+			if(act_player->equipped_item[slot] != NULL){
+				bool temp = prompt_yesno("Replace " + act_player->equipped_item[slot]->get_name() + "?");
 				if(temp){
-					controlled->unequip(item);
+					act_player->unequip(item);
 					win_output->print("Unequipped " + item->get_name());
 				} else {
 					win_output->print("Nevermind");
@@ -265,7 +274,7 @@ bool UI::command_equip(){
 				}
 			}
 			
-			controlled->equip(item, slot);
+			act_player->equip(item, slot);
 			win_output->print("Equipped " + item->get_name());
 		}
 	}
@@ -273,13 +282,17 @@ bool UI::command_equip(){
 
 bool UI::command_unequip(){
 
-	actor * controlled = act_player;
-	object * item = get_single( prompt_inventory(controlled, "Unequip what?", false, false) );
+    argmap * args = new argmap();
+    args->add_int(ARG_TARGET_NUMBER, 1);
+    args->add_int(ARG_TARGET_GOLDOK, 0);
+    vector<requirement*> * reqs = new vector<requirement*>();
+    
+	object * item = get_single(prompt_inventory("Unequip what?", args, reqs) );
 	
 	if(item != NULL){
 		
 		if(item->equipped){
-			controlled->unequip(item);
+			act_player->unequip(item);
 			win_output->print("Unequipped " + item->get_name());
 			return true;
 		} else {
@@ -291,14 +304,17 @@ bool UI::command_unequip(){
 	}
 }
 
-bool UI::command_eat(){
-	
-	actor * controlled = act_player;
-	object * item = get_single( prompt_inventory(controlled, "Eat what?", false, false) );
+bool UI::command_eat() {
 
+    argmap * args = new argmap();
+    args->add_int(ARG_TARGET_NUMBER, 1);
+    args->add_int(ARG_TARGET_GOLDOK, 0);
+    vector<requirement*> * reqs = new vector<requirement*>();
+	
+    object * item = get_single( prompt_inventory("Eat what?", args, reqs));
 	if(item != NULL){
 
-		controlled->eat(item);
+		act_player->eat(item);
 	} else {
 		win_output->print("Nevermind...");
 	}
@@ -306,12 +322,15 @@ bool UI::command_eat(){
 
 bool UI::command_drink(){
 	
-	actor * controlled = act_player;
-	object * item = get_single( prompt_inventory(controlled, "Drink what?", false, false) );
+    argmap * args = new argmap();
+    args->add_int(ARG_TARGET_NUMBER, 1);
+    args->add_int(ARG_TARGET_GOLDOK, 0);
+    vector<requirement*> * reqs = new vector<requirement*>();
+	object * item = get_single( prompt_inventory("Drink what?", args, reqs));
 	
 	if(item != NULL){
 		
-		controlled->drink(item);
+		act_player->drink(item);
 	} else {
 		win_output->print("Nevermind...");
 	}
@@ -319,12 +338,15 @@ bool UI::command_drink(){
 
 bool UI::command_read(){
 	
-	actor * controlled = act_player;
-	object * item = get_single( prompt_inventory(controlled, "Read what?", false, false) );
+    argmap * args = new argmap();
+    args->add_int(ARG_TARGET_NUMBER, 1);
+    args->add_int(ARG_TARGET_GOLDOK, 0);
+    vector<requirement*> * reqs = new vector<requirement*>();
+	object * item = get_single( prompt_inventory("Read what?", args, reqs) );
 	
 	if(item != NULL){
 		
-		controlled->read(item);
+		act_player->read(item);
 	} else {
 		win_output->print("Nevermind...");
 	}
@@ -332,12 +354,15 @@ bool UI::command_read(){
 
 bool UI::command_use(){
 	
-	actor * controlled = act_player;
-	object * item = get_single( prompt_inventory(controlled, "Use what?", false, false) );
+    argmap * args = new argmap();
+    args->add_int(ARG_TARGET_NUMBER, 1);
+    args->add_int(ARG_TARGET_GOLDOK, 0);
+    vector<requirement*> * reqs = new vector<requirement*>();
+	object * item = get_single( prompt_inventory("Use what?", args, reqs) );
 	
 	if(item != NULL){
 		
-		controlled->use(item);
+		act_player->use(item);
 	} else {
 		win_output->print("Nevermind...");
 	}
@@ -349,9 +374,78 @@ bool UI::command_quit() {
 
 // Interface =========================================
 
-/*
-	Prompt for a yes/no question
-*/
+// Handle all prompts related to targeting for actions.
+vector<void*> * UI::prompt_target(targetActionBlock * in) {
+
+    vector<void*> * r;
+    switch (in->target_type) {
+    
+        case TAR_SELF:
+            r = new vector<void*>();
+            r->push_back((void*)prompt_self(in->requirements));
+            break;
+        case TAR_ADJ:
+            break;
+        case TAR_INV:
+            r = (vector<void*>*)prompt_inventory(in->prompt, in->args, in->requirements);
+            break;
+        case TAR_NONE:
+        default:
+            break;
+    
+    }
+
+}
+
+// Get the currently controlled player
+actor * UI::prompt_self(vector<requirement*> * reqs) {
+
+    actor * selected = act_player;
+    
+    if (!requirement::check_requirements_for(act_player, reqs)) {
+        selected = NULL;
+    }
+    
+    return selected;
+}
+
+// Prompt the user for a letter to select an item. $ creates a gold object, * or ? opens
+// inventory for viewing (and multi-select, for now)
+vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requirement*> * reqs){
+
+	int input;
+	vector<object*> * ret = new vector<object*>();
+	
+	win_output->print(prompt);
+			
+    bool gold_ok = (args->get_int(ARG_TARGET_GOLDOK) == 1);
+    int max_selects = args->get_int(ARG_TARGET_NUMBER);
+    
+	while(true){
+		input = wgetch(stdscr);
+		
+		if(input == '$' && gold_ok){
+            object * goldObj = prompt_gold_to_object();
+            if (requirement::check_requirements_for(goldObj, reqs)) {
+                ret->push_back(goldObj);
+            }
+			return ret;
+		} else if(input == '*' || input == '?'){
+			ret = win_screen->menu_select_objects(prompt, act_player->inventory, max_selects, true);
+			return ret;
+		} else if(input == 27){
+			return ret;
+		} else {
+			int slot = letter_to_int(input);
+			if(slot != -1 && obj_letter[slot] != NULL) {
+				ret->push_back(obj_letter[slot]);
+			}
+			return ret;
+		}
+	}
+}
+
+// Prompt for a yes/no question
 bool UI::prompt_yesno(string prompt){
 
 	win_output->print(prompt + "(y/n)");
@@ -365,52 +459,19 @@ bool UI::prompt_yesno(string prompt){
 	return r == 'y';
 }
 
-/*
-	Prompt the user for a letter to select an item. $ creates a gold object, * or ? opens
-	inventory for viewing (and multi-select, for now)
-*/
-vector<object*> UI::prompt_inventory(actor * controlled, string prompt, bool allow_multi, bool allow_gold){
-
-	int input;
-	vector<object*> ret;
-	
-	win_output->print(prompt);
-			
-	while(true){
-		input = wgetch(stdscr);
-		
-		if(input == '$' && allow_gold){
-			ret.push_back(prompt_gold_to_object(controlled));
-			return ret;
-		} else if(input == '*' || input == '?'){
-			ret = win_screen->menu_select_objects(controlled->inventory, allow_multi, true);
-			return ret;
-		} else if(input == 27){
-			return ret;
-		} else {
-			int slot = letter_to_int(input);
-			if(slot != -1 && obj_letter[slot] != NULL)
-				ret.push_back(obj_letter[slot]);
-			if(obj_letter[slot] == NULL)
-				exit(0);
-			return ret;
-		}
-	}
-}
-
-object * UI::prompt_gold_to_object(actor * controlled){
+object * UI::prompt_gold_to_object(){
 
 	int amount;
 	
 	win_output->print("How much? (have ?)");
 	scanf("%d", &amount);
 	
-	if(amount > controlled->gold){
+	if(amount > act_player->gold){
 		win_output->print("You don't have that much.");
 		return NULL;
 	} else {
 		object * ret = new object(3, amount);
-		controlled->gold -= amount;
+		act_player->gold -= amount;
 		return ret;
 	}
 }
@@ -433,9 +494,9 @@ direction_t UI::prompt_direction(string prompt) {
 // UTILITIES =======================================
 
 // Get an element from a size-one vector.
-object * UI::get_single(vector<object*> vect){
-	if(vect.size() == 1){
-		return vect.back();
+object * UI::get_single(vector<object*> * vect){
+	if(vect->size() == 1){
+		return vect->back();
 	} else {
 		return NULL;
 	}

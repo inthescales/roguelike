@@ -1,3 +1,4 @@
+#include "action.h"
 #include "actor.h"
 #include "actclass.h"
 #include "flagset.h"
@@ -180,7 +181,7 @@ void actor::resolve_trigger(trigger_t trigger, argmap * args)
 
 }
 
-// GAME ACTIONS ====================================================================
+// Action and turn setup ====================================================================
 
 int actor::take_turn() {
 
@@ -196,6 +197,63 @@ void actor::queue_turn(int t) {
     args->add_actor(ARG_EFFECT_AGENT, this);
     map_current->add_timer(new timer(new effect(EFF_TURN), args, t, 0, 0));
 }
+
+// Execute an action, including selecting targets. Returns whether or not the action
+// completed. If false, actor turn should not be spent.
+bool actor::execute_action(action * in) {
+
+    if (in->blocks == NULL) {
+        return false;
+    }
+
+    actionBlock * curBlock;
+    
+    bool failedReq = false;
+    // implement stack for loops
+    
+    // Process each block in the action in order
+    for (int i = 0; i < in->blocks->size(); ++i) {
+    
+        curBlock = in->blocks->at(i);
+        
+        // If we failed the last requirement block and haven't seen an end yet, skip instruction.
+        if (failedReq && !(curBlock->block_type == REQUIREMENT_BLOCK && ((requirementActionBlock *)curBlock)->endBlock)) continue;
+        
+        switch (curBlock->block_type) {
+        
+            case TARGET_BLOCK:
+                select_target((targetActionBlock *)curBlock);
+                break;
+                
+            case EFFECT_BLOCK:
+                do_effect(curBlock->args, ((effectActionBlock *)curBlock)->eff);
+                break;
+                
+            case REQUIREMENT_BLOCK:
+                
+                // Implement loops
+                failedReq = !requirement::check_requirements(curBlock->requirements);
+                break;
+          
+        }
+        
+    }
+    
+    return true;
+}
+
+vector<void*> * actor::select_target(targetActionBlock * in) {
+
+    if (this == act_player) {
+        return UI::prompt_target(in);
+    } else {
+        //return AI::select_target(in);
+    }
+    
+    return NULL;
+}
+
+// Specific actions =============================
 
 // Move the actor to a new tile
 // Assumes the target tile has no actor already.
@@ -369,4 +427,23 @@ bool actor::can_travel(tile * t) {
     }
     
     return false;
+}
+
+bool actor::can_take(object * obj) {
+    
+	vector<object*>::iterator it = inventory->begin();
+	
+	for(; it != inventory->end(); ++it) {
+	
+        if (object::can_stack(*it, obj)) {
+            return true;
+        }
+	}
+
+    if(inventory->size() >= MAX_INVENTORY) {
+		return false;
+	}
+    
+    return true;
+    
 }
