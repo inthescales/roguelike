@@ -36,7 +36,7 @@ class window{
     void print_error(string);
     
     // Display menus
-	vector<object*> menu_select_objects(vector<object*> *, bool, bool);
+	vector<object*> * menu_select_objects(string, vector<object*> *, int, bool);
 	
 	int x, y, width, height;
 

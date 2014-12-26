@@ -47,6 +47,29 @@ string mapentity::get_name_color() {
 
 // Stat management ============================
 
+bool mapentity::has_cond_stat(stats_t code) {
+	
+    vector<condition *>::iterator it = condition_list->begin();
+	for(; it != condition_list->end(); ++it){
+	
+		if((*it)->has_stat(code)) {
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+bool mapentity::has_stat(stats_t code) {
+
+    if (entity::has_stat(code)) {
+        return true;
+    } else if(get_cond_stat(code)) {
+        return true;
+    }
+	return false;
+}
+
 int mapentity::get_cond_stat(stats_t code) {
 	
 	int ret = 0;
@@ -54,9 +77,8 @@ int mapentity::get_cond_stat(stats_t code) {
     vector<condition *>::iterator it = condition_list->begin();
 	for(; it != condition_list->end(); ++it){
 	
-		int value = (*it)->get_stat(code);
-		if(value != -1) {
-			ret += value;
+		if((*it)->has_stat(code)) {
+			ret += (*it)->get_stat(code);
 		}
 	}
 	
@@ -64,7 +86,6 @@ int mapentity::get_cond_stat(stats_t code) {
 }
 
 int mapentity::get_stat(stats_t code) {
-
 
 	int value = entity::get_stat(code);
 	value += get_cond_stat(code);

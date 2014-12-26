@@ -74,6 +74,11 @@ bool argmap::add_condition(args_t code, condition * obj_in){
 	return true;
 }
 
+bool argmap::add_vector(args_t code, vector<void*> * obj_in){
+	(*the_map)[code] = obj_in;
+	return true;
+}
+
 // Function for checking whether value exists ======
 
 bool argmap::has_value(args_t code){
@@ -134,6 +139,14 @@ tile * argmap::get_tile (args_t code){
 condition * argmap::get_condition (args_t code){
     if (has_value(code)) {
         return (condition *)(*the_map)[code];
+    }
+    
+    return NULL;
+}
+
+vector<void*> * argmap::get_vector (args_t code){
+    if (has_value(code)) {
+        return (vector<void*> *)(*the_map)[code];
     }
     
     return NULL;

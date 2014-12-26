@@ -2,31 +2,33 @@
 
 // Actionblock stuff ===================
 
-targetActionBlock::targetActionBlock(argmap * nargs, target_t ntarg, radius_t nrad, args_t npos) {
+targetActionBlock::targetActionBlock(string nprompt, argmap * nargs, target_t ntarg, radius_t nrad, args_t npos) {
 
     args = nargs;
     target_type = ntarg;
     radius_type = nrad;
     position = npos;
+    prompt = nprompt;
     block_type = TARGET_BLOCK;
 }
 
-effectActionBlock::effectActionBlock(argmap * nargs, effect_t neff) {
+effectActionBlock::effectActionBlock(argmap * nargs, effect * neff) {
 
     args = nargs;
-    effect_type = neff;
+    eff = neff;
     block_type = EFFECT_BLOCK;
+}
+
+requirementActionBlock::requirementActionBlock(bool nloop, bool nend) {
+
+    isLoop = nloop;
+    endBlock = nend;
 }
 
 // Action itself =====================
 
-action::action(argmap * nreqs, vector<actionBlock *> * nblocks) {
+action::action(argmap * nargs, vector<actionBlock *> * nblocks) {
 
-    requirements = nreqs;
+    args = nargs;
     blocks = nblocks;
-}
-
-void action::execute() {
-
-
 }

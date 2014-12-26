@@ -16,6 +16,8 @@
 using std::string;
 using std::vector;
 
+class action;
+class targetActionBlock;
 class object;
 class tile;
 
@@ -63,14 +65,16 @@ class actor : public mapentity {
     // State management
     void get_object(object *);
 	bool remove_object(object * item);
-    void queue_turn(int);
     
     // Actions
     int take_turn();
+    void queue_turn(int);
+    bool execute_action(action *);
+    vector<void*> * select_target(targetActionBlock *);
+    
     void move(std::pair<int,int>);
 	void attack(std::pair<int,int>);
 	void attack(actor *);
-    
 	bool pick_up(object *, tile *);
 	bool drop(object *, tile*);
 	bool equip(object *, int);
@@ -79,10 +83,12 @@ class actor : public mapentity {
 	bool drink(object *);
 	bool read(object *);
 	bool use(object *);
+    
 	//void open(int, int);
 	//void close(int, int);
     
     bool can_travel(tile *);
+    bool can_take(object *);
 };
 
 #endif

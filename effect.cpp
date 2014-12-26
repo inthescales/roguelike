@@ -9,14 +9,12 @@
 
 effect::effect(effect_t e){
 
-	target = TAR_NONE;
 	radius = RAD_NONE;
 	type = e;
 }
 
-effect::effect(target_t t, radius_t r, effect_t e){
+effect::effect(radius_t r, effect_t e){
 
-	target = t;
 	radius = r;
 	type = e;
 }
@@ -42,6 +40,8 @@ bool do_effect(argmap * args, effect * eff){
     if (eff == NULL)
         return false;
     
+    bool success = false;
+    
 	switch(eff->type){
     
         case EFF_TURN:
@@ -52,7 +52,17 @@ bool do_effect(argmap * args, effect * eff){
                 agent->queue_turn(post_time);
             }
             
-            break;
+            return true;
+        }
+        
+        case EFF_PICK_UP:
+        {
+            actor * agent = args->get_actor(ARG_EFFECT_AGENT);
+            object * patient = args->get_object(ARG_EFFECT_PATIENT);
+            
+            
+            
+            return success;
         }
         
         case EFF_COND_TIMEOUT:

@@ -101,13 +101,6 @@ enum trigger_t {
 	TRG_USE
 };
 
-//Effect targets
-enum target_t {
-    TAR_NONE = 0,
-	TAR_SELF,
-	TAR_ADJ
-};
-
 //Effect radii (patterns of tiles they affect)
 enum radius_t {
     RAD_NONE = 0,
@@ -117,6 +110,7 @@ enum radius_t {
 //The actual effect that occurs
 enum effect_t {
     EFF_TURN = 0,
+    EFF_PICK_UP,
     EFF_COND_TIMEOUT,
 	EFF_BREAD,
     EFF_PRINT_INT,
