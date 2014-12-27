@@ -2,7 +2,18 @@
 
 // Actionblock stuff ===================
 
-targetActionBlock::targetActionBlock(string nprompt, argmap * nargs, target_t ntarg, radius_t nrad, actionRole_t npos) {
+targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nrad, actionRole_t npos) {
+
+    args = new argmap();
+    requirements = new vector<requirement*>();
+    target_type = ntarg;
+    radius_type = nrad;
+    position = npos;
+    prompt = nprompt;
+    block_type = TARGET_BLOCK;
+}
+
+targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nrad, actionRole_t npos, argmap * nargs) {
 
     args = nargs;
     requirements = new vector<requirement*>();
@@ -21,6 +32,15 @@ effectActionBlock::effectActionBlock(argmap * nargs, effect * neff) {
     block_type = EFFECT_BLOCK;
 }
 
+requirementActionBlock::requirementActionBlock(bool nloop, bool nend) {
+
+    args = new argmap();
+    requirements = new vector<requirement*>();
+    isLoop = nloop;
+    endBlock = nend;
+    block_type = REQUIREMENT_BLOCK;
+}
+
 requirementActionBlock::requirementActionBlock(bool nloop, bool nend, argmap * nargs) {
 
     args = nargs;
@@ -31,6 +51,11 @@ requirementActionBlock::requirementActionBlock(bool nloop, bool nend, argmap * n
 }
 
 // Action itself =====================
+
+action::action() {
+    args = new argmap();
+    blocks = new vector<actionBlock*>();
+}
 
 action::action(argmap * nargs) {
     args = nargs;
@@ -49,6 +74,11 @@ void action::add_block(actionBlock * nblock) {
 }
 
 // Requirement blocks ===============
+
+void actionBlock::add_requirement(requirement * nreq) {
+
+    requirements->push_back(nreq);
+}
 
 bool requirementActionBlock::evaluate() {
 

@@ -4,18 +4,28 @@
 #include "requirement.h"
 #include "window.h"
 
-requirement::requirement(requirement_t ntype, argmap * nargs) {
-    
-    negated = false;
+requirement::requirement(requirement_t ntype) {
+
     req_type = ntype;
-    args = nargs;
+    error = "";
+    negated = false;
+    args = new argmap();
 }
 
-requirement::requirement(bool nneg, requirement_t ntype, argmap * nargs) {
+requirement::requirement(string nerror, requirement_t ntype) {
     
-    negated = nneg;
+    error = nerror;
     req_type = ntype;
-    args = nargs;
+    negated = false;
+    args = new argmap();
+}
+
+requirement::requirement(string nerror, requirement_t ntype, bool nneg) {
+    
+    error = nerror;
+    req_type = ntype;
+    negated = nneg;
+    args = new argmap();
 }
 
 bool requirement::check() {
