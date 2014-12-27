@@ -41,7 +41,13 @@ bool entityclass::has_flag(flags_t code) {
 
 vector<effect *> * entityclass::get_effects(trigger_t trigger){
 
-    return trigger_effects->at(trigger);
+    int size = trigger_effects->size();
+    int test = trigger_effects->count(TRG_EAT);
+    if (trigger_effects->count(trigger) > 0) {
+        return trigger_effects->at(trigger);
+    }
+    
+    return NULL;
 }
 
 // Class construction ==============================

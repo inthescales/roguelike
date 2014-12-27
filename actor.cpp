@@ -194,7 +194,7 @@ int actor::take_turn() {
 
 void actor::queue_turn(int t) {
     argmap * args = new argmap();
-    args->add_actor(ARG_EFFECT_AGENT, this);
+    args->add_actor(ARG_ACTION_AGENT, this);
     map_current->add_timer(new timer(new effect(EFF_TURN), args, t, 0, 0));
 }
 
@@ -210,7 +210,12 @@ bool actor::execute_action(action * in) {
     
     bool failedReq = false;
     // implement stack for loops
+    actor * agent = this;
+    vector<void*> * patient = NULL;
+    vector<void*> * instrument = NULL;
+    vector<void*> * nvect;
     
+    actor * temp;
     // Process each block in the action in order
     for (int i = 0; i < in->blocks->size(); ++i) {
     
@@ -221,19 +226,41 @@ bool actor::execute_action(action * in) {
         
         switch (curBlock->block_type) {
         
+            // TARGET BLOCK - get vector returned by target function, set semantic role
             case TARGET_BLOCK:
-                select_target((targetActionBlock *)curBlock);
-                break;
+                nvect = select_target((targetActionBlock *)curBlock);
+                switch(((targetActionBlock *)curBlock)->position) {
                 
+                    case ACTROLE_PATIENT:
+                        patient = nvect;
+                    break;
+                    
+                    case ACTROLE_INSTRUMENT:
+                        instrument = nvect;
+                    break;
+                        
+                    default:
+                    break;
+                }
+            break;
+            
+            // EFFECT BLOCK - set roles, process effect
             case EFFECT_BLOCK:
+                curBlock->args->add_actor(ARG_ACTION_AGENT, agent);
+                curBlock->args->add_vector(ARG_ACTION_PATIENT, patient);
+                curBlock->args->add_vector(ARG_ACTION_INSTRUMENT, instrument);
                 do_effect(curBlock->args, ((effectActionBlock *)curBlock)->eff);
-                break;
+            break;
                 
+            // REQUIREMENT BLOCK - set roles, check for requirements
             case REQUIREMENT_BLOCK:
                 
-                // Implement loops
-                failedReq = !requirement::check_requirements(curBlock->requirements);
-                break;
+                // TODO - Implement loops
+                curBlock->args->add_actor(ARG_ACTION_AGENT, agent);
+                curBlock->args->add_vector(ARG_ACTION_PATIENT, patient);
+                curBlock->args->add_vector(ARG_ACTION_INSTRUMENT, instrument);
+                failedReq = !((requirementActionBlock *)curBlock)->evaluate();
+            break;
           
         }
         
@@ -309,6 +336,14 @@ bool actor::pick_up(object * target, tile * place){
 	return true;
 }
 
+// Take an object. Derive object's position
+bool actor::pick_up(object * target) {
+
+    // TODO - Check whether the thing's in an inventory. Use a flag maybe?
+    tile * current = &(target->current_map->tiles[target->x][target->y]);
+    return pick_up(target, current);
+}
+
 // Drop an object on the ground
 bool actor::drop(object * target, tile * place){
 	
@@ -345,7 +380,7 @@ bool actor::unequip(object * item){
 bool actor::eat(object * item){
 	
     argmap * m = new argmap();
-	m->add_actor(ARG_EFFECT_AGENT, this);
+	m->add_actor(ARG_ACTION_AGENT, this);
     item->resolve_trigger(TRG_EAT, m); 
 }
 
@@ -353,7 +388,7 @@ bool actor::eat(object * item){
 bool actor::drink(object * item){
 	
     argmap * m = new argmap();
-	m->add_actor(ARG_EFFECT_AGENT, this);
+	m->add_actor(ARG_ACTION_AGENT, this);
     item->resolve_trigger(TRG_DRINK, m); 
 }
 
@@ -429,6 +464,7 @@ bool actor::can_travel(tile * t) {
     return false;
 }
 
+// TODO - check whether item is in an inventory?
 bool actor::can_take(object * obj) {
     
 	vector<object*>::iterator it = inventory->begin();
@@ -446,4 +482,10 @@ bool actor::can_take(object * obj) {
     
     return true;
     
+}
+
+bool actor::can_eat(object * obj) {
+
+    return obj->get_class()->type == OT_FOOD;
+
 }
