@@ -13,9 +13,9 @@ enum args_t {
 	ARG_HOLDER_OBJECT,
     ARG_HOLDER_FEATURE,
     ARG_HOLDER_CONDITION, // ^^^ - i.e. - this effect is on an X class, here's a reference to the particular X
-	ARG_EFFECT_AGENT, // vvv - standard semantic roles for effects
-    ARG_EFFECT_PATIENT,
-	ARG_EFFECT_INSTRUMENT, // ^^^
+	ARG_ACTION_AGENT, // vvv - standard semantic roles for action
+    ARG_ACTION_PATIENT,
+	ARG_ACTION_INSTRUMENT, // ^^^
     ARG_TARGET_ENTITY_TYPE,// vvv - arguments for targeting
     ARG_TARGET_NUMBER,
     ARG_TARGET_DISTANCE,

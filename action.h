@@ -24,6 +24,13 @@ enum target_t {
     TAR_INV, // Target an object or objects from inventory
 };
 
+enum actionRole_t {
+    ACTROLE_AGENT,
+    ACTROLE_PATIENT,
+    ACTROLE_INSTRUMENT,
+    ACTROLE_MAX
+};
+
 class effect;
 class requirement;
 
@@ -42,10 +49,10 @@ class targetActionBlock : public actionBlock {
     public:
     target_t target_type;
     radius_t radius_type;
-    args_t position;
+    actionRole_t position;
     string prompt;
     
-    targetActionBlock(string, argmap *, target_t, radius_t, args_t);
+    targetActionBlock(string, argmap *, target_t, radius_t, actionRole_t);
 };
 
 // Continue affecting targets as long as the condition is true
@@ -64,7 +71,8 @@ class requirementActionBlock : public actionBlock {
     bool isLoop;
     bool endBlock;
     
-    requirementActionBlock(bool nloop, bool nend);
+    requirementActionBlock(bool nloop, bool nend, argmap *);
+    bool evaluate();
 };
 
 class action {
@@ -74,6 +82,8 @@ class action {
     vector<actionBlock *> * blocks;
     
     action(argmap *, vector<actionBlock *> *);
+    action(argmap *);
+    void add_block(actionBlock *);
 };
 
 #endif

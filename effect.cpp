@@ -46,7 +46,7 @@ bool do_effect(argmap * args, effect * eff){
     
         case EFF_TURN:
         {
-            actor * agent = args->get_actor(ARG_EFFECT_AGENT);
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
             if(agent != NULL) {
                 int post_time = agent->take_turn();
                 agent->queue_turn(post_time);
@@ -57,10 +57,20 @@ bool do_effect(argmap * args, effect * eff){
         
         case EFF_PICK_UP:
         {
-            actor * agent = args->get_actor(ARG_EFFECT_AGENT);
-            object * patient = args->get_object(ARG_EFFECT_PATIENT);
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            object * patient = (object *)args->get_vector(ARG_ACTION_PATIENT)->front();
             
+            agent->pick_up(patient);
             
+            return success;
+        }
+        
+        case EFF_EAT:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            object * patient = (object *)args->get_vector(ARG_ACTION_PATIENT)->front();
+            
+            agent->eat(patient);
             
             return success;
         }
@@ -72,32 +82,11 @@ bool do_effect(argmap * args, effect * eff){
         }
             
 		case EFF_BREAD:
-			if(args->get_actor(ARG_EFFECT_AGENT) == act_player)
+			if(args->get_actor(ARG_ACTION_AGENT) == act_player)
 				win_output->print("This bread is delicious!");
 			//act->taste(TST_BREAD, true);
 			//act->nourish(obj->bonus);
 			break;
-            
-        case EFF_PRINT_INT:
-        {
-            win_output->print("TIMER DEBUG 1");
-            getch();
-        }
-            break;
-            
-        case EFF_PRINT_INT_2:
-        {
-            win_output->print("TIMER DEBUG 2");
-            getch();
-        }
-            break;
-            
-        case EFF_PRINT_INT_3:
-        {
-            win_output->print("TIMER DEBUG 3");
-            getch();
-        }
-            break;
             
 		default:
 			break;		

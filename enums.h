@@ -111,6 +111,7 @@ enum radius_t {
 enum effect_t {
     EFF_TURN = 0,
     EFF_PICK_UP,
+    EFF_EAT,
     EFF_COND_TIMEOUT,
 	EFF_BREAD,
     EFF_PRINT_INT,

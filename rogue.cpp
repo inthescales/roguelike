@@ -60,7 +60,7 @@ void init_game() {
 	win_world->display_map(map_current);
 	win_status->display_status();	
 	win_output->print("You enter another dungeon...");
-	
+    
 	refresh();
 }
 

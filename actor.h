@@ -76,6 +76,7 @@ class actor : public mapentity {
 	void attack(std::pair<int,int>);
 	void attack(actor *);
 	bool pick_up(object *, tile *);
+    bool pick_up(object *);
 	bool drop(object *, tile*);
 	bool equip(object *, int);
 	bool unequip(object *);
@@ -88,6 +89,7 @@ class actor : public mapentity {
 	//void close(int, int);
     
     bool can_travel(tile *);
+    bool can_eat(object *);
     bool can_take(object *);
 };
 
