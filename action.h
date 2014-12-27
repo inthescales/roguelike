@@ -41,6 +41,8 @@ class actionBlock {
     
     vector<requirement*> * requirements; // Act a bit differently for block types
     argmap * args;
+    
+    void add_requirement(requirement *);
 };
 
 // Only targets fitting requirements will be selected
@@ -52,7 +54,8 @@ class targetActionBlock : public actionBlock {
     actionRole_t position;
     string prompt;
     
-    targetActionBlock(string, argmap *, target_t, radius_t, actionRole_t);
+    targetActionBlock(string, target_t, radius_t, actionRole_t);
+    targetActionBlock(string, target_t, radius_t, actionRole_t, argmap *);
 };
 
 // Continue affecting targets as long as the condition is true
@@ -71,7 +74,8 @@ class requirementActionBlock : public actionBlock {
     bool isLoop;
     bool endBlock;
     
-    requirementActionBlock(bool nloop, bool nend, argmap *);
+    requirementActionBlock(bool, bool);
+    requirementActionBlock(bool, bool, argmap *);
     bool evaluate();
 };
 
@@ -81,34 +85,10 @@ class action {
     argmap * args;
     vector<actionBlock *> * blocks;
     
-    action(argmap *, vector<actionBlock *> *);
+    action();
     action(argmap *);
+    action(argmap *, vector<actionBlock *> *);
     void add_block(actionBlock *);
 };
 
 #endif
-
-/*
-
-Need a series of steps for determining targets and instruments
-Really, we could have a whole set of these so it needs to be an
-arbitrarily long, multi-step process.
-
-I'd like to be passing a list of things into the actual do_effect
-
-OK!
-Action contains vector of pairs. The first elements is a targeting
-type, which includes both how the thing is picked and what type it
-is. The second element is an argmap code for where the target will
-be stored. These can be read by the effect.
-
-
-An action needs to be able to have multiple effects.
-
-Idea:
-vector<tuple<target, radius, vector<effect> > >
-
-All of these are executed.
-
-
-*/

@@ -210,9 +210,9 @@ bool actor::execute_action(action * in) {
     
     bool failedReq = false;
     // implement stack for loops
-    actor * agent = this;
-    vector<void*> * patient = NULL;
-    vector<void*> * instrument = NULL;
+    actor * cur_agent = this;
+    vector<void*> * cur_patient = NULL;
+    vector<void*> * cur_instrument = NULL;
     vector<void*> * nvect;
     
     actor * temp;
@@ -224,6 +224,12 @@ bool actor::execute_action(action * in) {
         // If we failed the last requirement block and haven't seen an end yet, skip instruction.
         if (failedReq && !(curBlock->block_type == REQUIREMENT_BLOCK && ((requirementActionBlock *)curBlock)->endBlock)) continue;
         
+        if (curBlock->block_type != TARGET_BLOCK) {
+            if (cur_agent != NULL) curBlock->args->add_actor(ARG_ACTION_AGENT, cur_agent);
+            if (cur_patient != NULL) curBlock->args->add_vector(ARG_ACTION_PATIENT, cur_patient);
+            if (cur_instrument != NULL) curBlock->args->add_vector(ARG_ACTION_INSTRUMENT, cur_instrument);
+        }
+        
         switch (curBlock->block_type) {
         
             // TARGET BLOCK - get vector returned by target function, set semantic role
@@ -232,11 +238,11 @@ bool actor::execute_action(action * in) {
                 switch(((targetActionBlock *)curBlock)->position) {
                 
                     case ACTROLE_PATIENT:
-                        patient = nvect;
+                        cur_patient = nvect;
                     break;
                     
                     case ACTROLE_INSTRUMENT:
-                        instrument = nvect;
+                        cur_instrument = nvect;
                     break;
                         
                     default:
@@ -246,9 +252,6 @@ bool actor::execute_action(action * in) {
             
             // EFFECT BLOCK - set roles, process effect
             case EFFECT_BLOCK:
-                curBlock->args->add_actor(ARG_ACTION_AGENT, agent);
-                curBlock->args->add_vector(ARG_ACTION_PATIENT, patient);
-                curBlock->args->add_vector(ARG_ACTION_INSTRUMENT, instrument);
                 do_effect(curBlock->args, ((effectActionBlock *)curBlock)->eff);
             break;
                 
@@ -256,9 +259,6 @@ bool actor::execute_action(action * in) {
             case REQUIREMENT_BLOCK:
                 
                 // TODO - Implement loops
-                curBlock->args->add_actor(ARG_ACTION_AGENT, agent);
-                curBlock->args->add_vector(ARG_ACTION_PATIENT, patient);
-                curBlock->args->add_vector(ARG_ACTION_INSTRUMENT, instrument);
                 failedReq = !((requirementActionBlock *)curBlock)->evaluate();
             break;
           

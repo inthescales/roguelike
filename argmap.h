@@ -73,8 +73,3 @@ class argmap {
 typedef argmap statmap;
 
 #endif
-
-/*
-	TODO (probably) - add bools, and have a flagmap typedef, for
-	object and actor class flags.
-*/

@@ -29,8 +29,9 @@ class requirement {
     string error;
     argmap * args;
     
-    requirement(requirement_t, argmap *);
-    requirement(bool, requirement_t, argmap *);
+    requirement(requirement_t);
+    requirement(string, requirement_t);
+    requirement(string, requirement_t, bool);
     bool check();
     bool check_for(mapentity *);
     

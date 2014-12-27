@@ -31,20 +31,19 @@ void UI::setup_ui() {
     (*direction_key)['0'+8] = DIR_UP;
     (*direction_key)['0'+9] = DIR_UPRIGHT;
     
-    // Basic actions for players
-    argmap * eat_args = new argmap();
-    action * eat_action = new action(eat_args);
-    argmap * eat_trigger_args = new argmap();
-    eat_trigger_args->add_int(ARG_TARGET_NUMBER, 1);
-    eat_trigger_args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
-    eat_action->add_block(new targetActionBlock("Eat what?", eat_trigger_args, TAR_INV , RAD_SINGLE, ACTROLE_PATIENT));
-    requirementActionBlock * eat_req_block = new requirementActionBlock(false, false, new argmap());
-    requirement * eat_req_requirement = new requirement(REQ_ACTOR_CAN_EAT, new argmap());
-    eat_req_requirement->error = "You can't eat that.";
-    eat_req_block->requirements->push_back(eat_req_requirement);
+    // Basic actions for players ========================
+    // Eat
+    action * eat_action = new action();
+    targetActionBlock * eat_target_block = new targetActionBlock("Eat what?", TAR_INV , RAD_SINGLE, ACTROLE_PATIENT);
+    eat_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
+    eat_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
+    eat_action->add_block(eat_target_block);
+    requirementActionBlock * eat_req_block = new requirementActionBlock(false, false);
+    eat_req_block->requirements->push_back(new requirement("You can't eat that.", REQ_ACTOR_CAN_EAT));
     eat_action->add_block(eat_req_block);    
     argmap * eat_effect_args = new argmap();
     eat_action->add_block(new effectActionBlock(eat_effect_args, new effect(EFF_EAT)));
+    
     (*action_key)['e'] = eat_action;
 
 }
@@ -80,9 +79,6 @@ void UI::get_action(){
 		case 'd':
 			command_drop();
 			break;
-		//case 'e':
-		//	command_eat();
-		//	break;
 		case 'q':
 			command_drink();
 			break;
