@@ -32,8 +32,6 @@ class object : public mapentity {
     void init();
     
     objclass * get_class();
-    string get_name();
-    string get_name_color();
     object_type get_type();
     object_subtype get_subtype();
     

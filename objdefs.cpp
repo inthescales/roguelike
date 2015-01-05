@@ -15,9 +15,12 @@ void define_objects() {
 
 	int c = -1;
 	
+    effect * new_effect;
+    
 	//#BREAD_RATION
 	oclass[++c] = new objclass("bread ration", symboldef[SYM_FOOD], C_BROWN, OT_FOOD, OST_FOOD, MAT_VEGETATION, 1, 5);
-	oclass[c]->add_trigger_effect(new trigger_effect(TRG_EAT, new effect(RAD_SINGLE, EFF_BREAD)));
+    new_effect = new trigger_effect(EFF_BREAD, TRG_EAT);
+	oclass[c]->add_trigger_effect((trigger_effect *)new_effect);
 	oclass[c]->add_stat(OSTAT_NUTRITION, 2);
 	
 	//#DAGGER	

@@ -104,3 +104,5 @@ bool requirementActionBlock::evaluate() {
         return requirement::check_requirements(requirements);
     }
 }
+
+// TODO - in requirements, add else blocks, and target extract blocks (get feature from last tile, etc)

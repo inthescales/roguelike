@@ -11,6 +11,10 @@ class feature : public mapentity {
 	feature(short);
     void init();
 
+    featclass * get_class();
+    
+    bool can_open();
+    bool can_close();
 };
 
 #endif

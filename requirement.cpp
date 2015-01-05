@@ -41,24 +41,24 @@ bool requirement::check_for(mapentity * ent) {
         case REQ_HAS_FLAG:
             ok = (args->has_value(ARG_REQUIRE_FLAG) != 0 &&
                     ent->has_flag((flags_t)args->get_int(ARG_REQUIRE_FLAG)));
-            break;
+        break;
         case REQ_HAS_STAT:
             ok = (args->has_value(ARG_REQUIRE_STAT) != 0 &&
                     ent->has_stat((stats_t)args->get_int(ARG_REQUIRE_STAT)));
-            break;
+        break;
         case REQ_STAT_EQUALS:
             ok = (args->has_value(ARG_REQUIRE_STAT) != 0 &&
                     args->has_value(ARG_REQUIRE_VALUE) != 0 &&
                     ent->has_stat((stats_t)args->get_int(ARG_REQUIRE_STAT)) &&
                     ent->get_stat((stats_t)args->get_int(ARG_REQUIRE_STAT)) == args->get_int(ARG_REQUIRE_VALUE));
-            break;
+        break;
     
         case REQ_ACTOR_CAN_HOLD:
         
             if (args->has_value(ARG_ACTION_PATIENT)) {
                 ok = ((actor *)ent)->can_take(args->get_object(ARG_ACTION_PATIENT));
             }     
-            break;
+        break;
             
         case REQ_ACTOR_CAN_EAT:
         
@@ -69,11 +69,33 @@ bool requirement::check_for(mapentity * ent) {
                     if (!ok) break;
                 }
             }
-            break;
+        break;
             
+        case REQ_ACTOR_CAN_OPEN_FEAT:
+            
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<feature*> * patients = (vector<feature*> *)args->get_vector(ARG_ACTION_PATIENT);
+                for(int i = 0; i < patients->size(); ++i) {
+                    ok = ((actor *)ent)->can_open(patients->at(i));
+                    if (!ok) break;
+                }
+            }
+        break;
+        
+        case REQ_ACTOR_CAN_CLOSE_FEAT:
+            
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<feature*> * patients = (vector<feature*> *)args->get_vector(ARG_ACTION_PATIENT);
+                for(int i = 0; i < patients->size(); ++i) {
+                    ok = ((actor *)ent)->can_close(patients->at(i));
+                    if (!ok) break;
+                }
+            }
+        break;
+        
         case REQ_NULL:
         default:
-            break;
+        break;
     }
     
     if (!ok) {

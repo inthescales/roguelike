@@ -2,33 +2,29 @@
 #include "effect.h"
 #include "actor.h"
 #include "object.h"
+#include "feature.h"
 #include "tile.h"
 #include "enums.h"
 #include "globals.h"
 #include "window.h"
 
-effect::effect(effect_t e){
+effect::effect(effect_t e) {
 
-	radius = RAD_NONE;
 	type = e;
 }
 
-effect::effect(radius_t r, effect_t e){
+trigger_effect::trigger_effect(effect_t e, trigger_t tr) : effect(e) {
 
-	radius = r;
-	type = e;
+    type = e;
+    trigger = tr;
 }
 
-trigger_effect::trigger_effect(trigger_t tr, effect * e) : trigger(tr), eff(e) {
-
-}
-
-timer_effect::timer_effect(int n_time, int n_iters, int n_delta, effect * n_effect) {
+timer_effect::timer_effect(effect_t e, int n_time, int n_iters, int n_delta) : effect(e) {
     
+    type = e;
     time = n_time;
     iterations = n_iters;
     delta = n_delta;
-    eff = n_effect;
 }
 
 /*
@@ -68,12 +64,30 @@ bool do_effect(argmap * args, effect * eff){
         case EFF_EAT:
         {
             actor * agent = args->get_actor(ARG_ACTION_AGENT);
-            object * patient = (object *)args->get_vector(ARG_ACTION_PATIENT)->front();
+            object * patient = (object *)(args->get_vector(ARG_ACTION_PATIENT)->front());
             
             agent->eat(patient);
             
             return success;
         }
+        
+        case EFF_FEAT_OPEN:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            feature * patient = (feature *)(args->get_vector(ARG_ACTION_PATIENT)->front());
+            
+            patient->change_state(STATE_FEAT_OPEN);
+        }
+        break;
+        
+        case EFF_FEAT_CLOSE:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            feature * patient = (feature *)(args->get_vector(ARG_ACTION_PATIENT)->front());
+            
+            patient->change_state(STATE_FEAT_CLOSED);
+        }
+        break;
         
         case EFF_COND_TIMEOUT:
         {

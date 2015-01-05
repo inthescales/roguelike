@@ -18,6 +18,16 @@ void entityclass::init() {
     timer_effects = new vector<timer_effect *>();
 }
 
+// Basic information =============================
+
+string entityclass::get_name() {
+    if (assigned_name.size() > 0) {
+        return assigned_name;
+    } else {
+        return name;
+    }
+}
+
 // Stats management ==============================
 
 int entityclass::has_stat(stats_t code) {
@@ -37,12 +47,22 @@ bool entityclass::has_flag(flags_t code) {
     return flags->has_flag(code);
 }
 
+// State management ==============================
+
+int entityclass::has_state(state_t code) {
+
+    return stats->has_state(code);
+}
+
+entityclass * entityclass::get_state(state_t code) {
+
+    return stats->get_state(code);
+}
+
 // Effect and trigger management =========================
 
 vector<effect *> * entityclass::get_effects(trigger_t trigger){
 
-    int size = trigger_effects->size();
-    int test = trigger_effects->count(TRG_EAT);
     if (trigger_effects->count(trigger) > 0) {
         return trigger_effects->at(trigger);
     }
@@ -62,11 +82,16 @@ void entityclass::add_flag(flags_t code) {
     flags->add_flag(code);
 }
 
+void entityclass::add_state(state_t code, entityclass * val) {
+
+    stats->add_state(code, val);
+}
+
 void entityclass::add_trigger_effect(trigger_effect * n){
 
     if (trigger_effects->count(n->trigger) == 0) {
         (*trigger_effects)[n->trigger] = new vector<effect *>();
     }
     
-	trigger_effects->at(n->trigger)->push_back(n->eff);
+	trigger_effects->at(n->trigger)->push_back(n);
 }

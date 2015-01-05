@@ -14,6 +14,7 @@
 tile::tile(short code){
 
     my_class = (tileclass *)tclass[code];
+    individual_name = "";
 	my_actor = NULL;
 	my_feature = NULL;
     

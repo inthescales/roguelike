@@ -5,6 +5,7 @@
 class argmap;
 class effect;
 class condition;
+class timer_effect;
 
 class timer {
 
@@ -17,6 +18,7 @@ class timer {
     int iters;     // Iterations to occur before ending
     int delta;     // change in time between iterations
 
+    timer(timer_effect *, argmap *);
     timer(effect *, argmap *, int, int, int);
     timer * create_child();
     

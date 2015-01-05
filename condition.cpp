@@ -16,6 +16,7 @@ using std::min;
 condition::condition(mapentity * n_host, int ntype) {
 	
     my_class = (entityclass *)cclass[ntype];
+    individual_name = "";
 	stack = 1;
 	duration = get_class()->base_duration;
     host = n_host;
@@ -26,6 +27,7 @@ condition::condition(mapentity * n_host, int ntype) {
 condition::condition(mapentity * n_host, int ntype, int ntime) {
 
     my_class = (entityclass *)cclass[ntype];
+    individual_name = "";
 	stack = 1;
 	duration = ntime;
     host = n_host;
@@ -36,6 +38,7 @@ condition::condition(mapentity * n_host, int ntype, int ntime) {
 condition::condition(mapentity * n_host, int ntype, int nstack, int ntime) {
 
     my_class = (entityclass *)cclass[ntype];
+    individual_name = "";
 	stack = nstack;
 	duration = ntime;
     host = n_host;

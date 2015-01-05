@@ -1,6 +1,7 @@
 #include "action.h"
 #include "actor.h"
 #include "actclass.h"
+#include "feature.h"
 #include "flagset.h"
 #include "globals.h"
 #include "interface.h"
@@ -22,6 +23,7 @@ using std::ostringstream;
 actor::actor(short code){
 
 	my_class = (entityclass*)aclass[code];
+    individual_name = "";
 	//new->aitype = aclass[code].ai;
 	
 	level = 1;
@@ -50,18 +52,8 @@ actclass * actor::get_class(){
     return (actclass *)entity::get_class();
 }
 
-string actor::get_name() {
-    if (individual_name.length() > 0) {
-        return individual_name;
-    } else if (get_class()->assigned_name.length() > 0) {
-        return get_class()->assigned_name;
-    } else {
-        return get_class()->name;
-    }
-}
-
 string actor::get_name_color() {
-    return color_string(get_name(), get_color());
+    return color_string(entity::get_name(), get_color());
 }
 
 // Stats ================================================
@@ -319,7 +311,7 @@ void actor::attack(pair<int,int> offset) {
 // Perform a basic attack at a specified actor
 void actor::attack(actor * target){
 	int damage = get_stat(CSTAT_WEP_DMG) - target->get_stat(CSTAT_BLOCK);
-	string out = get_name() + color_string(" attack ", C_RED) + target->get_name() + " for " + int_string(damage) + " damage.";
+	string out = entity::get_name() + color_string(" attack ", C_RED) + target->entity::get_name() + " for " + int_string(damage) + " damage.";
 	win_output->print(out);
 }
 
@@ -449,15 +441,19 @@ void actor::print(string a, string b){
 // Returns true if this actor is able to enter the tile
 bool actor::can_travel(tile * t) {
 
-    if (has_flag(FLAG_ACT_CAN_WALK) && t->has_flag(FLAG_TILE_CAN_WALK)){
+    feature * feat = t->my_feature;
+    if (has_flag(FLAG_ACT_CAN_WALK) && t->has_flag(FLAG_TILE_CAN_WALK) &&
+        !(feat && feat->has_flag(FLAG_FEAT_NO_WALK))){
         return true;
     }
     
-    if (has_flag(FLAG_ACT_CAN_SWIM) && t->has_flag(FLAG_TILE_CAN_SWIM)){
+    if (has_flag(FLAG_ACT_CAN_SWIM) && t->has_flag(FLAG_TILE_CAN_SWIM) &&
+        !(feat && feat->has_flag(FLAG_FEAT_NO_SWIM))){
         return true;
     }
     
-    if (has_flag(FLAG_ACT_CAN_FLY) && t->has_flag(FLAG_TILE_CAN_FLY)){
+    if (has_flag(FLAG_ACT_CAN_FLY) && t->has_flag(FLAG_TILE_CAN_FLY) &&
+        !(feat && feat->has_flag(FLAG_FEAT_NO_FLY))){
         return true;
     }
     
@@ -488,4 +484,14 @@ bool actor::can_eat(object * obj) {
 
     return obj->get_class()->type == OT_FOOD;
 
+}
+
+bool actor::can_open(feature * feat) {
+
+    return feat->can_open();
+}
+
+bool actor::can_close(feature * feat) {
+
+    return feat->can_close();
 }

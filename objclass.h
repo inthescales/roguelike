@@ -22,8 +22,6 @@ typedef argmap statmap;
 class objclass : public mapentityclass {
 
 	public:
-
-	string assigned_name; //user assigned name
 	
 	object_type type;
 	object_subtype subtype;
@@ -35,8 +33,7 @@ class objclass : public mapentityclass {
     // Functions ========
     
 	objclass(string, symbol_code, colorName, object_type, object_subtype, material_t, int, int);	
-    
-    string get_name();
+    void init();
 };
 
 #endif

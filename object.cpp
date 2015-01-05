@@ -9,6 +9,7 @@
 object::object(short code) {
 
 	my_class = (entityclass*)oclass[code];
+    individual_name = "";
     equipped = false;
     quantity = 1;
     init();
@@ -17,6 +18,7 @@ object::object(short code) {
 object::object(short code, short quant) {
 
 	my_class = (entityclass*)oclass[code];
+    individual_name = "";
     equipped = false;
     quantity = quant;
     
@@ -32,20 +34,6 @@ void object::init() {
 
 objclass * object::get_class(){
     return (objclass *)entity::get_class();
-}
-
-string object::get_name() {
-    if (individual_name.length() > 0) {
-        return individual_name;
-    } else if (get_class()->assigned_name.length() > 0) {
-        return get_class()->assigned_name;
-    } else {
-        return get_class()->name;
-    }
-}
-
-string object::get_name_color() {
-    return color_string(get_name(), get_color());
 }
 
 object_type object::get_type() {

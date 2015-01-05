@@ -10,10 +10,17 @@ enum flags_t {
     FLAG_ACT_CAN_WALK,
     FLAG_ACT_CAN_SWIM,
     FLAG_ACT_CAN_FLY,
-    FLAG_TILE_CAN_WALK,
+    FLAG_TILE_CAN_WALK, // Flags for tiles vvv
     FLAG_TILE_CAN_SWIM,
     FLAG_TILE_CAN_FLY,
-    FLAG_TITLE_OPAQUE
+    FLAG_TILE_OPAQUE,// ^^^
+    FLAG_FEAT_NO_WALK, // Flags for features vvv
+    FLAG_FEAT_NO_SWIM,
+    FLAG_FEAT_NO_FLY,
+    FLAG_FEAT_CAN_OPEN,
+    FLAG_FEAT_CAN_CLOSE,
+    FLAG_FEAT_OPAQUE // ^^
+
 };
 
 class flagset {

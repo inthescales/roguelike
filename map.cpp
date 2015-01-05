@@ -16,7 +16,6 @@ map::map(short n_width, short n_height, int n_id, map * last_map) {
     width = n_width;
     height = n_height;
     id = n_id;
-    event_progress = 0;
     
 	tiles = std::vector<std::vector<tile> >(n_width);
     timer_list = new vector<timer *>();
@@ -24,12 +23,15 @@ map::map(short n_width, short n_height, int n_id, map * last_map) {
 	//Create an empty room with walls at the borders
 	for(int i = 0; i < width; ++i){
 		for(int j = 0; j < height; ++j){
-			if( i == 0 || j == 0 || i == width-1 || j == height-1)
+			if( i == 0 || j == 0 || i == width-1 || j == height-1) {
 				//tiles[i][j] = tile(1 /*TILE_WALL*/);
 				tiles[i].push_back(tile(2));
-			else
+			} else {
 				//tiles[i][j] = tile(0 /*TILE_FLOOR*/);
 				tiles[i].push_back(tile(0));
+            }
+            tiles[i].back().x = i;
+            tiles[i].back().y = j;
 		}
 	}
 	

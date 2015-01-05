@@ -11,6 +11,10 @@
 #define OBJ_GOLD_COIN 3
 #define OBJ_MAX 4
 
+#define FEAT_OPEN_WOODEN_DOOR 0
+#define FEAT_CLOSED_WOODEN_DOOR 1
+#define FEAT_MAX 2
+
 #define TILE_FLOOR 0
 #define TILE_GRASS 1
 #define TILE_WALL 2

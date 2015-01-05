@@ -32,9 +32,10 @@ void UI::setup_ui() {
     (*direction_key)['0'+9] = DIR_UPRIGHT;
     
     // Basic actions for players ========================
-    // Eat
+    // Eat -----
+    // target inv(obj.1), require item can be eaten, effect eating on item
     action * eat_action = new action();
-    targetActionBlock * eat_target_block = new targetActionBlock("Eat what?", TAR_INV , RAD_SINGLE, ACTROLE_PATIENT);
+    targetActionBlock * eat_target_block = new targetActionBlock("Eat what?", TAR_INV, RAD_SINGLE, ACTROLE_PATIENT);
     eat_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
     eat_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
     eat_action->add_block(eat_target_block);
@@ -43,9 +44,37 @@ void UI::setup_ui() {
     eat_action->add_block(eat_req_block);    
     argmap * eat_effect_args = new argmap();
     eat_action->add_block(new effectActionBlock(eat_effect_args, new effect(EFF_EAT)));
+    // Open -----
+    // target adj(tile.1), 
+    action * open_action = new action();
+    targetActionBlock * open_target_block = new targetActionBlock("Open what?", TAR_ADJ, RAD_SINGLE, ACTROLE_PATIENT);
+    open_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
+    open_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
+    open_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_FEATURE);
+    open_action->add_block(open_target_block);
+    requirementActionBlock * open_req_block = new requirementActionBlock(false, false);
+    open_req_block->requirements->push_back(new requirement("You can't open that.", REQ_ACTOR_CAN_OPEN_FEAT));
+    open_action->add_block(open_req_block);    
+    argmap * open_effect_args = new argmap();
+    open_action->add_block(new effectActionBlock(open_effect_args, new effect(EFF_FEAT_OPEN)));
+    // Close -----
+    // target adj(tile.1), 
+    action * close_action = new action();
+    targetActionBlock * close_target_block = new targetActionBlock("Close what?", TAR_ADJ, RAD_SINGLE, ACTROLE_PATIENT);
+    close_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
+    close_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
+    close_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_FEATURE);
+    close_action->add_block(close_target_block);
+    requirementActionBlock * close_req_block = new requirementActionBlock(false, false);
+    close_req_block->requirements->push_back(new requirement("You can't close that.", REQ_ACTOR_CAN_CLOSE_FEAT));
+    close_action->add_block(close_req_block);    
+    argmap * close_effect_args = new argmap();
+    close_action->add_block(new effectActionBlock(close_effect_args, new effect(EFF_FEAT_CLOSE)));
     
+    // Bind keys
     (*action_key)['e'] = eat_action;
-
+    (*action_key)['o'] = open_action;
+    (*action_key)['c'] = close_action;
 }
 
 void UI::get_action(){
@@ -58,41 +87,46 @@ void UI::get_action(){
     }
     
 	switch(input){
+        // Legacy actions
 		case ',':
 			command_pick_up();
-			break;
-		case 'i':
-			command_inventory();
-			break;
-		case 'E':
-			command_equipment();
-			break;
-		case 'C':
-			command_conditions();
-			break;
+		break;
 		case 'w':
 			command_equip();
-			break;
+		break;
 		case 'u':
 			command_unequip();
-			break;
+		break;
 		case 'd':
 			command_drop();
-			break;
+		break;
 		case 'q':
 			command_drink();
-			break;
+		break;
 		case 'r':
 			command_read();
-			break;
+		break;
 		case 'a':
 			command_use();
-			break;
-	    case 'Q':
+		break;
+        
+        // Interface commands
+        case 'i':
+			command_inventory();
+		break;
+		case 'E':
+			command_equipment();
+		break;
+		case 'C':
+			command_conditions();
+		break;
+        case 'Q':
 		    command_quit();
-		    break;
+		break;
+        
 		case 's':
 		case '.':
+        break;
         
 		default:
             if (action_key->count(input) != 0) {
@@ -390,11 +424,12 @@ bool UI::command_quit() {
   exit_game(0);
 }
 
-// Interface =========================================
+// Target prompts =====================================
 
 // Handle all prompts related to targeting for actions.
 vector<void*> * UI::prompt_target(targetActionBlock * in) {
 
+    vector<tile*> * tile_vect;;
     vector<void*> * r;
     switch (in->target_type) {
     
@@ -403,6 +438,10 @@ vector<void*> * UI::prompt_target(targetActionBlock * in) {
             r->push_back((void*)prompt_self(in->requirements));
             break;
         case TAR_ADJ:
+            tile_vect = prompt_adjacent(in->prompt, in->args, in->requirements);
+            if (in->args->get_int(ARG_TARGET_ENTITY_TYPE) == ENT_TYPE_FEATURE) {
+                r = (vector<void*>*)extract_features(tile_vect);
+            }
             break;
         case TAR_INV:
             r = (vector<void*>*)prompt_inventory(in->prompt, in->args, in->requirements);
@@ -426,6 +465,30 @@ actor * UI::prompt_self(vector<requirement*> * reqs) {
     }
     
     return selected;
+}
+
+vector<tile*> * UI::prompt_adjacent(string prompt, argmap * args, vector<requirement*> * reqs) {
+
+    vector<tile*> * r = new vector<tile*>();
+    
+    direction_t dir = prompt_direction(prompt);
+    std::pair<int, int> offset = dir_to_offset(dir);
+    std::pair<int, int> cur = std::pair<int, int>(act_player->x + offset.first, act_player->y + offset.second);
+    
+    int maxDist = (args->has_value(ARG_TARGET_DISTANCE) ? args->get_int(ARG_TARGET_DISTANCE) : 1);
+    int maxNum = (args->has_value(ARG_TARGET_NUMBER) ? args->get_int(ARG_TARGET_NUMBER) : 1);
+        
+    for(int i = 0; i < maxDist && r->size() < maxNum; ++i) {
+    
+        tile * cur_tile = &map_current->tiles[cur.first][cur.second];
+        if (requirement::check_requirements_for(cur_tile, reqs)) {
+            r->push_back(cur_tile);
+        }
+        cur.first += offset.first;
+        cur.second += offset.second;
+    }
+    
+    return r;
 }
 
 // Prompt the user for a letter to select an item. $ creates a gold object, * or ? opens
@@ -463,6 +526,23 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
 		}
 	}
 }
+
+// Extraction for prompts ====================================
+
+vector<feature*> * UI::extract_features(vector<tile*> * tile_vect) {
+
+    vector<feature*> * r = new vector<feature*>();
+    for (int i = 0; i < tile_vect->size(); ++i) {
+    
+        if (tile_vect->at(i)->my_feature != NULL) {
+            r->push_back(tile_vect->at(i)->my_feature);
+        }
+    }
+    
+    return r;
+}
+
+// Simple prompts ============================================
 
 // Prompt for a yes/no question
 bool UI::prompt_yesno(string prompt){

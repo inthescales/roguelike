@@ -20,8 +20,11 @@ entityclass * entity::get_class() {
 }
 
 string entity::get_name() {
-    
-    return my_class->name;
+    if (individual_name.length() > 0) {
+        return individual_name;
+    } else {
+        return my_class->get_name();
+    }
 }
 
 // Trigger effect management ===================
@@ -47,7 +50,7 @@ void entity::start_timers(map * my_map) {
     for (;it != get_class()->timer_effects->end(); ++it) {
         argmap * newmap = new argmap();
         newmap->add_entity(ARG_HOLDER_ENTITY, this);
-        my_map->add_timer(new timer((*it)->eff, newmap, (*it)->time, (*it)->iterations, (*it)->delta));
+        my_map->add_timer(new timer(*it, newmap));
     }
 }
 
@@ -80,4 +83,29 @@ int entity::get_stat(stats_t code) {
 bool entity::has_flag(flags_t code) {
 
     return get_class()->has_flag(code);
+}
+
+// State management ===============
+
+int entity::has_state(state_t code) {
+
+    return get_class()->has_state(code);
+}
+
+entityclass * entity::get_state(state_t code) {
+
+    return get_class()->get_state(code);
+    
+    return NULL;
+}
+
+bool entity::change_state(state_t code) {
+
+    entityclass * new_state = get_state(code);
+    if (new_state != NULL) {
+        my_class = new_state;
+        return true;
+    }
+
+    return false;
 }

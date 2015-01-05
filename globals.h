@@ -19,6 +19,7 @@ class map;
 class actor;
 class actclass;
 class objclass;
+class featclass;
 class tileclass;
 class condclass;
 
@@ -65,7 +66,7 @@ extern int turn;
 // Entity class arrays
 extern actclass * aclass[ACT_MAX];
 extern objclass * oclass[OBJ_MAX];
-//extern featclass * fclass[FEAT_MAX];
+extern featclass * fclass[FEAT_MAX];
 extern tileclass * tclass[TILE_MAX];
 extern condclass * cclass[COND_MAX];
 

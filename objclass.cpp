@@ -19,10 +19,6 @@ objclass::objclass(string tname, symbol_code tsym, colorName tcol, object_type t
     mapentityclass::init();
 }
 
-string objclass::get_name() {
-    if (assigned_name.size() <= 0) {
-        return assigned_name;
-    } else {
-        return name;
-    }
+void objclass::init() {
+    mapentityclass::init();
 }
