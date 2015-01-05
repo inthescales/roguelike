@@ -16,27 +16,25 @@ class map {
     private:
     
     vector<timer *> * timer_list;
-    
-    int event_progress;
 
-	public:
+    public:
 
-	map(short, short, int, map *);
+    map(short, short, int, map *);
     
     // The map's contents and structures
-	int id;
-	short width, height;
-	std::vector<std::vector<tile> > tiles;
+    int id;
+    short width, height;
+    std::vector<std::vector<tile> > tiles;
     //std::vector<stair> stairs;
-	//struct roomNote * note;
+    //struct roomNote * note;
     
     // Populate map
-	void add_stairs( struct feature *, int, int);
-	void add_actor(int, int, short);
-	void put_actor(int, int, struct actor *);
-	void add_object(int, int, short);
-	void put_object(int, int, object *);
-	void add_feature( int, int, short);
+    void add_stairs( struct feature *, int, int);
+    void add_actor(int, int, short);
+    void put_actor(int, int, struct actor *);
+    void add_object(int, int, short);
+    void put_object(int, int, object *);
+    void add_feature( int, int, short);
     void put_feature(int, int, feature *);
 	
     // Handle timing of events

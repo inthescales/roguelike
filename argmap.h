@@ -8,28 +8,41 @@
 #include <vector>
 
 enum args_t {
-    ARG_HOLDER_ENTITY = 0, // vvv - for effects that are carried by these things' classes
-	ARG_HOLDER_ACTOR,
-	ARG_HOLDER_OBJECT,
+    ARG_HOLDER_ENTITY = 0, // vvv - for trigger effects, the entity carrying that effect
+    ARG_HOLDER_ACTOR,
+    ARG_HOLDER_OBJECT,
     ARG_HOLDER_FEATURE,
-    ARG_HOLDER_CONDITION, // ^^^ - i.e. - this effect is on an X class, here's a reference to the particular X
-	ARG_ACTION_AGENT, // vvv - standard semantic roles for action
+    ARG_HOLDER_CONDITION,
+    ARG_ACTION_AGENT, // vvv - standard semantic roles for action
     ARG_ACTION_PATIENT,
-	ARG_ACTION_INSTRUMENT, // ^^^
+    ARG_ACTION_INSTRUMENT,
+    ARG_FEAT_CLOSEDSTATE, // vvv - arguments for features of their states
+    ARG_FEAT_OPENSTATE,
+    ARG_EFFECT_RADIUS,// vvv - arguments for effects
     ARG_TARGET_ENTITY_TYPE,// vvv - arguments for targeting
     ARG_TARGET_NUMBER,
     ARG_TARGET_DISTANCE,
-    ARG_TARGET_GOLDOK, // ^^^
+    ARG_TARGET_GOLDOK,
     ARG_REQUIRE_STAT, // vvv - arguments for requirements
     ARG_REQUIRE_FLAG,
     ARG_REQUIRE_VALUE,
-    ARG_REQUIRE_PATIENT// ^^^
-    
+    ARG_REQUIRE_PATIENT
+};
+
+/*
+    For now states will share a map with stats. Starting them at a high value so
+    there's no overlap. Should probably change this later.
+*/
+enum state_t {
+
+    STATE_FEAT_OPEN = 1000,
+    STATE_FEAT_CLOSED
 };
 
 using std::vector;
 
 class entity;
+class entityclass;
 class feature;
 class tile;
 class condition;
@@ -64,10 +77,15 @@ class argmap {
 	void add_args(argmap *);
 	void add_args(argmap *, bool);
 	
-	// Stat functions (same thing really)
+	// Stat functions
 	bool add_stat(stats_t, int);
 	int get_stat(stats_t);
 	bool has_stat(stats_t);
+    
+    // State functions
+    bool add_state(state_t, entityclass *);
+    entityclass * get_state(state_t);
+    bool has_state(state_t);
 };
 
 typedef argmap statmap;

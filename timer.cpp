@@ -4,6 +4,15 @@
 #include "condition.h"
 #include "effect.h"
 
+timer::timer(timer_effect * my_effect, argmap * my_args) {
+
+    executed_effect = my_effect;
+    effect_args = my_args;
+    base_time = time = my_effect->time;
+    iters = my_effect->iterations;
+    delta = my_effect->delta;
+}
+
 timer::timer(effect * my_effect, argmap * my_args, int my_time, int my_iter, int my_delta) {
     executed_effect = my_effect;
     effect_args = my_args;

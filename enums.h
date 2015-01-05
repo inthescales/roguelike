@@ -98,7 +98,9 @@ enum trigger_t {
 	TRG_EAT,
 	TRG_DRINK,
 	TRG_READ,
-	TRG_USE
+	TRG_USE,
+    TRG_OPEN,
+    TRG_CLOSE
 };
 
 //Effect radii (patterns of tiles they affect)
@@ -114,9 +116,8 @@ enum effect_t {
     EFF_EAT,
     EFF_COND_TIMEOUT,
 	EFF_BREAD,
-    EFF_PRINT_INT,
-    EFF_PRINT_INT_2,
-    EFF_PRINT_INT_3    //FOR DEBUG
+    EFF_FEAT_OPEN,
+    EFF_FEAT_CLOSE
 };
 
 //Condition stacking policies

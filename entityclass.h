@@ -18,7 +18,7 @@ class entityclass {
 
     public:
     int index;
-    string name;
+    string name, assigned_name;
     std::map<trigger_t, vector<effect *> *> * trigger_effects;
     vector<timer_effect *> * timer_effects;
     statmap * stats;
@@ -27,14 +27,20 @@ class entityclass {
     // Functions =============
     entityclass();
     void init();
+    
+    string get_name();
+    
     int has_stat(stats_t);
     int get_stat(stats_t);
+    int has_state(state_t);
+    entityclass * get_state(state_t);
     bool has_flag(flags_t);
     
     vector<effect *> * get_effects(trigger_t);
     
     void add_stat(stats_t, int);
     void add_flag(flags_t);
+    void add_state(state_t, entityclass *);
     void add_trigger_effect(trigger_effect *);
 };
     

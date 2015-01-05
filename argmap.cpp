@@ -181,3 +181,34 @@ int argmap::get_stat (stats_t code){
     }
     return 0;
 }
+
+// State functions =============================================
+// These are identical to the above, duplicated for convenience
+
+bool argmap::add_state(state_t code, entityclass * ent_in){
+    #ifdef size_64
+        long temp = (long)ent_in;
+        (*the_map)[code] = (void *)temp;
+    #else
+        (*the_map)[code] = (void *)ent_in;
+    #endif
+    
+	return true;
+}
+
+bool argmap::has_state(state_t code){
+	return the_map->count(code);
+}
+
+entityclass * argmap::get_state(state_t code){
+    if (has_state(code)) {
+        #ifdef size_64
+            long temp = (long)(*the_map)[code];
+            return (entityclass *)temp;
+        #else
+            return (entityclass *)(*the_map)[code];
+        #endif
+    }
+    return NULL;
+}
+

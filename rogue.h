@@ -8,6 +8,8 @@
 #include "window.h"
 #include "classdefs.h"
 
+class featclass;
+
 void init_game();
 void game_loop();
 
@@ -15,6 +17,7 @@ void game_loop();
 
 actclass * aclass[ACT_MAX];
 objclass * oclass[OBJ_MAX];
+featclass * fclass[FEAT_MAX];
 tileclass * tclass[TILE_MAX];
 condclass * cclass[COND_MAX];
 

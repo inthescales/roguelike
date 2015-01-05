@@ -2,6 +2,7 @@
 #include "conddefs.h"
 #include "config.h"
 #include "enums.h"
+#include "featdefs.h"
 #include "globals.h"
 #include "interface.h"
 #include "objdefs.h"
@@ -37,6 +38,7 @@ void setup(){
 	define_symbols();
 	define_actors();
 	define_objects();
+    define_features();
 	define_tiles();
 	define_conditions();
 	

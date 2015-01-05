@@ -12,12 +12,9 @@ class featclass : public mapentityclass {
 
 	public:
 	
-    // TODO - change these to flags
-	unsigned int can_walk : 1;
-	unsigned int can_swim : 1;
-	unsigned int can_fly : 1;
-	unsigned int opaque : 1;
-	
+    // Functions ===
+	featclass(string, symbol_code, colorName);
+    void init();	
 };
 
 #endif

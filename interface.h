@@ -12,9 +12,11 @@ using std::vector;
 class action;
 class actor;
 class argmap;
+class feature;
 class object;
 class requirement;
 class targetActionBlock;
+class tile;
 
 enum ui_action{
 	UIA_NONE = 0,
@@ -64,11 +66,15 @@ class UI {
 	
     static vector<void*> * prompt_target(targetActionBlock *);
     static actor * prompt_self(vector<requirement*> *);
+    static vector<tile*> * prompt_adjacent(string, argmap *, vector<requirement*> *);
     static vector<object*> * prompt_inventory(string, argmap *, vector<requirement*> *);
-	static bool prompt_yesno(string);
+	
+    static vector<feature*> * extract_features(vector<tile*> *);
+    
+    static bool prompt_yesno(string);
 	static object * prompt_gold_to_object();
     static direction_t prompt_direction(string);
-	
+    
 	static object * get_single(vector<object*> *);
 	static std::pair<int,int> dir_to_offset(direction_t);
 	static char int_to_letter(int);

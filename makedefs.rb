@@ -34,6 +34,21 @@ end
 
 fileout.write("#define OBJ_MAX " + count.to_s + "\n\n");
 
+#FEATURES
+count = 0
+filein = File.new("featdefs.cpp", "r")
+
+while (line = filein.gets)
+
+    if (name = /\/\/#(\S*)/.match(line))
+		fileout.write("#define FEAT_" + name[1] + " " + count.to_s + "\n")
+		count += 1
+	end
+	
+end
+
+fileout.write("#define FEAT_MAX " + count.to_s + "\n\n");
+
 #TILES
 count = 0
 filein = File.new("tiledefs.cpp", "r")

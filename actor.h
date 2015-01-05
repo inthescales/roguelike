@@ -25,9 +25,6 @@ class actor : public mapentity {
 
 	public:
 
-	// basics
-	string individual_name;
-
 	// stats
 	short HP, maxHP;
 	short level;
@@ -91,6 +88,8 @@ class actor : public mapentity {
     bool can_travel(tile *);
     bool can_eat(object *);
     bool can_take(object *);
+    bool can_open(feature *);
+    bool can_close(feature *);
 };
 
 #endif

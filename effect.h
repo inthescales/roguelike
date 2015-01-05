@@ -16,36 +16,28 @@ class feature;
 class effect {
 
 	public:
-    effect(effect_t);
-	effect(radius_t, effect_t);
-
-	radius_t radius;
 	effect_t type;
+    argmap * args;
+    
+    effect(effect_t);
 };
 
-class trigger_effect {
+class trigger_effect : public effect {
 	
 	public:
-	trigger_effect(trigger_t, effect *);
-	
-	trigger_t trigger;
-	effect * eff;
+    trigger_t trigger;
+       
+	trigger_effect(effect_t, trigger_t);
 };
 
-/*
- A combination of an effect and the numbers necessary to create
- a timer for it
-*/
-class timer_effect {
+class timer_effect : public effect {
 
     public:
-    timer_effect(int, int, int, effect *);
-    
     int time;
     int iterations;
     int delta;
     
-    effect * eff;
+    timer_effect(effect_t, int, int, int);
 };
 
 bool do_effect(argmap *, effect *);
