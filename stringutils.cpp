@@ -4,8 +4,11 @@
 #include "stringutils.h"
 
 #include <ostream>
+#include <vector>
 
 #include LIB_CURSES
+
+using std::vector;
 
 char color_escape_start = '|';
 char color_escape_end = '~';
@@ -15,36 +18,62 @@ char color_escape_end = '~';
 vector<string> string_slice(string in, int width){
 	
 	vector<string> r;
+    r.push_back("");
 	
 	int count = 0;
-	
+    vector<colorName> colorStack;
+    colorStack.push_back(C_WHITE);
+    
 	for(int i = 0; i < in.size(); ++i){
 	
-		if(count == 0) r.push_back("");
-	
 		r.back() += in.at(i);
-	
+    
 		// Ignore color code information in count
-		if(in.at(i) == '|'){
-			r.back() += in.at(++i);
-		} else if (in.at(i) != '~'){
-			++count;
-		}
+        if(i < in.size() && in.at(i) == color_escape_start){ 
+            colorStack.push_back((colorName)(in.at(i+1)));
+        } else if( i > 0 && in.at(i-1) == color_escape_start){ 
+            continue;
+        } else if (in.at(i) == color_escape_end) {
+            colorStack.pop_back();
+        } else {
+            ++count;
+        }
 		
 		// When we're at the end of a line, create a new string
 		// Check for wrapover and r
 		if(count == width){
 			if(i + 1 < in.size()){
-				if(in.at(i+1) == ' ') ++i;
-				else if (in.at(i) != ' '){
-					int j;
-					while(in.at(--i) != ' ') j++;
-					r.back().resize( r.back().size() - j);					
+				if(in.at(i+1) == ' ') {
+                    i += 1;
+				} else if (in.at(i) != ' '){
+                    int j;
+					for(j = 0; in.at(i) != ' '; ++j){
+                        --i;
+                        if (in.at(i) == color_escape_start) {
+                            colorStack.pop_back();
+                        }
+                    }
+					r.back().resize( r.back().size() - j);
 				}
 			}
-			count = 0;
+            colorName cur_color = colorStack.back();
+            for(int j = 1; j < colorStack.size(); ++j) {
+                r.back() += color_escape_end;
+            }
+			
+            count = 0;
+            r.push_back("");
+            for(int j = 1; j < colorStack.size(); ++j) {
+                r.back() += color_escape_start;
+                r.back() += colorStack.at(j);
+            }
+            
 		}
 	}
+    
+    for(int j = 1; j < colorStack.size(); ++j) {
+        r.back() += color_escape_end;
+    }
 	
 	return r;
 }

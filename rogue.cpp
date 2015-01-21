@@ -31,8 +31,12 @@ void game_loop()
 		curs_set(1);
 		win_world->display_map(map_current);
 		win_status->display_status();
-		win_output->print_buf(buf_main);
-		
+        if (win_output->should_update) {
+            win_output->print_buf(buf_main);
+            win_output->should_update = false;
+        }
+		break_buffer(buf_main);
+        
 		move(act_player->y - scrn_y + win_world->y, act_player->x - scrn_x + win_world->x);    
         
 		map_current->advance_time();

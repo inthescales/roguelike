@@ -16,11 +16,15 @@
 #include LIB_CURSES
 
 #include <algorithm>
+#include <stack>
+
+using std::stack;
 
 //using ;
 
 window::window(int n_x, int n_y, int n_w, int n_h) : x(n_x), y(n_y), width(n_w), height(n_h) {
 
+    should_update = false;
 }
 
 // Window display =============================================
@@ -67,7 +71,7 @@ void window::display_status(){
 }
 
 // Display actor's inventory
-void window::display_inventory(actor & act){
+void window::display_inventory(actor & act, string prompt){
 
 	curs_set(0);
 	clear();
@@ -81,7 +85,7 @@ void window::display_inventory(actor & act){
 	
 		clear();
 		move(ty++, tx);
-		printw("Inventory:");
+		printcolor(tx, ty, prompt);
 		
 		headers = 0;
 		for(int i = start; i - start < winsize && i < items->size(); ++i){
@@ -258,27 +262,61 @@ void window::print(string text){
 	print(text, buf_main);
 }
 
+void break_buffer(buffer * buf) {
+    if (buf->size() > 0 && buf->back() != "") {
+        buf->push_back("");
+    }
+}
+
 // Add a string to the buffer and print it
 void window::print(string text, buffer * buf){
 
 	clear();
 	move(0, 0); // TODO - make text window position more configurable
-	buf->push_back(text);
-	print_buf(buf);
+    if (buf->size() > 0) {
+        string temp = buf->back();
+        if (temp != "") {
+            temp = temp + " ";
+        }
+        buf->pop_back();
+        buf->push_back(temp + text);
+    } else {
+        buf->push_back(text);
+    }
+
+    should_update = true;
 }
 
 // Print as much of the buffer as will fit in this window
 void window::print_buf(buffer * buf){
 
 	int screen_pointer = 0, buffer_pointer = 0;
+    string test = "";
 	
 	while(buffer_pointer < buf->size()){
 		
 		string next = buf->at(buf->size() - buffer_pointer++ - 1);
 		vector<string> cut = string_slice(next, width);
 		
+        string in;
+             
 		for(int i = cut.size() - 1; i >= 0 && screen_pointer < height; --i){
-			print_line(cut[i], height - screen_pointer++ - 1);
+
+            in = cut[i];
+            test += in;
+            stack<colorName> colorStack;
+            colorStack.push(C_WHITE);
+            move(y + height - screen_pointer++ - 1, x);
+            for(int j = 0; j < in.size(); ++j){
+            
+                if(in.at(j) == color_escape_start){ 
+                    colorStack.push((colorName)(in.at(++j)));
+                } else if (in.at(j) == color_escape_end) {
+                    colorStack.pop();
+                } else {
+                    printchar_cw(in.at(j), colorStack.top());
+                }
+            }
 		}
 	}
 }
