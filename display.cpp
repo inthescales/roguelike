@@ -28,7 +28,6 @@ void printcolor(int x, int y, string in){
             printchar_cw(in.at(i), colorStack.top());
 		}
 	}
-	
 }
 
 // Print a glyph using its symbol and color

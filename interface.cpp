@@ -148,7 +148,7 @@ int UI::get_input(){
 // COMMANDS ==============================================
 
 bool UI::command_inventory(){
-	win_screen->display_inventory(*act_player);
+	win_screen->display_inventory(*act_player, "Inventory:");
 	redraw_windows();
 }
 
