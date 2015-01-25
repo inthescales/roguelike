@@ -19,9 +19,15 @@ void define_objects() {
     
 	//#BREAD_RATION
 	oclass[++c] = new objclass("bread ration", symboldef[SYM_FOOD], C_BROWN, OT_FOOD, OST_FOOD, MAT_VEGETATION, 1, 5);
-    new_effect = new trigger_effect(EFF_BREAD, TRG_EAT);
+    new_effect = new trigger_effect(EFF_EAT_BREAD, TRG_EAT);
 	oclass[c]->add_trigger_effect((trigger_effect *)new_effect);
 	oclass[c]->add_stat(OSTAT_NUTRITION, 2);
+    
+    //#BOTTLE_WATER
+	oclass[++c] = new objclass("bottle of water", symboldef[SYM_DRINK], C_BLUE, OT_DRINK, OST_POTION, MAT_GLASS, 1, 5);
+	new_effect = new trigger_effect(EFF_DRINK_WATER, TRG_DRINK);
+    oclass[c]->add_trigger_effect((trigger_effect *)new_effect);
+	oclass[c]->add_stat(OSTAT_NUTRITION, 1);
 	
 	//#DAGGER	
 	oclass[++c] = new objclass("dagger", symboldef[SYM_WEAPON], C_GRAY, OT_WEAPON, OST_KNIFE, MAT_METAL, 2, 8);

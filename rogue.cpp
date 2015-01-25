@@ -32,6 +32,7 @@ void game_loop()
 		win_world->display_map(map_current);
 		win_status->display_status();
         if (win_output->should_update) {
+            win_output->clear();
             win_output->print_buf(buf_main);
             win_output->should_update = false;
         }
@@ -60,6 +61,7 @@ void init_game() {
 	map_current->add_object( 11, 10, 1 );
 	map_current->add_object( 12, 10, 2 );
 	map_current->add_object( 13, 10, 3 );
+    map_current->add_object( 14, 10, 4 );
     
     map_current->add_feature( 12, 20, 0);
 	

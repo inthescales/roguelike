@@ -6,13 +6,14 @@
 #define ACT_MAX 2
 
 #define OBJ_BREAD_RATION 0
-#define OBJ_DAGGER 1
-#define OBJ_PLUMED_CAP 2
-#define OBJ_GOLD_COIN 3
-#define OBJ_MAX 4
+#define OBJ_BOTTLE_WATER 1
+#define OBJ_DAGGER 2
+#define OBJ_PLUMED_CAP 3
+#define OBJ_GOLD_COIN 4
+#define OBJ_MAX 5
 
-#define FEAT_OPEN_WOODEN_DOOR 0
-#define FEAT_CLOSED_WOODEN_DOOR 1
+#define FEAT_CLOSED_WOODEN_DOOR 0
+#define FEAT_OPEN_WOODEN_DOOR 1
 #define FEAT_MAX 2
 
 #define TILE_FLOOR 0

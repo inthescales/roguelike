@@ -81,12 +81,15 @@ class actor : public mapentity {
 	bool drink(object *);
 	bool read(object *);
 	bool use(object *);
+    bool open_feature(feature *);
+    bool close_feature(feature *);
     
 	//void open(int, int);
 	//void close(int, int);
     
     bool can_travel(tile *);
     bool can_eat(object *);
+    bool can_drink(object *);
     bool can_take(object *);
     bool can_open(feature *);
     bool can_close(feature *);

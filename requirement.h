@@ -18,6 +18,7 @@ enum requirement_t {
     REQ_STAT_LESS_THAN, // ^^^
     REQ_ACTOR_CAN_HOLD, // vvv - checks for actor capabilities
     REQ_ACTOR_CAN_EAT,
+    REQ_ACTOR_CAN_DRINK,
     REQ_ACTOR_CAN_OPEN_FEAT,
     REQ_ACTOR_CAN_CLOSE_FEAT
     

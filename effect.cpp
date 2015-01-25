@@ -71,12 +71,22 @@ bool do_effect(argmap * args, effect * eff){
             return success;
         }
         
+        case EFF_DRINK:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            object * patient = (object *)(args->get_vector(ARG_ACTION_PATIENT)->front());
+            
+            agent->drink(patient);
+            
+            return success;
+        }
+        
         case EFF_FEAT_OPEN:
         {
             actor * agent = args->get_actor(ARG_ACTION_AGENT);
             feature * patient = (feature *)(args->get_vector(ARG_ACTION_PATIENT)->front());
             
-            patient->change_state(STATE_FEAT_OPEN);
+            agent->open_feature(patient);
         }
         break;
         
@@ -85,7 +95,7 @@ bool do_effect(argmap * args, effect * eff){
             actor * agent = args->get_actor(ARG_ACTION_AGENT);
             feature * patient = (feature *)(args->get_vector(ARG_ACTION_PATIENT)->front());
             
-            patient->change_state(STATE_FEAT_CLOSED);
+            agent->close_feature(patient);
         }
         break;
         
@@ -94,12 +104,19 @@ bool do_effect(argmap * args, effect * eff){
             //TODO
             break;
         }
-            
-		case EFF_BREAD:
+        
+        // object behavior
+        
+		case EFF_EAT_BREAD:
 			if(args->get_actor(ARG_ACTION_AGENT) == act_player)
-				win_output->print("This bread is delicious!");
+				win_output->print("The bread is delicious!");
 			//act->taste(TST_BREAD, true);
 			//act->nourish(obj->bonus);
+			break;
+            
+        case EFF_DRINK_WATER:
+            if(args->get_actor(ARG_ACTION_AGENT) == act_player)
+				win_output->print("The water is refreshing.");
 			break;
             
 		default:

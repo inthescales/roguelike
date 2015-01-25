@@ -10,7 +10,7 @@ void define_features(){
     effect * new_effect;
     
 	//#CLOSED_WOODEN_DOOR
-	fclass[++c] = new featclass("wooden door (closed)", symboldef[SYM_DOORCLOSED], C_BROWN);
+	fclass[++c] = new featclass("wooden door", symboldef[SYM_DOORCLOSED], C_BROWN);
     fclass[c]->add_flag(FLAG_FEAT_OPAQUE);
     fclass[c]->add_flag(FLAG_FEAT_NO_WALK);
     fclass[c]->add_flag(FLAG_FEAT_NO_SWIM);
@@ -19,7 +19,7 @@ void define_features(){
     fclass[c]->add_trigger_effect(new trigger_effect(EFF_FEAT_OPEN, TRG_OPEN));
     
     //#OPEN_WOODEN_DOOR
-    fclass[++c] = new featclass("wooden door (open)", symboldef[SYM_DOOROPEN], C_BROWN);
+    fclass[++c] = new featclass("wooden door", symboldef[SYM_DOOROPEN], C_BROWN);
     fclass[c]->add_flag(FLAG_FEAT_CAN_CLOSE);
     fclass[c]->add_trigger_effect(new trigger_effect(EFF_FEAT_CLOSE, TRG_CLOSE));
     

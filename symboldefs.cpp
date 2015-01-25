@@ -71,7 +71,7 @@ void define_symbols() {
   symboldef[CHAR_9] = 57;
 
   symboldef[CHAR_SPACE] = 32;
-  symboldef[CHAR_EXCLAIM] = 33;
+  symboldef[CHAR_EXCLAMATION] = 33;
   symboldef[CHAR_QUOTE] = 34;
   symboldef[CHAR_HASH] = 35;
   symboldef[CHAR_DOLLAR] = 36;

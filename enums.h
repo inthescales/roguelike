@@ -21,10 +21,10 @@ enum equip_slot {
 //Item types
 enum object_type {
 	OT_FOOD = 0,
+    OT_DRINK,
 	OT_WEAPON,
 	OT_ARMOR,
 	OT_ACCESSORY,
-	OT_POTION,
 	OT_SCROLL,
 	OT_WAND,
 	OT_TOOL,
@@ -35,6 +35,7 @@ enum object_type {
 //Item subtypes
 enum object_subtype {
 	OST_FOOD = 0,
+    OST_POTION,
 	OST_SWORD,
 	OST_KNIFE,
 	OST_SPEAR,
@@ -86,6 +87,7 @@ enum material_t {
 	MAT_CLOTH,
 	MAT_LEATHER,
 	MAT_METAL,
+    MAT_GLASS,
 	MAT_PLASTIC
 };
 
@@ -114,8 +116,10 @@ enum effect_t {
     EFF_TURN = 0,
     EFF_PICK_UP,
     EFF_EAT,
+    EFF_DRINK,
     EFF_COND_TIMEOUT,
-	EFF_BREAD,
+	EFF_EAT_BREAD,
+    EFF_DRINK_WATER,
     EFF_FEAT_OPEN,
     EFF_FEAT_CLOSE
 };

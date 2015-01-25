@@ -373,6 +373,9 @@ bool actor::eat(object * item){
 	
     argmap * m = new argmap();
 	m->add_actor(ARG_ACTION_AGENT, this);
+    if(this == act_player) {
+        win_output->print("You eat the " + item->get_name_color() +".");
+	}
     item->resolve_trigger(TRG_EAT, m); 
 }
 
@@ -381,6 +384,9 @@ bool actor::drink(object * item){
 	
     argmap * m = new argmap();
 	m->add_actor(ARG_ACTION_AGENT, this);
+    if(this == act_player) {
+        win_output->print("You drink the " + item->get_name_color() +".");
+	}
     item->resolve_trigger(TRG_DRINK, m); 
 }
 
@@ -394,6 +400,24 @@ bool actor::read(object * item){
 bool actor::use(object * item){
 	
 	
+}
+
+// Open a feature, like a door
+bool actor::open_feature(feature * feat){
+	
+    if(this == act_player) {
+        win_output->print("You open the " + feat->get_name_color() +".");
+	}
+	feat->change_state(STATE_FEAT_OPEN);
+}
+
+// Close a feature, like a door
+bool actor::close_feature(feature * feat){
+	
+    if(this == act_player) {
+        win_output->print("You close the " + feat->get_name_color() +".");
+	}
+	feat->change_state(STATE_FEAT_CLOSED);
 }
 
 // Senses ==================================================
@@ -483,7 +507,11 @@ bool actor::can_take(object * obj) {
 bool actor::can_eat(object * obj) {
 
     return obj->get_class()->type == OT_FOOD;
+}
 
+bool actor::can_drink(object * obj) {
+
+    return obj->get_class()->type == OT_DRINK;
 }
 
 bool actor::can_open(feature * feat) {

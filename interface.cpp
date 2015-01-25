@@ -44,6 +44,18 @@ void UI::setup_ui() {
     eat_action->add_block(eat_req_block);    
     argmap * eat_effect_args = new argmap();
     eat_action->add_block(new effectActionBlock(eat_effect_args, new effect(EFF_EAT)));
+    // Drink -----
+    // target inv(obj.1), require item can be drunk, effect drinking item
+    action * drink_action = new action();
+    targetActionBlock * drink_target_block = new targetActionBlock("Drink what?", TAR_INV, RAD_SINGLE, ACTROLE_PATIENT);
+    drink_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
+    drink_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
+    drink_action->add_block(drink_target_block);
+    requirementActionBlock * drink_req_block = new requirementActionBlock(false, false);
+    drink_req_block->requirements->push_back(new requirement("You can't drink that.", REQ_ACTOR_CAN_DRINK));
+    drink_action->add_block(drink_req_block);    
+    argmap * drink_effect_args = new argmap();
+    drink_action->add_block(new effectActionBlock(drink_effect_args, new effect(EFF_DRINK)));
     // Open -----
     // target adj(tile.1), 
     action * open_action = new action();
@@ -73,6 +85,7 @@ void UI::setup_ui() {
     
     // Bind keys
     (*action_key)['e'] = eat_action;
+    (*action_key)['q'] = drink_action;
     (*action_key)['o'] = open_action;
     (*action_key)['c'] = close_action;
 }
@@ -99,9 +112,6 @@ void UI::get_action(){
 		break;
 		case 'd':
 			command_drop();
-		break;
-		case 'q':
-			command_drink();
 		break;
 		case 'r':
 			command_read();
@@ -499,7 +509,9 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
 	vector<object*> * ret = new vector<object*>();
 	
 	win_output->print(prompt);
-			
+    win_output->clear();
+    win_output->print_buf(buf_main);
+    break_buffer(buf_main);
     bool gold_ok = (args->get_int(ARG_TARGET_GOLDOK) == 1);
     int max_selects = args->get_int(ARG_TARGET_NUMBER);
     
@@ -548,7 +560,10 @@ vector<feature*> * UI::extract_features(vector<tile*> * tile_vect) {
 bool UI::prompt_yesno(string prompt){
 
 	win_output->print(prompt + "(y/n)");
-	
+    win_output->clear();
+	win_output->print_buf(buf_main);
+    break_buffer(buf_main);
+    
 	char r = ' ';
 	
 	while(r != 'y' && r != 'n'){
@@ -563,6 +578,9 @@ object * UI::prompt_gold_to_object(){
 	int amount;
 	
 	win_output->print("How much? (have ?)");
+    win_output->clear();
+    win_output->print_buf(buf_main);
+    break_buffer(buf_main);
 	scanf("%d", &amount);
 	
 	if(amount > act_player->gold){
@@ -578,6 +596,9 @@ object * UI::prompt_gold_to_object(){
 direction_t UI::prompt_direction(string prompt) {
 
     win_output->print(prompt);
+    win_output->clear();
+    win_output->print_buf(buf_main);
+    break_buffer(buf_main);
     
     int input = 0;
     

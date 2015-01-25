@@ -70,6 +70,17 @@ bool requirement::check_for(mapentity * ent) {
                 }
             }
         break;
+        
+        case REQ_ACTOR_CAN_DRINK:
+        
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<object*> * patients = (vector<object*> *)args->get_vector(ARG_ACTION_PATIENT);
+                for(int i = 0; i < patients->size(); ++i) {
+                    ok = ((actor *)ent)->can_drink(patients->at(i));
+                    if (!ok) break;
+                }
+            }
+        break;
             
         case REQ_ACTOR_CAN_OPEN_FEAT:
             
