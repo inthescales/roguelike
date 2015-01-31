@@ -21,7 +21,8 @@ class tile;
 enum ui_action{
 	UIA_NONE = 0,
 	UIA_MOVE,
-	UIA_ATTACK
+	UIA_ATTACK,
+    UIA_OPEN
 };
 
 //Cardinal directions, for easy reference
@@ -49,6 +50,7 @@ class UI {
 	static void get_action();
 	static int get_input();
     
+    static bool command_direction(direction_t);
 	static bool command_inventory();
 	static bool command_equipment();
 	static bool command_conditions();

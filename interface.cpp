@@ -3,6 +3,7 @@
 #include "action.h"
 #include "actor.h"
 #include "argmap.h"
+#include "feature.h"
 #include "globals.h"
 #include "interface.h"
 #include "map.h"
@@ -96,7 +97,7 @@ void UI::get_action(){
 	
     // Player pressed a motion key
     if (direction_key->count(input)) {
-        command_move(direction_key->at(input));
+        command_direction(direction_key->at(input));
     }
     
 	switch(input){
@@ -157,6 +158,36 @@ int UI::get_input(){
 
 // COMMANDS ==============================================
 
+bool UI::command_direction(direction_t dir) {
+
+	std::pair<int, int> offset = dir_to_offset(dir);
+	
+	ui_action action = UIA_NONE;
+	
+	tile * dest = &map_current->tiles[act_player->x + offset.first][act_player->y + offset.second];
+	
+	if(dest->my_actor != NULL) {
+        action = UIA_ATTACK;
+    } else if(dest->my_feature != NULL
+           && act_player->can_open(dest->my_feature)) {
+        action = UIA_OPEN;
+    } else {
+		if(act_player->can_travel(dest)) {
+			action = UIA_MOVE;
+        }
+	}
+	
+	if(action == UIA_MOVE) {
+		act_player->move(offset);
+	} else if(action == UIA_ATTACK) {
+		act_player->attack(offset);
+    } else if (action == UIA_OPEN) {
+        act_player->open_feature(dest->my_feature);
+    }
+		
+	return true;
+}
+
 bool UI::command_inventory(){
 	win_screen->display_inventory(*act_player, "Inventory:");
 	redraw_windows();
@@ -170,30 +201,6 @@ bool UI::command_equipment(){
 bool UI::command_conditions(){
 	win_screen->display_conditions(act_player);
 	redraw_windows();
-}
-
-bool UI::command_move(direction_t dir){
-
-	std::pair<int, int> offset = dir_to_offset(dir);
-	
-	ui_action action = UIA_NONE;
-	
-	tile * dest = &map_current->tiles[act_player->x + offset.first][act_player->y + offset.second];
-	
-	if(dest->my_actor == NULL) {
-		if(act_player->can_travel(dest)) {
-			action = UIA_MOVE;
-        }
-	} else
-		action = UIA_ATTACK;
-	
-	if(action == UIA_MOVE) {
-		act_player->move(offset);
-	} else if(action == UIA_ATTACK) {
-		act_player->attack(offset);
-    }
-		
-	return true;	
 }
 
 /*
