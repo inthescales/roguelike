@@ -175,6 +175,8 @@ void actor::resolve_trigger(trigger_t trigger, argmap * args)
 
 // Action and turn setup ====================================================================
 
+// get_actions
+
 int actor::take_turn() {
 
     if (this == act_player) {

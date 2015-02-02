@@ -25,4 +25,10 @@
 #define COND_CURSED 0
 #define COND_MAX 1
 
+#define ACTION_EAT_BASIC 0
+#define ACTION_DRINK_BASIC 1
+#define ACTION_OPEN_BASIC 2
+#define ACTION_CLOSE_BASIC 3
+#define ACTION_MAX 4
+
 #endif

@@ -3,6 +3,7 @@
 #include "action.h"
 #include "actor.h"
 #include "argmap.h"
+#include "classdefs.h"
 #include "feature.h"
 #include "globals.h"
 #include "interface.h"
@@ -32,63 +33,13 @@ void UI::setup_ui() {
     (*direction_key)['0'+8] = DIR_UP;
     (*direction_key)['0'+9] = DIR_UPRIGHT;
     
-    // Basic actions for players ========================
-    // Eat -----
-    // target inv(obj.1), require item can be eaten, effect eating on item
-    action * eat_action = new action();
-    targetActionBlock * eat_target_block = new targetActionBlock("Eat what?", TAR_INV, RAD_SINGLE, ACTROLE_PATIENT);
-    eat_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    eat_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
-    eat_action->add_block(eat_target_block);
-    requirementActionBlock * eat_req_block = new requirementActionBlock(false, false);
-    eat_req_block->requirements->push_back(new requirement("You can't eat that.", REQ_ACTOR_CAN_EAT));
-    eat_action->add_block(eat_req_block);    
-    argmap * eat_effect_args = new argmap();
-    eat_action->add_block(new effectActionBlock(eat_effect_args, new effect(EFF_EAT)));
-    // Drink -----
-    // target inv(obj.1), require item can be drunk, effect drinking item
-    action * drink_action = new action();
-    targetActionBlock * drink_target_block = new targetActionBlock("Drink what?", TAR_INV, RAD_SINGLE, ACTROLE_PATIENT);
-    drink_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    drink_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
-    drink_action->add_block(drink_target_block);
-    requirementActionBlock * drink_req_block = new requirementActionBlock(false, false);
-    drink_req_block->requirements->push_back(new requirement("You can't drink that.", REQ_ACTOR_CAN_DRINK));
-    drink_action->add_block(drink_req_block);    
-    argmap * drink_effect_args = new argmap();
-    drink_action->add_block(new effectActionBlock(drink_effect_args, new effect(EFF_DRINK)));
-    // Open -----
-    // target adj(tile.1), 
-    action * open_action = new action();
-    targetActionBlock * open_target_block = new targetActionBlock("Open what?", TAR_ADJ, RAD_SINGLE, ACTROLE_PATIENT);
-    open_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    open_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
-    open_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_FEATURE);
-    open_action->add_block(open_target_block);
-    requirementActionBlock * open_req_block = new requirementActionBlock(false, false);
-    open_req_block->requirements->push_back(new requirement("You can't open that.", REQ_ACTOR_CAN_OPEN_FEAT));
-    open_action->add_block(open_req_block);    
-    argmap * open_effect_args = new argmap();
-    open_action->add_block(new effectActionBlock(open_effect_args, new effect(EFF_FEAT_OPEN)));
-    // Close -----
-    // target adj(tile.1), 
-    action * close_action = new action();
-    targetActionBlock * close_target_block = new targetActionBlock("Close what?", TAR_ADJ, RAD_SINGLE, ACTROLE_PATIENT);
-    close_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    close_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
-    close_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_FEATURE);
-    close_action->add_block(close_target_block);
-    requirementActionBlock * close_req_block = new requirementActionBlock(false, false);
-    close_req_block->requirements->push_back(new requirement("You can't close that.", REQ_ACTOR_CAN_CLOSE_FEAT));
-    close_action->add_block(close_req_block);    
-    argmap * close_effect_args = new argmap();
-    close_action->add_block(new effectActionBlock(close_effect_args, new effect(EFF_FEAT_CLOSE)));
+    // change action bindings to purposes - scan the actor's list
     
     // Bind keys
-    (*action_key)['e'] = eat_action;
-    (*action_key)['q'] = drink_action;
-    (*action_key)['o'] = open_action;
-    (*action_key)['c'] = close_action;
+    (*action_key)['e'] = actiondef[ACTION_EAT_BASIC];
+    (*action_key)['q'] = actiondef[ACTION_DRINK_BASIC];
+    (*action_key)['o'] = actiondef[ACTION_OPEN_BASIC];
+    (*action_key)['c'] = actiondef[ACTION_CLOSE_BASIC];
 }
 
 void UI::get_action(){

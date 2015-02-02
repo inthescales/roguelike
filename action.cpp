@@ -24,6 +24,14 @@ targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nr
     block_type = TARGET_BLOCK;
 }
 
+effectActionBlock::effectActionBlock(effect * neff) {
+
+    args = new argmap();
+    requirements = new vector<requirement*>();
+    eff = neff;
+    block_type = EFFECT_BLOCK;
+}
+
 effectActionBlock::effectActionBlock(argmap * nargs, effect * neff) {
 
     args = nargs;

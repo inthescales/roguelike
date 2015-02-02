@@ -1,4 +1,5 @@
 #include "actdefs.h"
+#include "actiondefs.h"
 #include "conddefs.h"
 #include "config.h"
 #include "enums.h"
@@ -29,7 +30,7 @@ void setup(){
 	resize_term(win_output->height + win_world->height + win_status->height, win_output->width);
 	keypad(stdscr, TRUE);
 	setup_color();
-    setup_ui();
+
 	cbreak();
 	noecho();
 	curs_set(1);
@@ -41,6 +42,10 @@ void setup(){
     define_features();
 	define_tiles();
 	define_conditions();
+    define_actions();
+    
+    // Moved after actions temporarily
+        setup_ui();
 	
 	for(int i = 0; i < 52; ++i) obj_letter[i] = NULL;
 }

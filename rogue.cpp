@@ -1,3 +1,4 @@
+#include "actor.h"
 #include "config.h"
 #include "interface.h"
 #include "map.h"
@@ -21,7 +22,6 @@ int main(void){
 	game_loop();
 	
 	exit_game(0);
-	
 }
 
 void game_loop()

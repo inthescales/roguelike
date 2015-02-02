@@ -8,6 +8,7 @@
 #include "display.h"
 #include "mapentity.h"
 
+#include <map>
 #include <stdlib.h>
 #include <string>
 #include <utility> //pair
@@ -33,7 +34,7 @@ class actor : public mapentity {
 	vector<object*> * inventory;
 	object * equipped_item[ES_MAX]; // TODO - implement body plans
 	long gold; //TODO - change this to stacked items list eventually?
-	
+    
 	//ai
 	int aitype;
 	int state;
@@ -64,6 +65,7 @@ class actor : public mapentity {
 	bool remove_object(object * item);
     
     // Actions
+    //map<vector<action*>*> get_actions();
     int take_turn();
     void queue_turn(int);
     bool execute_action(action *);

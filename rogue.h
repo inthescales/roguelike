@@ -2,13 +2,10 @@
 
 #define ROGUE_H
 
-#include "actor.h"
 #include "display.h"
 #include "globals.h"
 #include "window.h"
 #include "classdefs.h"
-
-class featclass;
 
 void init_game();
 void game_loop();
@@ -21,6 +18,7 @@ featclass * fclass[FEAT_MAX];
 tileclass * tclass[TILE_MAX];
 condclass * cclass[COND_MAX];
 
+action * actiondef[ACTION_MAX];
 symbol_code symboldef[CHAR_MAX];
 
 object * obj_letter[52];

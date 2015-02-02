@@ -3,7 +3,7 @@
 #define GLOBALS_H
 
 #include "classdefs.h"
-#include "display.h"
+#include "display.h" // need symbol code size
 #include "symboldefs.h"
 
 #include <string>
@@ -22,6 +22,7 @@ class objclass;
 class featclass;
 class tileclass;
 class condclass;
+class action;
 
 // SYSTEM STUFF ========================
 
@@ -70,6 +71,7 @@ extern featclass * fclass[FEAT_MAX];
 extern tileclass * tclass[TILE_MAX];
 extern condclass * cclass[COND_MAX];
 
+extern action * actiondef[ACTION_MAX];
 extern symbol_code symboldef[CHAR_MAX];
 
 // Other predefined arrays

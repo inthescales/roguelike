@@ -31,6 +31,12 @@ enum actionRole_t {
     ACTROLE_MAX
 };
 
+enum actionPurpose_t {
+    ACTPUR_MOVE,
+    ACTPUR_TAKE,
+    ACTPUR_HARM
+};
+
 class effect;
 class requirement;
 
@@ -64,6 +70,7 @@ class effectActionBlock : public actionBlock {
     public:
     effect * eff;
     
+    effectActionBlock(effect *);
     effectActionBlock(argmap *, effect *);
 };
 
@@ -82,6 +89,7 @@ class requirementActionBlock : public actionBlock {
 class action {
 
     public:
+    actionPurpose_t purpose;
     argmap * args;
     vector<actionBlock *> * blocks;
     
