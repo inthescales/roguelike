@@ -32,9 +32,14 @@ enum actionRole_t {
 };
 
 enum actionPurpose_t {
+    ACTPUR_NONE = 0,
     ACTPUR_MOVE,
     ACTPUR_TAKE,
-    ACTPUR_HARM
+    ACTPUR_HARM,
+    ACTPUR_EAT,
+    ACTPUR_DRINK,
+    ACTPUR_OPEN_FEAT,
+    ACTPUR_CLOSE_FEAT
 };
 
 class effect;
@@ -90,6 +95,9 @@ class action {
 
     public:
     actionPurpose_t purpose;
+    int priority;
+    bool contextOk;
+    
     argmap * args;
     vector<actionBlock *> * blocks;
     

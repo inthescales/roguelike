@@ -10,6 +10,7 @@ enum flags_t {
     FLAG_ACT_CAN_WALK,
     FLAG_ACT_CAN_SWIM,
     FLAG_ACT_CAN_FLY,
+    FLAG_OBJ_IN_INVENTORY,
     FLAG_TILE_CAN_WALK, // Flags for tiles vvv
     FLAG_TILE_CAN_SWIM,
     FLAG_TILE_CAN_FLY,

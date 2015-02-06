@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-#include "action.h"
 #include "actor.h"
 #include "argmap.h"
 #include "classdefs.h"
@@ -113,30 +112,53 @@ bool UI::command_direction(direction_t dir) {
 
 	std::pair<int, int> offset = dir_to_offset(dir);
 	
-	ui_action action = UIA_NONE;
+	actionPurpose_t purpose = ACTPUR_NONE;
 	
 	tile * dest = &map_current->tiles[act_player->x + offset.first][act_player->y + offset.second];
+    argmap * args = new argmap();
+    args->add_actor(ARG_ACTION_AGENT, act_player);
 	
 	if(dest->my_actor != NULL) {
-        action = UIA_ATTACK;
+        purpose = ACTPUR_HARM;
+        vector<void*> * vect = new vector<void*>();
+        vect->push_back((void*)(dest->my_actor));
+        args->add_vector(ARG_ACTION_PATIENT, vect);
     } else if(dest->my_feature != NULL
            && act_player->can_open(dest->my_feature)) {
-        action = UIA_OPEN;
+        purpose = ACTPUR_OPEN_FEAT;
+        vector<void*> * vect = new vector<void*>();
+        vect->push_back((void*)(dest->my_feature));
+        args->add_vector(ARG_ACTION_PATIENT, vect);
     } else {
 		if(act_player->can_travel(dest)) {
-			action = UIA_MOVE;
+			purpose = ACTPUR_MOVE;
+            vector<void*> * vect = new vector<void*>();
+            vect->push_back((void*)dest);
+            args->add_vector(ARG_ACTION_PATIENT, vect);
         }
 	}
 	
-	if(action == UIA_MOVE) {
-		act_player->move(offset);
-	} else if(action == UIA_ATTACK) {
-		act_player->attack(offset);
-    } else if (action == UIA_OPEN) {
-        act_player->open_feature(dest->my_feature);
+	action * act = get_context_action(purpose);
+    if (act) {
+        return act_player->execute_action(act, args, false);
     }
 		
-	return true;
+	return false;
+}
+
+action * UI::get_context_action(actionPurpose_t purp) {
+
+    vector<action*> * actions = act_player->get_actions_for(purp);
+    action * cur = NULL;
+    
+    for(int i = 0; i < actions->size(); ++i) {
+        if (cur == NULL || (actions->at(i)->contextOk && cur->priority < actions->at(i)->priority)) 
+        {
+            cur = actions->at(i);
+        }
+    }
+    
+    return cur;
 }
 
 bool UI::command_inventory(){

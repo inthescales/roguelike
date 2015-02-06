@@ -17,10 +17,14 @@ enum requirement_t {
     REQ_STAT_GREATER_THAN,
     REQ_STAT_LESS_THAN, // ^^^
     REQ_ACTOR_CAN_HOLD, // vvv - checks for actor capabilities
+    REQ_ACTOR_CAN_WALK,
+    REQ_ACTOR_CAN_SWIM,
+    REQ_ACTOR_CAN_FLY,
     REQ_ACTOR_CAN_EAT,
     REQ_ACTOR_CAN_DRINK,
     REQ_ACTOR_CAN_OPEN_FEAT,
-    REQ_ACTOR_CAN_CLOSE_FEAT
+    REQ_ACTOR_CAN_CLOSE_FEAT,
+    REQ_ACTOR_CAN_STRIKE
     
 };
 

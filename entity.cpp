@@ -36,8 +36,10 @@ void entity::resolve_trigger(trigger_t trigger, argmap * args)
 
     // Execute all these effects
     vector<effect*> * my_effects = get_class()->get_effects(trigger);
-    for(int i = 0; i < my_effects->size(); ++i) {
-        do_effect(my_map, my_effects->at(i));
+    if (my_effects != NULL) {
+        for(int i = 0; i < my_effects->size(); ++i) {
+            do_effect(my_map, my_effects->at(i));
+        }
     }
 }
 

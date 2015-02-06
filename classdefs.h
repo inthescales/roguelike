@@ -29,6 +29,7 @@
 #define ACTION_DRINK_BASIC 1
 #define ACTION_OPEN_BASIC 2
 #define ACTION_CLOSE_BASIC 3
-#define ACTION_MAX 4
+#define ACTION_STRIKE 4
+#define ACTION_MAX 5
 
 #endif

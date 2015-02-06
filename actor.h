@@ -2,6 +2,7 @@
 
 #define ACTOR_H
 
+#include "action.h"
 #include "enums.h"
 #include "condition.h"
 #include "config.h"
@@ -35,6 +36,9 @@ class actor : public mapentity {
 	object * equipped_item[ES_MAX]; // TODO - implement body plans
 	long gold; //TODO - change this to stacked items list eventually?
     
+    //actions
+    std::map<actionPurpose_t, vector<action*>*> actionsList;
+    
 	//ai
 	int aitype;
 	int state;
@@ -46,7 +50,9 @@ class actor : public mapentity {
     actclass * get_class();
     string get_name();
     string get_name_color();
-    
+    vector<action*> * get_actions();
+    vector<action*> * get_actions_for(actionPurpose_t);
+        
     // Display
 	void print(string, string);
     
@@ -58,7 +64,7 @@ class actor : public mapentity {
 	int get_equip_stat(stats_t stat);
 	int get_calc_stat(stats_t stat);
     bool has_flag(flags_t);
-    bool has_equip_flag(flags_t stat);
+    bool has_equip_flag(flags_t stat);   
     
     // State management
     void get_object(object *);
@@ -69,9 +75,13 @@ class actor : public mapentity {
     int take_turn();
     void queue_turn(int);
     bool execute_action(action *);
+    bool execute_action(action *, argmap *, bool);
     vector<void*> * select_target(targetActionBlock *);
     
-    void move(std::pair<int,int>);
+    void enter_tile(tile *);
+    void walk(tile *);
+    void swim(tile *);
+    void fly(tile *);
 	void attack(std::pair<int,int>);
 	void attack(actor *);
 	bool pick_up(object *, tile *);
@@ -90,6 +100,9 @@ class actor : public mapentity {
 	//void close(int, int);
     
     bool can_travel(tile *);
+    bool can_walk(tile*);
+    bool can_swim(tile*);
+    bool can_fly(tile*);
     bool can_eat(object *);
     bool can_drink(object *);
     bool can_take(object *);

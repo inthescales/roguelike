@@ -1,6 +1,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+#include "action.h"
 #include <map>
 #include <string>
 #include <utility> //pair
@@ -17,13 +18,6 @@ class object;
 class requirement;
 class targetActionBlock;
 class tile;
-
-enum ui_action{
-	UIA_NONE = 0,
-	UIA_MOVE,
-	UIA_ATTACK,
-    UIA_OPEN
-};
 
 //Cardinal directions, for easy reference
 enum direction_t {
@@ -49,6 +43,7 @@ class UI {
     
 	static void get_action();
 	static int get_input();
+    static action * get_context_action(actionPurpose_t);
     
     static bool command_direction(direction_t);
 	static bool command_inventory();

@@ -1,6 +1,5 @@
-#ifndef COLOR_H
-
-#define COLOR_H
+#ifndef DISPLAY_H
+#define DISPLAY_H
 
 #include "config.h"
 #include "enums.h"

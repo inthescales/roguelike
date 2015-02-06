@@ -102,7 +102,16 @@ enum trigger_t {
 	TRG_READ,
 	TRG_USE,
     TRG_OPEN,
-    TRG_CLOSE
+    TRG_CLOSE,
+    TRG_ACT_WALK,
+    TRG_ACT_SWIM,
+    TRG_ACT_FLY,
+    TRG_TILE_WALK_OUT,
+    TRG_TILE_SWIM_OUT,
+    TRG_TILE_FLY_OUT,
+    TRG_TILE_WALK_IN,
+    TRG_TILE_SWIM_IN,
+    TRG_TILE_FLY_IN
 };
 
 //Effect radii (patterns of tiles they affect)
@@ -114,9 +123,13 @@ enum radius_t {
 //The actual effect that occurs
 enum effect_t {
     EFF_TURN = 0,
+    EFF_WALK,
+    EFF_SWIM,
+    EFF_FLY,
     EFF_PICK_UP,
     EFF_EAT,
     EFF_DRINK,
+    EFF_STRIKE,
     EFF_COND_TIMEOUT,
 	EFF_EAT_BREAD,
     EFF_DRINK_WATER,

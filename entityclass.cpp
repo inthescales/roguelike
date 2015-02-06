@@ -14,6 +14,7 @@ void entityclass::init() {
 
     flags = new flagset();
 	stats = new statmap();
+    actions = new vector<int>();
     trigger_effects = new std::map<trigger_t, vector<effect *> *>();
     timer_effects = new vector<timer_effect *>();
 }
@@ -94,4 +95,9 @@ void entityclass::add_trigger_effect(trigger_effect * n){
     }
     
 	trigger_effects->at(n->trigger)->push_back(n);
+}
+
+void entityclass::add_action(int nact) {
+    
+    actions->push_back(nact);
 }

@@ -2,6 +2,7 @@
 #include "argmap.h"
 #include "mapentity.h"
 #include "requirement.h"
+#include "tile.h"
 #include "window.h"
 
 requirement::requirement(requirement_t ntype) {
@@ -60,6 +61,36 @@ bool requirement::check_for(mapentity * ent) {
             }     
         break;
             
+        case REQ_ACTOR_CAN_WALK:
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<tile*> * patients = (vector<tile*> *)args->get_vector(ARG_ACTION_PATIENT);
+                if (patients->size() > 0) {
+                    tile * dest = patients->at(0);
+                    ok = ((actor *)ent)->can_walk(dest);
+                }
+            }     
+        break;
+        
+        case REQ_ACTOR_CAN_SWIM:
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<tile*> * patients = (vector<tile*> *)args->get_vector(ARG_ACTION_PATIENT);
+                if (patients->size() > 0) {
+                    tile * dest = patients->at(0);
+                    ok = ((actor *)ent)->can_swim(dest);
+                }
+            }        
+        break;
+        
+        case REQ_ACTOR_CAN_FLY:
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<tile*> * patients = (vector<tile*> *)args->get_vector(ARG_ACTION_PATIENT);
+                if (patients->size() > 0) {
+                    tile * dest = patients->at(0);
+                    ok = ((actor *)ent)->can_fly(dest);
+                }
+            }       
+        break;
+        
         case REQ_ACTOR_CAN_EAT:
         
             if (args->has_value(ARG_ACTION_PATIENT)) {

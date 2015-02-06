@@ -51,6 +51,36 @@ bool do_effect(argmap * args, effect * eff){
             return true;
         }
         
+        case EFF_WALK:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            tile * patient = (tile *)args->get_vector(ARG_ACTION_PATIENT)->front();
+            
+            agent->walk(patient);
+            
+            return success;
+        }
+        
+        case EFF_SWIM:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            tile * patient = (tile *)args->get_vector(ARG_ACTION_PATIENT)->front();
+            
+            agent->swim(patient);
+            
+            return success;
+        }
+        
+        case EFF_FLY:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            tile * patient = (tile *)args->get_vector(ARG_ACTION_PATIENT)->front();
+            
+            agent->fly(patient);
+            
+            return success;
+        }
+        
         case EFF_PICK_UP:
         {
             actor * agent = args->get_actor(ARG_ACTION_AGENT);

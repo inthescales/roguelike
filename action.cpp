@@ -63,17 +63,23 @@ requirementActionBlock::requirementActionBlock(bool nloop, bool nend, argmap * n
 action::action() {
     args = new argmap();
     blocks = new vector<actionBlock*>();
+    priority = 0;
+    contextOk = false;
 }
 
 action::action(argmap * nargs) {
     args = nargs;
     blocks = new vector<actionBlock*>();
+    priority = 0;
+    contextOk = false;
 }
 
 action::action(argmap * nargs, vector<actionBlock *> * nblocks) {
 
     args = nargs;
     blocks = nblocks;
+    priority = 0;
+    contextOk = false;
 }
 
 void action::add_block(actionBlock * nblock) {

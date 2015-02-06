@@ -56,6 +56,33 @@ string actor::get_name_color() {
     return color_string(entity::get_name(), get_color());
 }
 
+// Probably won't need this but we'll see
+vector<action*> * actor::get_actions() {
+
+    vector<action*> * r = new vector<action*>();
+    
+    vector<int>::iterator it = get_class()->actions->begin();
+    for(;it != get_class()->actions->end(); ++it) {
+        r->push_back(actiondef[*it]);
+    }
+    
+    return r;
+}
+
+vector<action*> * actor::get_actions_for(actionPurpose_t purp) {
+
+        vector<action*> * r = new vector<action*>();
+    
+    vector<int>::iterator it = get_class()->actions->begin();
+    for(;it != get_class()->actions->end(); ++it) {
+        if (actiondef[*it]->purpose == purp) {
+            r->push_back(actiondef[*it]);
+        }
+    }
+    
+    return r;
+}
+
 // Stats ================================================
 
 /*
@@ -192,9 +219,14 @@ void actor::queue_turn(int t) {
     map_current->add_timer(new timer(new effect(EFF_TURN), args, t, 0, 0));
 }
 
+bool actor::execute_action(action * in) {
+    
+    return execute_action(in, NULL, true);
+}
+
 // Execute an action, including selecting targets. Returns whether or not the action
 // completed. If false, actor turn should not be spent.
-bool actor::execute_action(action * in) {
+bool actor::execute_action(action * in, argmap * args, bool get_targets) {
 
     if (in->blocks == NULL) {
         return false;
@@ -208,6 +240,14 @@ bool actor::execute_action(action * in) {
     vector<void*> * cur_patient = NULL;
     vector<void*> * cur_instrument = NULL;
     vector<void*> * nvect;
+    
+    if (args) {
+        cur_agent = args->get_actor(ARG_ACTION_AGENT);
+        cur_patient = args->get_vector(ARG_ACTION_PATIENT);
+        cur_instrument = args->get_vector(ARG_ACTION_INSTRUMENT);
+        tile * test = (tile *)args->get_vector(ARG_ACTION_PATIENT)->front();
+        int x = 4;
+    }
     
     actor * temp;
     // Process each block in the action in order
@@ -228,19 +268,21 @@ bool actor::execute_action(action * in) {
         
             // TARGET BLOCK - get vector returned by target function, set semantic role
             case TARGET_BLOCK:
-                nvect = select_target((targetActionBlock *)curBlock);
-                switch(((targetActionBlock *)curBlock)->position) {
-                
-                    case ACTROLE_PATIENT:
-                        cur_patient = nvect;
-                    break;
+                if (get_targets) {
+                    nvect = select_target((targetActionBlock *)curBlock);
+                    switch(((targetActionBlock *)curBlock)->position) {
                     
-                    case ACTROLE_INSTRUMENT:
-                        cur_instrument = nvect;
-                    break;
+                        case ACTROLE_PATIENT:
+                            cur_patient = nvect;
+                        break;
                         
-                    default:
-                    break;
+                        case ACTROLE_INSTRUMENT:
+                            cur_instrument = nvect;
+                        break;
+                            
+                        default:
+                        break;
+                    }
                 }
             break;
             
@@ -276,31 +318,63 @@ vector<void*> * actor::select_target(targetActionBlock * in) {
 
 // Specific actions =============================
 
-// Move the actor to a new tile
-// Assumes the target tile has no actor already.
-void actor::move(pair<int,int> offset) {
+void actor::walk(tile * new_tile) {
 
 	tile * old_tile = &map_current->tiles[x][y];
-	tile * new_tile = &map_current->tiles[x + offset.first][y + offset.second];
-
-	x += offset.first;
-	y += offset.second;
+    argmap * args = new argmap();
+    args->add_actor(ARG_ACTION_AGENT, this);
+    
 	old_tile->my_actor = NULL;
+    old_tile->resolve_trigger(TRG_TILE_WALK_OUT, args);
 	new_tile->my_actor = this;
+    new_tile->resolve_trigger(TRG_TILE_WALK_OUT, args);
+    resolve_trigger(TRG_ACT_WALK, new argmap());
+    enter_tile(new_tile);
+}
 
+void actor::swim(tile * new_tile) {
+
+	tile * old_tile = &map_current->tiles[x][y];
+    argmap * args = new argmap();
+    args->add_actor(ARG_ACTION_AGENT, this);
+    
+	old_tile->my_actor = NULL;
+    old_tile->resolve_trigger(TRG_TILE_SWIM_OUT, args);
+	new_tile->my_actor = this;
+    new_tile->resolve_trigger(TRG_TILE_SWIM_OUT, args);
+    resolve_trigger(TRG_ACT_SWIM, new argmap());
+    enter_tile(new_tile);
+}
+
+void actor::fly(tile * new_tile) {
+
+	tile * old_tile = &map_current->tiles[x][y];
+    argmap * args = new argmap();
+    args->add_actor(ARG_ACTION_AGENT, this);
+    
+	old_tile->my_actor = NULL;
+    old_tile->resolve_trigger(TRG_TILE_FLY_OUT, args);
+	new_tile->my_actor = this;
+    new_tile->resolve_trigger(TRG_TILE_FLY_OUT, args);
+    resolve_trigger(TRG_ACT_FLY, new argmap());
+    enter_tile(new_tile);
+}
+
+void actor::enter_tile(tile * t) {
+
+    x = t->x;
+    y = t->y;
+    
 	// If this tile has objects, print a message
-	if(!new_tile->my_objects->empty()) {
-	
-		if(new_tile->my_objects->size() == 1){
-		
-			object * the_obj = new_tile->my_objects->back();
-			if(this == act_player) {
-                win_output->print("You see a " + the_obj->get_name_color() + " here.");
-			}
-		} else {
-			win_output->print("There are " + int_string(new_tile->my_objects->size()) + " objects here.");
-		}
-	}
+    if(t->my_objects->size() == 1){
+    
+        object * the_obj = t->my_objects->back();
+        if(this == act_player) {
+            win_output->print("You see a " + the_obj->get_name_color() + " here.");
+        }
+    } else if(t->my_objects->size() > 1) {
+        win_output->print("There are " + int_string(t->my_objects->size()) + " objects here.");
+    }
 }
 
 // Perform a basic attack at a specified tile
@@ -467,22 +541,35 @@ void actor::print(string a, string b){
 // Returns true if this actor is able to enter the tile
 bool actor::can_travel(tile * t) {
 
+    return can_walk(t) || can_swim(t) || can_fly(t);
+}
+
+bool actor::can_walk(tile * t) {
+
     feature * feat = t->my_feature;
-    if (has_flag(FLAG_ACT_CAN_WALK) && t->has_flag(FLAG_TILE_CAN_WALK) &&
-        !(feat && feat->has_flag(FLAG_FEAT_NO_WALK))){
+    if (t->my_actor == NULL && has_flag(FLAG_ACT_CAN_WALK) && t->has_flag(FLAG_TILE_CAN_WALK) && !(feat && feat->has_flag(FLAG_FEAT_NO_WALK))){
         return true;
     }
     
-    if (has_flag(FLAG_ACT_CAN_SWIM) && t->has_flag(FLAG_TILE_CAN_SWIM) &&
-        !(feat && feat->has_flag(FLAG_FEAT_NO_SWIM))){
+    return false;
+}
+
+bool actor::can_swim(tile * t) {
+
+    feature * feat = t->my_feature;
+    if (t->my_actor == NULL && has_flag(FLAG_ACT_CAN_SWIM) && t->has_flag(FLAG_TILE_CAN_SWIM) && !(feat && feat->has_flag(FLAG_FEAT_NO_SWIM))){
         return true;
     }
     
-    if (has_flag(FLAG_ACT_CAN_FLY) && t->has_flag(FLAG_TILE_CAN_FLY) &&
-        !(feat && feat->has_flag(FLAG_FEAT_NO_FLY))){
+    return false;
+}
+
+bool actor::can_fly(tile * t) {
+
+    feature * feat = t->my_feature;
+    if (t->my_actor == NULL && has_flag(FLAG_ACT_CAN_FLY) && t->has_flag(FLAG_TILE_CAN_FLY) && !(feat && feat->has_flag(FLAG_FEAT_NO_FLY))){
         return true;
     }
-    
     return false;
 }
 
