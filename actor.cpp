@@ -64,7 +64,12 @@ vector<int> * actor::get_actions() {
     vector<object*>::iterator item_it = inventory->begin();
     for(; item_it != inventory->end(); ++item_it) {
         vector<int> * acts = (*item_it)->get_actions();
-        r->insert(r->end(), acts->begin(), acts->end());
+        vector<int>::iterator inv_it = acts->begin();
+        for(; inv_it != acts->end(); ++inv_it) {
+            if(!actiondef[(*inv_it)]->equipOnly || (*item_it)->equipped) {
+                r->insert(r->end(), *inv_it);
+            }
+        }
     }
     
     return r;

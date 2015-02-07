@@ -97,6 +97,7 @@ class action {
     actionPurpose_t purpose;
     int priority;
     bool contextOk;
+    bool equipOnly;
     
     argmap * args;
     vector<actionBlock *> * blocks;

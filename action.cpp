@@ -65,6 +65,7 @@ action::action() {
     blocks = new vector<actionBlock*>();
     priority = 0;
     contextOk = false;
+    equipOnly = false;
 }
 
 action::action(argmap * nargs) {
@@ -72,6 +73,7 @@ action::action(argmap * nargs) {
     blocks = new vector<actionBlock*>();
     priority = 0;
     contextOk = false;
+    equipOnly = false;
 }
 
 action::action(argmap * nargs, vector<actionBlock *> * nblocks) {
@@ -80,6 +82,7 @@ action::action(argmap * nargs, vector<actionBlock *> * nblocks) {
     blocks = nblocks;
     priority = 0;
     contextOk = false;
+    equipOnly = false;
 }
 
 void action::add_block(actionBlock * nblock) {

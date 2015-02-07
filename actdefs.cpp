@@ -17,7 +17,7 @@ void define_actors(){
     aclass[c]->add_action(ACTION_WALK_BASIC);
     aclass[c]->add_action(ACTION_EAT_BASIC);
     aclass[c]->add_action(ACTION_DRINK_BASIC);
-    //aclass[c]->add_action(ACTION_OPEN_BASIC);
+    aclass[c]->add_action(ACTION_OPEN_BASIC);
     aclass[c]->add_action(ACTION_CLOSE_BASIC);
     aclass[c]->add_action(ACTION_STRIKE);
     
