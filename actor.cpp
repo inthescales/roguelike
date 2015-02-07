@@ -56,27 +56,28 @@ string actor::get_name_color() {
     return color_string(entity::get_name(), get_color());
 }
 
-// Probably won't need this but we'll see
-vector<action*> * actor::get_actions() {
+vector<int> * actor::get_actions() {
 
-    vector<action*> * r = new vector<action*>();
+    vector<int> * r = mapentity::get_actions();
     
-    vector<int>::iterator it = get_class()->actions->begin();
-    for(;it != get_class()->actions->end(); ++it) {
-        r->push_back(actiondef[*it]);
+    // Get actions from my inventory
+    vector<object*>::iterator item_it = inventory->begin();
+    for(; item_it != inventory->end(); ++item_it) {
+        vector<int> * acts = (*item_it)->get_actions();
+        r->insert(r->end(), acts->begin(), acts->end());
     }
     
     return r;
 }
 
-vector<action*> * actor::get_actions_for(actionPurpose_t purp) {
+vector<int> * actor::get_actions_for(actionPurpose_t purp) {
 
-        vector<action*> * r = new vector<action*>();
-    
-    vector<int>::iterator it = get_class()->actions->begin();
-    for(;it != get_class()->actions->end(); ++it) {
-        if (actiondef[*it]->purpose == purp) {
-            r->push_back(actiondef[*it]);
+    vector<int> * all = get_actions();
+
+    vector<int> * r = new vector<int>();
+    for(int i = 0; i < all->size(); ++i) {
+        if(actiondef[all->at(i)]->purpose == purp) {
+            r->push_back(all->at(i));
         }
     }
     
@@ -113,7 +114,7 @@ int actor::get_stat(stats_t code){
 	return total;
 }
 
-int actor::get_equip_stat(stats_t code){
+int actor::get_equip_stat(stats_t code) {
 
 	int ret = 0;
 	

@@ -1,3 +1,4 @@
+#include "action.h"
 #include "condition.h"
 #include "condclass.h"
 #include "mapentity.h"
@@ -118,6 +119,20 @@ bool mapentity::has_flag(flags_t code) {
     } else {
         return entity::has_flag(code);
     }
+}
+// Action management ===========================
+
+vector<int> * mapentity::get_actions() {
+
+    vector<int> * r = entity::get_actions();
+    
+    // Get actions from my conditions
+    vector<condition*>::iterator cond_it = condition_list->begin();
+    for(; cond_it != condition_list->end(); ++cond_it) {
+        r->insert(r->end(), (*cond_it)->get_actions()->begin(), (*cond_it)->get_actions()->end());
+    }
+    
+    return r;
 }
 
 // Trigger effect management =============================

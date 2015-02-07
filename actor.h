@@ -50,8 +50,8 @@ class actor : public mapentity {
     actclass * get_class();
     string get_name();
     string get_name_color();
-    vector<action*> * get_actions();
-    vector<action*> * get_actions_for(actionPurpose_t);
+    vector<int> * get_actions();
+    vector<int> * get_actions_for(actionPurpose_t);
         
     // Display
 	void print(string, string);
@@ -71,7 +71,6 @@ class actor : public mapentity {
 	bool remove_object(object * item);
     
     // Actions
-    //map<vector<action*>*> get_actions();
     int take_turn();
     void queue_turn(int);
     bool execute_action(action *);

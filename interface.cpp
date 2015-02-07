@@ -148,17 +148,18 @@ bool UI::command_direction(direction_t dir) {
 
 action * UI::get_context_action(actionPurpose_t purp) {
 
-    vector<action*> * actions = act_player->get_actions_for(purp);
-    action * cur = NULL;
+    vector<int> * actions = act_player->get_actions_for(purp);
+    action * r = NULL;
     
     for(int i = 0; i < actions->size(); ++i) {
-        if (cur == NULL || (actions->at(i)->contextOk && cur->priority < actions->at(i)->priority)) 
+        action * cur = actiondef[actions->at(i)];
+        if (r == NULL || (cur->contextOk && r->priority < cur->priority)) 
         {
-            cur = actions->at(i);
+            r = cur;
         }
     }
     
-    return cur;
+    return r;
 }
 
 bool UI::command_inventory(){

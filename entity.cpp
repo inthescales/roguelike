@@ -111,3 +111,11 @@ bool entity::change_state(state_t code) {
 
     return false;
 }
+
+// Action management =======================
+
+vector<int> * entity::get_actions() {
+
+    vector<int> * r = new vector<int>(*(get_class()->actions));
+    return r;
+}

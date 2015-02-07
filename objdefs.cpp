@@ -36,6 +36,7 @@ void define_objects() {
 	//#PLUMED_CAP	
 	oclass[++c] = new objclass("plumed cap", symboldef[SYM_ARMOR], C_RED, OT_ARMOR, OST_HAT, MAT_CLOTH, 4, 12);
 	oclass[c]->add_stat(OSTAT_ARM_BLOCK, 1);
+    oclass[c]->add_action(ACTION_OPEN_BASIC);
 	
 	//#GOLD_COIN
 	oclass[++c] = new objclass("gold coin", symboldef[SYM_MONEY], C_YELLOW, OT_TREASURE, OST_COIN, MAT_METAL, 1, 1);

@@ -50,6 +50,7 @@ class entity {
     int has_state(state_t);
     entityclass * get_state(state_t);    
     bool change_state(state_t);
+    vector<int> * get_actions();
 };
 
 #endif

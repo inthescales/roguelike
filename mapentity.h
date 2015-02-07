@@ -40,6 +40,8 @@ class mapentity : public entity {
     bool has_cond_flag(flags_t);
     bool has_flag(flags_t);
     
+    vector<int> * get_actions();
+    
     void resolve_trigger(trigger_t, argmap *);
     
     bool has_condition(int);
