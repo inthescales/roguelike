@@ -36,6 +36,7 @@ bool do_effect(argmap * args, effect * eff){
     if (eff == NULL)
         return false;
     
+    bool ok = true;
     bool success = false;
     
 	switch(eff->type){
@@ -126,6 +127,30 @@ bool do_effect(argmap * args, effect * eff){
             feature * patient = (feature *)(args->get_vector(ARG_ACTION_PATIENT)->front());
             
             agent->close_feature(patient);
+        }
+        break;
+        
+        case EFF_STRIKE:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            vector<actor*> * patients = (vector<actor*>*)(args->get_vector(ARG_ACTION_PATIENT));
+            
+            vector<actor*>::iterator it = patients->begin();
+            for (; ok && it != patients->end(); ++it) {
+                ok = agent->strike(*it);
+            }
+        }
+        break;
+        
+        case EFF_PUNCH:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            vector<actor*> * patients = (vector<actor*>*)(args->get_vector(ARG_ACTION_PATIENT));
+            
+            vector<actor*>::iterator it = patients->begin();
+            for (; ok && it != patients->end(); ++it) {
+                ok = agent->punch(*it);
+            }
         }
         break;
         

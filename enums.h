@@ -130,6 +130,7 @@ enum effect_t {
     EFF_EAT,
     EFF_DRINK,
     EFF_STRIKE,
+    EFF_PUNCH,
     EFF_COND_TIMEOUT,
 	EFF_EAT_BREAD,
     EFF_DRINK_WATER,

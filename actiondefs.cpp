@@ -18,11 +18,12 @@ void define_actions() {
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
     new_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_TILE);
     new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false);
+    new_require_block = new requirementActionBlock(false, false, true);
     new_require_block->requirements->push_back(new requirement("You can't walk there.", REQ_ACTOR_CAN_WALK));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock( new effect(EFF_WALK)));
     new_action->purpose = ACTPUR_MOVE;
+    new_action->contextOk = true;
     actiondef[++c] = new_action;
     
     //#EAT_BASIC
@@ -32,7 +33,7 @@ void define_actions() {
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
     new_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
     new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false);
+    new_require_block = new requirementActionBlock(false, false, true);
     new_require_block->requirements->push_back(new requirement("You can't eat that.", REQ_ACTOR_CAN_EAT));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock(new effect(EFF_EAT)));
@@ -46,7 +47,7 @@ void define_actions() {
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
     new_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
     new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false);
+    new_require_block = new requirementActionBlock(false, false, true);
     new_require_block->requirements->push_back(new requirement("You can't drink that.", REQ_ACTOR_CAN_DRINK));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock( new effect(EFF_DRINK)));
@@ -61,7 +62,7 @@ void define_actions() {
     new_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
     new_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_FEATURE);
     new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false);
+    new_require_block = new requirementActionBlock(false, false, true);
     new_require_block->requirements->push_back(new requirement("You can't open that.", REQ_ACTOR_CAN_OPEN_FEAT));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock(new effect(EFF_FEAT_OPEN)));
@@ -78,7 +79,7 @@ void define_actions() {
     new_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
     new_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_FEATURE);
     new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false);
+    new_require_block = new requirementActionBlock(false, false, true);
     new_require_block->requirements->push_back(new requirement("You can't close that.", REQ_ACTOR_CAN_CLOSE_FEAT));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock(new effect(EFF_FEAT_CLOSE)));
@@ -95,12 +96,29 @@ void define_actions() {
     new_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
     new_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_ACTOR);
     new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false);
+    new_require_block = new requirementActionBlock(false, false, true);
     new_require_block->requirements->push_back(new requirement("", REQ_ACTOR_CAN_STRIKE));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock(new effect(EFF_STRIKE)));
     new_action->purpose = ACTPUR_HARM;
     new_action->priority = 10;
     new_action->contextOk = true;
-    actiondef[++c] = new_action;    
+    actiondef[++c] = new_action;
+    
+    //#PUNCH
+    // target adj(tile.1), 
+    new_action = new action();
+    new_target_block = new targetActionBlock("Attack what?", TAR_ADJ, RAD_SINGLE, ACTROLE_PATIENT);
+    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
+    new_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_ACTOR);
+    new_action->add_block(new_target_block);
+    new_require_block = new requirementActionBlock(false, false, true);
+    new_require_block->requirements->push_back(new requirement("", REQ_ACTOR_CAN_PUNCH));
+    new_action->add_block(new_require_block);
+    new_action->add_block(new effectActionBlock(new effect(EFF_PUNCH)));
+    new_action->purpose = ACTPUR_HARM;
+    new_action->priority = 5;
+    new_action->contextOk = true;
+    actiondef[++c] = new_action; 
 }

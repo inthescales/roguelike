@@ -81,8 +81,6 @@ class actor : public mapentity {
     void walk(tile *);
     void swim(tile *);
     void fly(tile *);
-	void attack(std::pair<int,int>);
-	void attack(actor *);
 	bool pick_up(object *, tile *);
     bool pick_up(object *);
 	bool drop(object *, tile*);
@@ -94,6 +92,8 @@ class actor : public mapentity {
 	bool use(object *);
     bool open_feature(feature *);
     bool close_feature(feature *);
+    bool strike(actor *);
+    bool punch(actor *);
     
 	//void open(int, int);
 	//void close(int, int);
@@ -107,6 +107,8 @@ class actor : public mapentity {
     bool can_take(object *);
     bool can_open(feature *);
     bool can_close(feature *);
+    bool can_strike(actor *);
+    bool can_punch(actor *);
 };
 
 #endif

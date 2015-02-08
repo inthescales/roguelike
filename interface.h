@@ -43,7 +43,7 @@ class UI {
     
 	static void get_action();
 	static int get_input();
-    static action * get_context_action(actionPurpose_t);
+    static vector<int> * get_context_action(actionPurpose_t);
     
     static bool command_direction(direction_t);
 	static bool command_inventory();

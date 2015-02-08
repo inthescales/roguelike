@@ -20,6 +20,7 @@ void define_actors(){
     aclass[c]->add_action(ACTION_OPEN_BASIC);
     aclass[c]->add_action(ACTION_CLOSE_BASIC);
     aclass[c]->add_action(ACTION_STRIKE);
+    aclass[c]->add_action(ACTION_PUNCH);
     
 	//#ROBOT
 	aclass[++c] = new actclass("robot", symboldef[SYM_ROBOT], C_ORANGE);
@@ -30,4 +31,5 @@ void define_actors(){
     aclass[c]->add_action(ACTION_OPEN_BASIC);
     aclass[c]->add_action(ACTION_CLOSE_BASIC);
     aclass[c]->add_action(ACTION_STRIKE);
+    aclass[c]->add_action(ACTION_PUNCH);
 };

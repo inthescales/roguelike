@@ -40,21 +40,23 @@ effectActionBlock::effectActionBlock(argmap * nargs, effect * neff) {
     block_type = EFFECT_BLOCK;
 }
 
-requirementActionBlock::requirementActionBlock(bool nloop, bool nend) {
+requirementActionBlock::requirementActionBlock(bool nloop, bool nend, bool ncrit) {
 
     args = new argmap();
     requirements = new vector<requirement*>();
     isLoop = nloop;
     endBlock = nend;
+    critical = ncrit;
     block_type = REQUIREMENT_BLOCK;
 }
 
-requirementActionBlock::requirementActionBlock(bool nloop, bool nend, argmap * nargs) {
+requirementActionBlock::requirementActionBlock(bool nloop, bool nend, bool ncrit, argmap * nargs) {
 
     args = nargs;
     requirements = new vector<requirement*>();
     isLoop = nloop;
     endBlock = nend;
+    critical = ncrit;
     block_type = REQUIREMENT_BLOCK;
 }
 
@@ -120,6 +122,12 @@ bool requirementActionBlock::evaluate() {
     } else {
         return requirement::check_requirements(requirements);
     }
+}
+
+// Compare priority of two actions
+bool priority_comp(int a, int b) {
+
+    return actiondef[a]->priority >= actiondef[b]->priority;
 }
 
 // TODO - in requirements, add else blocks, and target extract blocks (get feature from last tile, etc)

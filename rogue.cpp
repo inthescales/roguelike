@@ -5,6 +5,7 @@
 #include "rogue.h"
 #include "setup.h"
 #include "window.h"
+#include "world.h"
 
 #include LIB_CURSES
 
@@ -51,6 +52,8 @@ void init_game() {
 
 	turn = 0;
 	map_current = new map(60, 32, 1, NULL);
+    world::pond(map_current, 30, 12, 10);
+    world::forest(map_current, 25, 7, 20);
     
     // player setup
 	act_player = new actor(ACT_HUMAN);

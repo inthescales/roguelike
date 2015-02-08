@@ -26,4 +26,11 @@ void define_features(){
     // link doors
     fclass[c]->add_state(STATE_FEAT_CLOSED, fclass[c-1]);
     fclass[c-1]->add_state(STATE_FEAT_OPEN, fclass[c]);
+    
+    //#TREE
+    fclass[++c] = new featclass("tree", symboldef[SYM_TREE], C_GREEN);
+    fclass[c]->add_flag(FLAG_FEAT_OPAQUE);
+    fclass[c]->add_flag(FLAG_FEAT_NO_WALK);
+    fclass[c]->add_flag(FLAG_FEAT_NO_SWIM);
+    fclass[c]->add_flag(FLAG_FEAT_NO_FLY);
 };

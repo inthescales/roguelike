@@ -14,7 +14,8 @@
 
 #define FEAT_CLOSED_WOODEN_DOOR 0
 #define FEAT_OPEN_WOODEN_DOOR 1
-#define FEAT_MAX 2
+#define FEAT_TREE 2
+#define FEAT_MAX 3
 
 #define TILE_FLOOR 0
 #define TILE_GRASS 1
@@ -31,6 +32,7 @@
 #define ACTION_OPEN_BASIC 3
 #define ACTION_CLOSE_BASIC 4
 #define ACTION_STRIKE 5
-#define ACTION_MAX 6
+#define ACTION_PUNCH 6
+#define ACTION_MAX 7
 
 #endif

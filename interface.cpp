@@ -1,5 +1,4 @@
-#include <stdio.h>
-
+#include "action.h"
 #include "actor.h"
 #include "argmap.h"
 #include "classdefs.h"
@@ -13,6 +12,9 @@
 #include "stringutils.h"
 #include "tile.h"
 #include "window.h"
+
+#include <algorithm>
+#include <stdio.h>
 
 std::map<int, direction_t> * direction_key;
 std::map<int, action *> * action_key;
@@ -43,58 +45,64 @@ void UI::setup_ui() {
 
 void UI::get_action(){
 
-	int input = get_input();
-	
-    // Player pressed a motion key
-    if (direction_key->count(input)) {
-        command_direction(direction_key->at(input));
-    }
+	int input;
+	bool done = false;
     
-	switch(input){
-        // Legacy actions
-		case ',':
-			command_pick_up();
-		break;
-		case 'w':
-			command_equip();
-		break;
-		case 'u':
-			command_unequip();
-		break;
-		case 'd':
-			command_drop();
-		break;
-		case 'r':
-			command_read();
-		break;
-		case 'a':
-			command_use();
-		break;
+    while (!done) {
+    
+        input = get_input();
+        // Player pressed a motion key
+        if (direction_key->count(input)) {
+            done = command_direction(direction_key->at(input));
+        }
         
-        // Interface commands
-        case 'i':
-			command_inventory();
-		break;
-		case 'E':
-			command_equipment();
-		break;
-		case 'C':
-			command_conditions();
-		break;
-        case 'Q':
-		    command_quit();
-		break;
-        
-		case 's':
-		case '.':
-        break;
-        
-		default:
-            if (action_key->count(input) != 0) {
-                act_player->execute_action(action_key->at(input));
-            }
-			break;
-	}
+        switch(input){
+            // Legacy actions
+            case ',':
+                done = command_pick_up();
+            break;
+            case 'w':
+                done = command_equip();
+            break;
+            case 'u':
+                done = command_unequip();
+            break;
+            case 'd':
+                done = command_drop();
+            break;
+            case 'r':
+                done = command_read();
+            break;
+            case 'a':
+                done = command_use();
+            break;
+            
+            // Interface commands
+            case 'i':
+                command_inventory();
+            break;
+            case 'E':
+                command_equipment();
+            break;
+            case 'C':
+                command_conditions();
+            break;
+            case 'Q':
+                command_quit();
+            break;
+            
+            case 's':
+            case '.':
+            break;
+            
+            default:
+                if (action_key->count(input) != 0) {
+                    done = act_player->execute_action(action_key->at(input));
+                }
+                break;
+        }
+    
+    }
 
 }
 
@@ -138,28 +146,30 @@ bool UI::command_direction(direction_t dir) {
         }
 	}
 	
-	action * act = get_context_action(purpose);
-    if (act) {
-        return act_player->execute_action(act, args, false);
+    bool done = false;
+	vector<int> * actions = get_context_action(purpose);
+    for(int i = 0; !done && i < actions->size(); ++i) {
+        done = act_player->execute_action(actiondef[actions->at(i)], args, false);
     }
 		
-	return false;
+	return done;
 }
 
-action * UI::get_context_action(actionPurpose_t purp) {
+vector<int> * UI::get_context_action(actionPurpose_t purp) {
 
     vector<int> * actions = act_player->get_actions_for(purp);
     action * r = NULL;
     
-    for(int i = 0; i < actions->size(); ++i) {
-        action * cur = actiondef[actions->at(i)];
-        if (r == NULL || (cur->contextOk && r->priority < cur->priority)) 
-        {
-            r = cur;
+    vector<int>::iterator it = actions->begin();
+    for(; it != actions->end(); ++it) {
+        if (!actiondef[*it]->contextOk) {
+            it = actions->erase(it);
         }
     }
     
-    return r;
+    std::sort(actions->begin(), actions->end(), priority_comp);
+    
+    return actions;
 }
 
 bool UI::command_inventory(){

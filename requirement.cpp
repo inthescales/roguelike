@@ -34,6 +34,9 @@ bool requirement::check() {
     return false;
 }
 
+// TODO - split this out of the requirement class so we can call
+// "Process a requirement with index N and these args" without having to
+// create a new requirement instance.
 bool requirement::check_for(mapentity * ent) {
 
     bool ok = false;
@@ -130,6 +133,28 @@ bool requirement::check_for(mapentity * ent) {
                 vector<feature*> * patients = (vector<feature*> *)args->get_vector(ARG_ACTION_PATIENT);
                 for(int i = 0; i < patients->size(); ++i) {
                     ok = ((actor *)ent)->can_close(patients->at(i));
+                    if (!ok) break;
+                }
+            }
+        break;
+        
+        case REQ_ACTOR_CAN_STRIKE:
+            
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<actor*> * patients = (vector<actor*> *)args->get_vector(ARG_ACTION_PATIENT);
+                for(int i = 0; i < patients->size(); ++i) {
+                    ok = ((actor *)ent)->can_strike(patients->at(i));
+                    if (!ok) break;
+                }
+            }
+        break;
+        
+        case REQ_ACTOR_CAN_PUNCH:
+            
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<actor*> * patients = (vector<actor*> *)args->get_vector(ARG_ACTION_PATIENT);
+                for(int i = 0; i < patients->size(); ++i) {
+                    ok = ((actor *)ent)->can_punch(patients->at(i));
                     if (!ok) break;
                 }
             }

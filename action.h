@@ -85,9 +85,10 @@ class requirementActionBlock : public actionBlock {
     public:
     bool isLoop;
     bool endBlock;
+    bool critical;
     
-    requirementActionBlock(bool, bool);
-    requirementActionBlock(bool, bool, argmap *);
+    requirementActionBlock(bool, bool, bool);
+    requirementActionBlock(bool, bool, bool, argmap *);
     bool evaluate();
 };
 
@@ -107,5 +108,7 @@ class action {
     action(argmap *, vector<actionBlock *> *);
     void add_block(actionBlock *);
 };
+
+bool priority_comp(int, int);
 
 #endif

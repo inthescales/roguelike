@@ -302,6 +302,10 @@ bool actor::execute_action(action * in, argmap * args, bool get_targets) {
                 
                 // TODO - Implement loops
                 failedReq = !((requirementActionBlock *)curBlock)->evaluate();
+                if (failedReq && ((requirementActionBlock *)curBlock)->critical) {
+                    // Failed requirement means action cannot count as completed
+                    return false;
+                }
             break;
           
         }
@@ -381,20 +385,6 @@ void actor::enter_tile(tile * t) {
     } else if(t->my_objects->size() > 1) {
         win_output->print("There are " + int_string(t->my_objects->size()) + " objects here.");
     }
-}
-
-// Perform a basic attack at a specified tile
-void actor::attack(pair<int,int> offset) {
-	tile * place;
-	place = &map_current->tiles[x + offset.first][y + offset.second];
-	attack(place->my_actor);
-}
-
-// Perform a basic attack at a specified actor
-void actor::attack(actor * target){
-	int damage = get_stat(CSTAT_WEP_DMG) - target->get_stat(CSTAT_BLOCK);
-	string out = entity::get_name() + color_string(" attack ", C_RED) + target->entity::get_name() + " for " + int_string(damage) + " damage.";
-	win_output->print(out);
 }
 
 // ITEM INTERACTION ==================================================
@@ -500,6 +490,58 @@ bool actor::close_feature(feature * feat){
         win_output->print("You close the " + feat->get_name_color() +".");
 	}
 	feat->change_state(STATE_FEAT_CLOSED);
+}
+
+// Attack a target using equipped weapon
+bool actor::strike(actor * target) {
+	int damage = get_stat(CSTAT_WEP_DMG) - target->get_stat(CSTAT_BLOCK);
+    string name, verb, targetName;
+    if (act_player == this) {
+        name = "You";
+        verb = " attack ";
+        if (target == this) {
+            targetName = "yourself";
+        } else {
+            targetName = "the " + target->get_name_color();
+        }
+    } else {
+        name = get_name_color();
+        verb = " attacks ";
+        if (target == this) {
+            targetName = "you";
+        } else {
+            targetName = "the " + target->get_name_color();
+        }
+    }
+    
+	string out = name + verb + targetName + " for " + int_string(damage) + " damage.";
+	win_output->print(out);
+}
+
+// Attack a target using fists
+bool actor::punch(actor * target) {
+	int damage = get_stat(ASTAT_BODY) - target->get_stat(CSTAT_BLOCK);
+    string name, verb, targetName;
+    if (act_player == this) {
+        name = "You";
+        verb = " punch ";
+        if (target == this) {
+            targetName = "yourself";
+        } else {
+            targetName = "the " + target->get_name_color();
+        }
+    } else {
+        name = get_name_color();
+        verb = " punches ";
+        if (target == this) {
+            targetName = "you";
+        } else {
+            targetName = "the " + target->get_name_color();
+        }
+    }
+    
+	string out = name + verb + targetName + " for " + int_string(damage) + " damage.";
+	win_output->print(out);
 }
 
 // Senses ==================================================
@@ -617,4 +659,20 @@ bool actor::can_open(feature * feat) {
 bool actor::can_close(feature * feat) {
 
     return feat->can_close();
+}
+
+bool actor::can_strike(actor * actor) {
+
+    int ok = true;
+    
+    if (equipped_item[ES_MAINHAND] == NULL) ok = false;
+    
+    return ok;
+}
+
+bool actor::can_punch(actor * actor) {
+
+    int ok = true;
+    
+    return ok;
 }
