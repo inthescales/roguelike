@@ -30,8 +30,7 @@ void game_loop()
     while(1)
 	{
 		curs_set(1);
-		win_world->display_map(map_current);
-		win_status->display_status();
+        window::display_all();
         if (win_output->should_update) {
             win_output->clear();
             win_output->print_buf(buf_main);

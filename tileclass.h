@@ -9,7 +9,7 @@
 
 struct tileclass : public mapentityclass {
 
-    tileclass(symbol_code, colorName);
+    tileclass(string, symbol_code, colorName);
 };
 
 #endif

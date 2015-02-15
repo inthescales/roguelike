@@ -20,14 +20,27 @@ enum action_block_t {
 enum target_t {
     TAR_NONE = 0,
 	TAR_SELF, // Target self
-	TAR_ADJ, // Target an adjacent entity
-    TAR_INV, // Target an object or objects from inventory
+	TAR_ADJ, // Target an adjacent tile
+};
+
+enum radius_t {
+    RAD_NONE = 0,
+	RAD_SINGLE
+};
+
+enum extract_t {
+    EXT_TILE = 0,
+    EXT_ACTOR,
+    EXT_FEATURE,
+    EXT_OBJECTS,
+    EXT_INVENTORY
 };
 
 enum actionRole_t {
     ACTROLE_AGENT,
     ACTROLE_PATIENT,
     ACTROLE_INSTRUMENT,
+    ACTROLE_LOCATION,
     ACTROLE_MAX
 };
 
@@ -35,6 +48,9 @@ enum actionPurpose_t {
     ACTPUR_NONE = 0,
     ACTPUR_MOVE,
     ACTPUR_TAKE,
+    ACTPUR_DROP,
+    ACTPUR_EQUIP,
+    ACTPUR_UNEQUIP,
     ACTPUR_HARM,
     ACTPUR_EAT,
     ACTPUR_DRINK,
@@ -62,11 +78,12 @@ class targetActionBlock : public actionBlock {
     public:
     target_t target_type;
     radius_t radius_type;
+    extract_t extract_type;
     actionRole_t position;
     string prompt;
     
-    targetActionBlock(string, target_t, radius_t, actionRole_t);
-    targetActionBlock(string, target_t, radius_t, actionRole_t, argmap *);
+    targetActionBlock(string, target_t, radius_t, extract_t, actionRole_t);
+    targetActionBlock(string, target_t, radius_t, extract_t, actionRole_t, argmap *);
 };
 
 // Continue affecting targets as long as the condition is true

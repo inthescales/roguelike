@@ -3,9 +3,11 @@
 #include "actor.h"
 #include "object.h"
 #include "feature.h"
-#include "tile.h"
 #include "enums.h"
 #include "globals.h"
+#include "mapentity.h"
+#include "stringutils.h"
+#include "tile.h"
 #include "window.h"
 
 effect::effect(effect_t e) {
@@ -38,6 +40,8 @@ bool do_effect(argmap * args, effect * eff){
     
     bool ok = true;
     bool success = false;
+    vector<entity*> * successes = new vector<entity*>();
+    string output;
     
 	switch(eff->type){
     
@@ -51,6 +55,7 @@ bool do_effect(argmap * args, effect * eff){
             
             return true;
         }
+        break;
         
         case EFF_WALK:
         {
@@ -61,6 +66,7 @@ bool do_effect(argmap * args, effect * eff){
             
             return success;
         }
+        break;
         
         case EFF_SWIM:
         {
@@ -71,6 +77,7 @@ bool do_effect(argmap * args, effect * eff){
             
             return success;
         }
+        break;
         
         case EFF_FLY:
         {
@@ -81,16 +88,94 @@ bool do_effect(argmap * args, effect * eff){
             
             return success;
         }
+        break;
         
-        case EFF_PICK_UP:
+        case EFF_TAKE:
         {
             actor * agent = args->get_actor(ARG_ACTION_AGENT);
-            object * patient = (object *)args->get_vector(ARG_ACTION_PATIENT)->front();
+            vector<object*> * patients = (vector<object*>*)(args->get_vector(ARG_ACTION_PATIENT));
+
+            vector<object*>::iterator it = patients->begin();
+            for (; ok && it != patients->end(); ++it) {
             
-            agent->pick_up(patient);
+                ok = agent->pick_up(*it);
+                if (ok)successes->push_back((entity*)(*it));
+            }
+            
+            if(successes->size() == 1){
+                output = "You take the " + ((mapentity *)successes->back())->get_name_color() + ".";
+            } else if (successes->size() > 1 && successes->size() <= 5) {
+                output = "You take: ";
+                for(int i = 0; i < successes->size(); ++i) {
+                    output += ((mapentity *)successes->at(i))->get_name_color();
+                    if (i != successes->size() - 1) {
+                        output += ", ";
+                    }
+                }
+            } else if (successes->size() > 0) {
+                output = "You take " + int_string(successes->size()) + " objects";
+            }
+            
+            win_output->print(output);
             
             return success;
         }
+        break;
+        
+        case EFF_DROP:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            vector<object*> * patients = (vector<object*>*)(args->get_vector(ARG_ACTION_PATIENT));
+
+            vector<object*>::iterator it = patients->begin();
+            for (; ok && it != patients->end(); ++it) {            
+                ok = agent->drop(*it);
+                if (ok) {
+                    successes->push_back((entity*)(*it));
+                }
+            }
+            
+            if(successes->size() == 1){
+                output = "You drop the " + ((mapentity *)successes->back())->get_name_color() + ".";
+            } else if (successes->size() > 1 && successes->size() <= 5) {
+                output = "You drop: ";
+                for(int i = 0; i < successes->size(); ++i) {
+                    output += ((mapentity *)successes->at(i))->get_name_color();
+                    if (i != successes->size() - 1) {
+                        output += ", ";
+                    }
+                }
+            } else if (successes->size() > 0) {
+                output = "You drop " + int_string(successes->size()) + " objects";
+            }
+            
+            win_output->print(output);
+        }
+        break;
+        
+        case EFF_EQUIP:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            vector<object*> * patients = (vector<object*>*)(args->get_vector(ARG_ACTION_PATIENT));
+            
+            vector<object*>::iterator it = patients->begin();
+            for (; ok && it != patients->end(); ++it) {
+                ok = agent->equip(*it);
+            }
+        }
+        break;
+        
+        case EFF_UNEQUIP:
+        {
+            actor * agent = args->get_actor(ARG_ACTION_AGENT);
+            vector<object*> * patients = (vector<object*>*)(args->get_vector(ARG_ACTION_PATIENT));
+            
+            vector<object*>::iterator it = patients->begin();
+            for (; ok && it != patients->end(); ++it) {
+                ok = agent->unequip(*it);
+            }
+        }
+        break;
         
         case EFF_EAT:
         {
@@ -101,6 +186,7 @@ bool do_effect(argmap * args, effect * eff){
             
             return success;
         }
+        break;
         
         case EFF_DRINK:
         {
@@ -111,6 +197,7 @@ bool do_effect(argmap * args, effect * eff){
             
             return success;
         }
+        break;
         
         case EFF_FEAT_OPEN:
         {

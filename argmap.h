@@ -8,22 +8,24 @@
 #include <vector>
 
 enum args_t {
-    ARG_HOLDER_ENTITY = 0, // vvv - for trigger effects, the entity carrying that effect
+    ARG_HOLDER_ENTITY = 0, // ===== TRIGGER CARRIERS =======
     ARG_HOLDER_ACTOR,
     ARG_HOLDER_OBJECT,
     ARG_HOLDER_FEATURE,
     ARG_HOLDER_CONDITION,
-    ARG_ACTION_AGENT, // vvv - standard semantic roles for action
+    ARG_ACTION_AGENT, // ===== ACTION ROLES =======
     ARG_ACTION_PATIENT,
     ARG_ACTION_INSTRUMENT,
-    ARG_FEAT_CLOSEDSTATE, // vvv - arguments for features of their states
+    ARG_ACTION_LOCATION,
+    ARG_FEAT_CLOSEDSTATE, // ===== FEATURE STATES =======
     ARG_FEAT_OPENSTATE,
-    ARG_EFFECT_RADIUS,// vvv - arguments for effects
-    ARG_TARGET_ENTITY_TYPE,// vvv - arguments for targeting
-    ARG_TARGET_NUMBER,
-    ARG_TARGET_DISTANCE,
-    ARG_TARGET_GOLDOK,
-    ARG_REQUIRE_STAT, // vvv - arguments for requirements
+    ARG_EFFECT_RADIUS, // ===== EFFECTS =======
+    ARG_TARGET_ENTITY_TYPE, // ===== TARGETING =======
+    ARG_TARGET_NUMBER, // Max number that can be chosen
+    ARG_TARGET_DISTANCE, // Distance from agent
+    ARG_TARGET_GOLDOK, // Can gold be chosen from inventory
+    ARG_TARGET_ASSUME, // Automatically choose all if this many or fewer
+    ARG_REQUIRE_STAT, // ===== REQUIREMENTS =======
     ARG_REQUIRE_FLAG,
     ARG_REQUIRE_VALUE,
     ARG_REQUIRE_PATIENT

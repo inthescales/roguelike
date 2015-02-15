@@ -3,6 +3,7 @@
 #include "conddefs.h"
 #include "config.h"
 #include "enums.h"
+#include "error.h"
 #include "featdefs.h"
 #include "globals.h"
 #include "interface.h"
@@ -43,11 +44,12 @@ void setup(){
 	define_tiles();
 	define_conditions();
     define_actions();
+    define_errors();
     
     // Moved after actions temporarily
         setup_ui();
 	
-	for(int i = 0; i < 52; ++i) obj_letter[i] = NULL;
+	for(int i = 0; i < INV_MAX; ++i) obj_letter[i] = NULL;
 }
 
 void setup_window(){

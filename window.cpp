@@ -87,7 +87,7 @@ void window::display_inventory(actor & act, string prompt){
 		move(ty++, tx);
 		printcolor(tx, ty, prompt);
 		
-		headers = 0;
+		headers = 1;
 		for(int i = start; i - start < winsize && i < items->size(); ++i){
 		
 			if(i == start || items->at(i)->get_type() != items->at(i-1)->get_type()){
@@ -171,88 +171,11 @@ void window::display_conditions(actor * act){
 	curs_set(1);
 }
 
-// Interactive menus ============================================
-
-vector<object*> * window::menu_select_objects(string prompt, vector<object*> * items, int max_select, bool sort){
-
-	curs_set(0);
-	
-	int index = 0, x = 3, y = 3;
-	int start = 0, winsize = 10;
-    int sel_count = 0;
-	const symbol_code sym[] = {symboldef[CHAR_DASH], symboldef[CHAR_PLUS]};
-	int input, headers;
-	vector<bool> selected(items->size(), false);
-	vector<object*> * ret = new vector<object*>();
-	
-	if(sort){
-		std::sort(items->begin(), items->end(), object::compare_type);
-	}
-	
-	while(true){
-	
-		clear();
-		move(y, x);
-		printw("%s", prompt.c_str());
-		
-		headers = 0;
-		for(int i = start; i - start < winsize && i < items->size(); ++i){
-		
-			if(i == start ||items->at(i)->get_type() != items->at(i-1)->get_type()){
-				//We need to print a header
-				printcolor(x, y + i + headers++ - start + 1, color_string(str_obj_type[items->at(i)->get_type()], C_YELLOW));
-			}
-			move(y + i + headers - start + 1, x);
-			printw("%c ", UI::int_to_letter(i));
-			printchar_cw(sym[selected[i]]);
-			printw(" %s", items->at(i)->get_name().c_str());
-		}
-		
-		input = wgetch(stdscr);
-		
-		if((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z')){
-		
-            if(max_select == 1) {
-                // With no multi select, return immediately
-                int num = UI::letter_to_int(input);
-                if (num < items->size()) {
-                    ret->push_back(items->at(num));
-                    return ret;
-                }
-            } else if (max_select == -1 || max_select > sel_count) {
-                // Toggle selection for this letter, and update count
-                if (selected[UI::letter_to_int(input)] = !selected[UI::letter_to_int(input)]) {
-                    ++sel_count;
-                } else {
-                    --sel_count;
-                }
-            }
-		} else {
-		
-			switch(input){
-				case 10:			
-					for(int j = 0; j < items->size(); ++j)
-						if(selected[j])
-							ret->push_back(items->at(j));
-					return ret;
-				case 27:
-					return ret;
-				case KEY_UP:
-					if(start > 0)
-						start -= 1;
-					break;
-				case KEY_DOWN:
-					if(start + winsize < items->size())
-						start += 1;
-					break;
-				default:
-					break;
-			}
-		}
-		
-	}
-		
-	curs_set(1);
+void window::display_all() {
+	win_world->display_map(map_current);
+    win_status->display_status();
+    win_output->clear();
+    win_output->print_buf(buf_main);
 }
 
 // Text output ================================================
@@ -296,6 +219,8 @@ void window::print_buf(buffer * buf){
 	while(buffer_pointer < buf->size()){
 		
 		string next = buf->at(buf->size() - buffer_pointer++ - 1);
+        if (next == "") continue;
+        
 		vector<string> cut = string_slice(next, width);
 		
         string in;

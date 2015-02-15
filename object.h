@@ -17,6 +17,42 @@ using std::vector;
 
 class condition;
 
+//Item types
+enum object_type {
+	OT_FOOD = 0,
+    OT_DRINK,
+	OT_WEAPON,
+	OT_ARMOR,
+	OT_ACCESSORY,
+	OT_SCROLL,
+	OT_WAND,
+	OT_TOOL,
+	OT_TREASURE,
+	OT_MISC
+};
+
+//Item subtypes
+enum object_subtype {
+	OST_FOOD = 0,
+    OST_POTION,
+	OST_SWORD,
+	OST_KNIFE,
+	OST_SPEAR,
+	OST_AXE,
+	OST_MACE,
+	OST_BOW,
+	OST_HAT,
+	OST_HELM,
+	OST_SUIT,
+	OST_GLOVES,
+	OST_BOOTS,
+	OST_CLOAK,
+	OST_RING,
+	OST_AMULET,
+	OST_LAMP,
+	OST_COIN
+};
+
 class object : public mapentity {
 
 	public:

@@ -2,23 +2,25 @@
 
 // Actionblock stuff ===================
 
-targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nrad, actionRole_t npos) {
+targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nrad, extract_t next,  actionRole_t npos) {
 
     args = new argmap();
     requirements = new vector<requirement*>();
     target_type = ntarg;
     radius_type = nrad;
+    extract_type = next;
     position = npos;
     prompt = nprompt;
     block_type = TARGET_BLOCK;
 }
 
-targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nrad, actionRole_t npos, argmap * nargs) {
+targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nrad, extract_t next, actionRole_t npos, argmap * nargs) {
 
     args = nargs;
     requirements = new vector<requirement*>();
     target_type = ntarg;
     radius_type = nrad;
+    extract_type = next;
     position = npos;
     prompt = nprompt;
     block_type = TARGET_BLOCK;

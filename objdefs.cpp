@@ -2,6 +2,7 @@
 #include "display.h"
 #include "objclass.h"
 #include "objdefs.h"
+#include "object.h"
 #include "globals.h"
 #include "effect.h"
 #include "symboldefs.h"

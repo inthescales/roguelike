@@ -1,5 +1,6 @@
 #include "actor.h"
 #include "argmap.h"
+#include "error.h"
 #include "mapentity.h"
 #include "requirement.h"
 #include "tile.h"
@@ -40,6 +41,7 @@ bool requirement::check() {
 bool requirement::check_for(mapentity * ent) {
 
     bool ok = false;
+    int err = 0;
     switch(req_type) {
     
         case REQ_HAS_FLAG:
@@ -56,20 +58,13 @@ bool requirement::check_for(mapentity * ent) {
                     ent->has_stat((stats_t)args->get_int(ARG_REQUIRE_STAT)) &&
                     ent->get_stat((stats_t)args->get_int(ARG_REQUIRE_STAT)) == args->get_int(ARG_REQUIRE_VALUE));
         break;
-    
-        case REQ_ACTOR_CAN_HOLD:
-        
-            if (args->has_value(ARG_ACTION_PATIENT)) {
-                ok = ((actor *)ent)->can_take(args->get_object(ARG_ACTION_PATIENT));
-            }     
-        break;
-            
+                
         case REQ_ACTOR_CAN_WALK:
             if (args->has_value(ARG_ACTION_PATIENT)) {
                 vector<tile*> * patients = (vector<tile*> *)args->get_vector(ARG_ACTION_PATIENT);
                 if (patients->size() > 0) {
-                    tile * dest = patients->at(0);
-                    ok = ((actor *)ent)->can_walk(dest);
+                    err = ((actor *)ent)->can_walk(patients->at(0));
+                    ok = (err == ERR_NONE);
                 }
             }     
         break;
@@ -78,8 +73,8 @@ bool requirement::check_for(mapentity * ent) {
             if (args->has_value(ARG_ACTION_PATIENT)) {
                 vector<tile*> * patients = (vector<tile*> *)args->get_vector(ARG_ACTION_PATIENT);
                 if (patients->size() > 0) {
-                    tile * dest = patients->at(0);
-                    ok = ((actor *)ent)->can_swim(dest);
+                    err = ((actor *)ent)->can_swim(patients->at(0));
+                    ok = (err == ERR_NONE);
                 }
             }        
         break;
@@ -88,19 +83,96 @@ bool requirement::check_for(mapentity * ent) {
             if (args->has_value(ARG_ACTION_PATIENT)) {
                 vector<tile*> * patients = (vector<tile*> *)args->get_vector(ARG_ACTION_PATIENT);
                 if (patients->size() > 0) {
-                    tile * dest = patients->at(0);
-                    ok = ((actor *)ent)->can_fly(dest);
+                    err = ((actor *)ent)->can_fly(patients->at(0));
+                    ok = (err == ERR_NONE);
                 }
-            }       
+            }
+        break;
+        
+        case REQ_ACTOR_HAS_ITEMS:
+            ok = ((actor *)ent)->inventory->size() > 0;
+            if (!ok) err = ERR_NO_ITEMS;
+        break;
+        
+        // TODO - multitake.
+        case REQ_ACTOR_CAN_TAKE:
+        
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                object * patient = args->get_object(ARG_ACTION_PATIENT);
+                if (patient != NULL) {
+                    err = ((actor *)ent)->can_take(patient);
+                    ok = (err == ERR_NONE);
+                } else {
+                    ok = false;
+                    err = ERR_NOTHING_TO_TAKE;
+                }
+            }     
+        break;
+        
+        case REQ_ACTOR_CAN_DROP:
+        
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<object*> * patients = (vector<object*> *)args->get_vector(ARG_ACTION_PATIENT);
+                if (patients->size() > 0) {
+                    for(int i = 0; i < patients->size(); ++i) {
+                        err = ((actor *)ent)->can_drop(patients->at(i));
+                        ok = (err == ERR_NONE);
+                        if (!ok) break;
+                    }
+                } else {
+                    ok = false;
+                    err = ERR_CANCELLED;
+                }
+            }     
+        break;
+        
+        case REQ_ACTOR_CAN_EQUIP:
+            
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<object*> * patients = (vector<object*> *)args->get_vector(ARG_ACTION_PATIENT);
+                if (patients->size() > 0) {
+                    for(int i = 0; i < patients->size(); ++i) {
+                        err = ((actor *)ent)->can_equip(patients->at(i));
+                        ok = (err == ERR_NONE);
+                        if (!ok) break;
+                    }
+                } else {
+                    ok = false;
+                    err = ERR_CANCELLED;
+                }
+            }
+        break;
+        
+        case REQ_ACTOR_CAN_UNEQUIP:
+            
+            if (args->has_value(ARG_ACTION_PATIENT)) {
+                vector<object*> * patients = (vector<object*> *)args->get_vector(ARG_ACTION_PATIENT);
+                if (patients->size() > 0) {
+                    for(int i = 0; i < patients->size(); ++i) {
+                        err = ((actor *)ent)->can_unequip(patients->at(i));
+                        ok = (err == ERR_NONE);
+                        if (!ok) break;
+                    }
+                } else {
+                    ok = false;
+                    err = ERR_CANCELLED;
+                }
+            }
         break;
         
         case REQ_ACTOR_CAN_EAT:
         
             if (args->has_value(ARG_ACTION_PATIENT)) {
                 vector<object*> * patients = (vector<object*> *)args->get_vector(ARG_ACTION_PATIENT);
-                for(int i = 0; i < patients->size(); ++i) {
-                    ok = ((actor *)ent)->can_eat(patients->at(i));
-                    if (!ok) break;
+                if (patients->size() > 0) {
+                    for(int i = 0; i < patients->size(); ++i) {
+                        err = ((actor *)ent)->can_eat(patients->at(i));
+                        ok = (err == ERR_NONE);
+                        if (!ok) break;
+                    }
+                } else {
+                    ok = false;
+                    err = ERR_CANCELLED;
                 }
             }
         break;
@@ -109,9 +181,15 @@ bool requirement::check_for(mapentity * ent) {
         
             if (args->has_value(ARG_ACTION_PATIENT)) {
                 vector<object*> * patients = (vector<object*> *)args->get_vector(ARG_ACTION_PATIENT);
-                for(int i = 0; i < patients->size(); ++i) {
-                    ok = ((actor *)ent)->can_drink(patients->at(i));
-                    if (!ok) break;
+                if (patients->size() > 0) {
+                    for(int i = 0; i < patients->size(); ++i) {
+                        err = ((actor *)ent)->can_drink(patients->at(i));
+                        ok = (err == ERR_NONE);
+                        if (!ok) break;
+                    }
+                } else {
+                    ok = false;
+                    err = ERR_CANCELLED;
                 }
             }
         break;
@@ -120,9 +198,15 @@ bool requirement::check_for(mapentity * ent) {
             
             if (args->has_value(ARG_ACTION_PATIENT)) {
                 vector<feature*> * patients = (vector<feature*> *)args->get_vector(ARG_ACTION_PATIENT);
-                for(int i = 0; i < patients->size(); ++i) {
-                    ok = ((actor *)ent)->can_open(patients->at(i));
-                    if (!ok) break;
+                if (patients->size() > 0){
+                    for(int i = 0; i < patients->size(); ++i) {
+                        err = ((actor *)ent)->can_open(patients->at(i));
+                        ok = (err == ERR_NONE);
+                        if (!ok) break;
+                    }
+                } else {
+                    ok = false;
+                    err = ERR_NOTHING_TO_OPEN;
                 }
             }
         break;
@@ -131,9 +215,15 @@ bool requirement::check_for(mapentity * ent) {
             
             if (args->has_value(ARG_ACTION_PATIENT)) {
                 vector<feature*> * patients = (vector<feature*> *)args->get_vector(ARG_ACTION_PATIENT);
-                for(int i = 0; i < patients->size(); ++i) {
-                    ok = ((actor *)ent)->can_close(patients->at(i));
-                    if (!ok) break;
+                if (patients->size() > 0) {
+                    for(int i = 0; i < patients->size(); ++i) {
+                        err = ((actor *)ent)->can_close(patients->at(i));
+                        ok = (err == ERR_NONE);
+                        if (!ok) break;
+                    }
+                } else {
+                    ok = false;
+                    err = ERR_NOTHING_TO_CLOSE;
                 }
             }
         break;
@@ -143,7 +233,8 @@ bool requirement::check_for(mapentity * ent) {
             if (args->has_value(ARG_ACTION_PATIENT)) {
                 vector<actor*> * patients = (vector<actor*> *)args->get_vector(ARG_ACTION_PATIENT);
                 for(int i = 0; i < patients->size(); ++i) {
-                    ok = ((actor *)ent)->can_strike(patients->at(i));
+                    err = ((actor *)ent)->can_strike(patients->at(i));
+                    ok = (err == ERR_NONE);
                     if (!ok) break;
                 }
             }
@@ -155,6 +246,7 @@ bool requirement::check_for(mapentity * ent) {
                 vector<actor*> * patients = (vector<actor*> *)args->get_vector(ARG_ACTION_PATIENT);
                 for(int i = 0; i < patients->size(); ++i) {
                     ok = ((actor *)ent)->can_punch(patients->at(i));
+                    ok = (err == ERR_NONE);
                     if (!ok) break;
                 }
             }
@@ -165,8 +257,13 @@ bool requirement::check_for(mapentity * ent) {
         break;
     }
     
-    if (!ok) {
-        win_output->print(error);
+    if (err != ERR_NONE) {
+        ok = false;
+        if (error != "") {
+            win_output->print(error);
+        } else if (err != ERR_SILENT) {
+            win_output->print(error_string[err]);
+        }
     }
     
     return ok;

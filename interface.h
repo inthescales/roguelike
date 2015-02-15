@@ -14,6 +14,7 @@ class action;
 class actor;
 class argmap;
 class feature;
+class flagset;
 class object;
 class requirement;
 class targetActionBlock;
@@ -50,24 +51,24 @@ class UI {
 	static bool command_equipment();
 	static bool command_conditions();
 	static bool command_move(direction_t);
-	static bool command_pick_up();
-	static string command_pick_up_helper(object *);
-	static bool command_drop();
-	static bool command_equip();
-	static bool command_unequip();
-	static bool command_eat();
-	static bool command_drink();
-	static bool command_read();
-	static bool command_use();
 	static bool command_quit();
 	
-    static vector<void*> * prompt_target(targetActionBlock *);
-    static actor * prompt_self(vector<requirement*> *);
-    static vector<tile*> * prompt_adjacent(string, argmap *, vector<requirement*> *);
-    static vector<object*> * prompt_inventory(string, argmap *, vector<requirement*> *);
-	
+    static vector<tile*> * target_self();
+    static vector<actor*> * extract_actors(vector<tile*> *);
+    static vector<object*> * extract_objects(vector<tile*> *);
+    static vector<object*> * extract_inventories(vector<tile*> *);
     static vector<feature*> * extract_features(vector<tile*> *);
     
+    static vector<tile*> * target_self(actor *);
+    static vector<void*> * prompt_target(targetActionBlock *);
+    static vector<tile*> * prompt_adjacent(string, argmap *, vector<requirement*> *);
+    static vector<object*> * prompt_objects(string, vector<object*>*, argmap *, vector<requirement*> *);
+    static vector<object*> * prompt_inventory(string, argmap *, vector<requirement*> *);
+    
+    // Menus
+	static vector<object*> * menu_select_objects(window *, string, vector<object*> *, argmap *, flagset *);
+
+    // Smaller prompts
     static bool prompt_yesno(string);
 	static object * prompt_gold_to_object();
     static direction_t prompt_direction(string);

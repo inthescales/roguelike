@@ -2,7 +2,9 @@
 #include "actor.h"
 #include "argmap.h"
 #include "classdefs.h"
+#include "error.h"
 #include "feature.h"
+#include "flagset.h"
 #include "globals.h"
 #include "interface.h"
 #include "map.h"
@@ -15,6 +17,8 @@
 
 #include <algorithm>
 #include <stdio.h>
+
+using std::max;
 
 std::map<int, direction_t> * direction_key;
 std::map<int, action *> * action_key;
@@ -37,6 +41,10 @@ void UI::setup_ui() {
     // change action bindings to purposes - scan the actor's list
     
     // Bind keys
+    (*action_key)[','] = actiondef[ACTION_TAKE_BASIC];
+    (*action_key)['d'] = actiondef[ACTION_DROP_BASIC];
+    (*action_key)['w'] = actiondef[ACTION_EQUIP_BASIC];
+    (*action_key)['u'] = actiondef[ACTION_UNEQUIP_BASIC];
     (*action_key)['e'] = actiondef[ACTION_EAT_BASIC];
     (*action_key)['q'] = actiondef[ACTION_DRINK_BASIC];
     (*action_key)['o'] = actiondef[ACTION_OPEN_BASIC];
@@ -56,27 +64,7 @@ void UI::get_action(){
             done = command_direction(direction_key->at(input));
         }
         
-        switch(input){
-            // Legacy actions
-            case ',':
-                done = command_pick_up();
-            break;
-            case 'w':
-                done = command_equip();
-            break;
-            case 'u':
-                done = command_unequip();
-            break;
-            case 'd':
-                done = command_drop();
-            break;
-            case 'r':
-                done = command_read();
-            break;
-            case 'a':
-                done = command_use();
-            break;
-            
+        switch(input){            
             // Interface commands
             case 'i':
                 command_inventory();
@@ -102,6 +90,12 @@ void UI::get_action(){
                 break;
         }
     
+        if (win_output->should_update) {
+            win_output->clear();
+            win_output->print_buf(buf_main);
+            break_buffer(buf_main);
+            win_output->should_update = false;
+        }
     }
 
 }
@@ -132,13 +126,13 @@ bool UI::command_direction(direction_t dir) {
         vect->push_back((void*)(dest->my_actor));
         args->add_vector(ARG_ACTION_PATIENT, vect);
     } else if(dest->my_feature != NULL
-           && act_player->can_open(dest->my_feature)) {
+           && act_player->can_open(dest->my_feature) == ERR_NONE) {
         purpose = ACTPUR_OPEN_FEAT;
         vector<void*> * vect = new vector<void*>();
         vect->push_back((void*)(dest->my_feature));
         args->add_vector(ARG_ACTION_PATIENT, vect);
     } else {
-		if(act_player->can_travel(dest)) {
+		if(act_player->can_travel(dest) == ERR_NONE) {
 			purpose = ACTPUR_MOVE;
             vector<void*> * vect = new vector<void*>();
             vect->push_back((void*)dest);
@@ -172,253 +166,27 @@ vector<int> * UI::get_context_action(actionPurpose_t purp) {
     return actions;
 }
 
+// Info screens and UI commands ==========================
+
 bool UI::command_inventory(){
 	win_screen->display_inventory(*act_player, "Inventory:");
 	redraw_windows();
+    
+    return false;
 }
 
 bool UI::command_equipment(){
 	win_screen->display_equipment(*act_player);
 	redraw_windows();
+    
+    return false;
 }
 
 bool UI::command_conditions(){
 	win_screen->display_conditions(act_player);
 	redraw_windows();
-}
-
-/*
-	Pick one or more objects up from the ground.
-	Multiple pickup broken by: weight, slots.
-*/
-bool UI::command_pick_up(){
-
-	tile * current = &map_current->tiles[act_player->x][act_player->y];
-	bool ok = true;
-	
-	if(current->my_objects->empty()){
-	
-		// If no objects
-		win_output->print("There is nothing here to take.");
-	} else {
-		if(current->my_objects->size() == 1){
-
-			// Take a single object		
-			string error;
-
-			object * target = current->my_objects->back();
-			error = command_pick_up_helper(current->my_objects->back());
-			if( error == ""){
-				act_player->pick_up(target, current);
-				win_output->print("You take " + target->get_name_color() + ".");
-			} else {
-				win_output->print(error);
-			}
-		} else {
-			
-			// Take multiple objects
-			vector<object*> * selected = win_screen->menu_select_objects("Pick up what?", current->my_objects, -1, true);
-			string error = "";
-			string out_string = "";
-			int taken = 0;
-			
-			while(error == "" && !selected->empty()){
-			
-				error = command_pick_up_helper(selected->back());
-				if(error == "") {
-				
-					act_player->pick_up(selected->back(), current);
-					
-					if(taken++ > 0) out_string += ", ";
-					out_string += selected->back()->get_name_color();
-					selected->pop_back();
-				}
-			}
-			
-			if(taken == 0) win_output->print(error);
-			else if(taken == 1) win_output->print("You take " + out_string);
-			else if(taken > 1) win_output->print("You take: " + out_string);
-			
-			redraw_windows();
-			ok = false;
-		}
-	}
-	
-	return ok;
-}
-
-/*
-	Checks whether you are able to pick up a particular item. Returns appropriate
-	error messages.
-*/
-string UI::command_pick_up_helper(object * target){
-
-	int cond = 1;
-	if(act_player->inventory->size() >= MAX_INVENTORY){
-		cond = -1;
-	}
-	
-	switch(cond){
-		case 1:
-			return "";
-		case -1:
-			return "You cannot carry any more items.";
-		default:
-			return "SOMETHING WENT WRONG!";
-	}
-
-}
-
-bool UI::command_drop(){
-
-	tile * current = &map_current->tiles[act_player->x][act_player->y];
-	
-	if( !(act_player->inventory->empty() && act_player->gold == 0) ){
-	
-        argmap * args = new argmap();
-        args->add_int(ARG_TARGET_NUMBER, -1);
-        args->add_int(ARG_TARGET_GOLDOK, 1);
-        vector<requirement*> * reqs = new vector<requirement*>();
-		vector<object*> * items = prompt_inventory("Drop what?", args, reqs);
-        
-		if(items->size() > 0){
-		
-			for(int i = 0; i < items->size(); ++i){
-				act_player->drop(items->at(i), current);
-			}
-			
-			if(items->size() == 1){
-				win_output->print("You drop the " + items->back()->get_name_color() + ".");
-			} else {
-				win_output->print("You drop " + int_string(items->size()) + " objects.");
-			}
-		} else win_output->print("Nevermind");
-		
-	} else win_output->print("You have nothing to drop.");
-}
-
-bool UI::command_equip(){
-	
-    argmap * args = new argmap();
-    args->add_int(ARG_TARGET_NUMBER, 1);
-    args->add_int(ARG_TARGET_GOLDOK, 0);
-    vector<requirement*> * reqs = new vector<requirement*>();
-      
-	object * item = get_single( prompt_inventory("Equip what?", args, reqs) );
-	
-	if(item != NULL){
-	
-		int slot = type_to_slot(item->get_type(), item->get_subtype());
-		
-		if(slot != -1){
-		
-			if(slot == ES_RING1 && act_player->equipped_item[ES_RING1] != NULL){
-				slot = ES_RING2;
-			}
-			
-			if(act_player->equipped_item[slot] != NULL){
-				bool temp = prompt_yesno("Replace " + act_player->equipped_item[slot]->get_name() + "?");
-				if(temp){
-					act_player->unequip(item);
-					win_output->print("Unequipped " + item->get_name());
-				} else {
-					win_output->print("Nevermind");
-					return false;
-				}
-			}
-			
-			act_player->equip(item, slot);
-			win_output->print("Equipped " + item->get_name());
-		}
-	}
-}
-
-bool UI::command_unequip(){
-
-    argmap * args = new argmap();
-    args->add_int(ARG_TARGET_NUMBER, 1);
-    args->add_int(ARG_TARGET_GOLDOK, 0);
-    vector<requirement*> * reqs = new vector<requirement*>();
     
-	object * item = get_single(prompt_inventory("Unequip what?", args, reqs) );
-	
-	if(item != NULL){
-		
-		if(item->equipped){
-			act_player->unequip(item);
-			win_output->print("Unequipped " + item->get_name());
-			return true;
-		} else {
-			win_output->print("That item is not equipped.");
-			return false;
-		}
-	} else {
-		win_output->print("Nevermind...");
-	}
-}
-
-bool UI::command_eat() {
-
-    argmap * args = new argmap();
-    args->add_int(ARG_TARGET_NUMBER, 1);
-    args->add_int(ARG_TARGET_GOLDOK, 0);
-    vector<requirement*> * reqs = new vector<requirement*>();
-	
-    object * item = get_single( prompt_inventory("Eat what?", args, reqs));
-	if(item != NULL){
-
-		act_player->eat(item);
-	} else {
-		win_output->print("Nevermind...");
-	}
-}
-
-bool UI::command_drink(){
-	
-    argmap * args = new argmap();
-    args->add_int(ARG_TARGET_NUMBER, 1);
-    args->add_int(ARG_TARGET_GOLDOK, 0);
-    vector<requirement*> * reqs = new vector<requirement*>();
-	object * item = get_single( prompt_inventory("Drink what?", args, reqs));
-	
-	if(item != NULL){
-		
-		act_player->drink(item);
-	} else {
-		win_output->print("Nevermind...");
-	}
-}
-
-bool UI::command_read(){
-	
-    argmap * args = new argmap();
-    args->add_int(ARG_TARGET_NUMBER, 1);
-    args->add_int(ARG_TARGET_GOLDOK, 0);
-    vector<requirement*> * reqs = new vector<requirement*>();
-	object * item = get_single( prompt_inventory("Read what?", args, reqs) );
-	
-	if(item != NULL){
-		
-		act_player->read(item);
-	} else {
-		win_output->print("Nevermind...");
-	}
-}
-
-bool UI::command_use(){
-	
-    argmap * args = new argmap();
-    args->add_int(ARG_TARGET_NUMBER, 1);
-    args->add_int(ARG_TARGET_GOLDOK, 0);
-    vector<requirement*> * reqs = new vector<requirement*>();
-	object * item = get_single( prompt_inventory("Use what?", args, reqs) );
-	
-	if(item != NULL){
-		
-		act_player->use(item);
-	} else {
-		win_output->print("Nevermind...");
-	}
+    return false;
 }
 
 bool UI::command_quit() {
@@ -435,37 +203,49 @@ vector<void*> * UI::prompt_target(targetActionBlock * in) {
     switch (in->target_type) {
     
         case TAR_SELF:
-            r = new vector<void*>();
-            r->push_back((void*)prompt_self(in->requirements));
+            tile_vect = target_self(act_player);
             break;
         case TAR_ADJ:
             tile_vect = prompt_adjacent(in->prompt, in->args, in->requirements);
-            if (in->args->get_int(ARG_TARGET_ENTITY_TYPE) == ENT_TYPE_FEATURE) {
-                r = (vector<void*>*)extract_features(tile_vect);
-            }
-            break;
-        case TAR_INV:
-            r = (vector<void*>*)prompt_inventory(in->prompt, in->args, in->requirements);
             break;
         case TAR_NONE:
         default:
             break;
     
     }
+    
+    if (tile_vect == NULL) return NULL;
+    
+    if (in->extract_type == EXT_ACTOR) {
+    
+        r = (vector<void*>*)extract_actors(tile_vect);
+    } if (in->extract_type == EXT_OBJECTS) {
+    
+        r = (vector<void*>*)prompt_objects(in->prompt, extract_objects(tile_vect), in->args, in->requirements);
+        in->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
+    } else if (in->extract_type == EXT_INVENTORY) {
+    
+        if (tile_vect->size() == 1 && tile_vect->back()->my_actor == act_player) {
+            r = (vector<void*>*)prompt_inventory(in->prompt, in->args, in->requirements);
+        } else {
+            r = (vector<void*>*)prompt_objects(in->prompt, extract_inventories(tile_vect), in->args, in->requirements);
+        }
+        window::display_all();
+        in->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
+    } else if (in->extract_type == EXT_FEATURE) {
+    
+        r = (vector<void*>*)extract_features(tile_vect);
+        in->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_FEATURE);
+    }
 
     return r;
 }
 
-// Get the currently controlled player
-actor * UI::prompt_self(vector<requirement*> * reqs) {
+vector<tile*> * UI::target_self(actor * agent) {
 
-    actor * selected = act_player;
-    
-    if (!requirement::check_requirements_for(act_player, reqs)) {
-        selected = NULL;
-    }
-    
-    return selected;
+    vector<tile*> * r = new vector<tile*>();
+    r->push_back(&(agent->current_map->tiles[agent->x][agent->y]));
+    return r;
 }
 
 vector<tile*> * UI::prompt_adjacent(string prompt, argmap * args, vector<requirement*> * reqs) {
@@ -473,6 +253,11 @@ vector<tile*> * UI::prompt_adjacent(string prompt, argmap * args, vector<require
     vector<tile*> * r = new vector<tile*>();
     
     direction_t dir = prompt_direction(prompt);
+    if (dir == DIR_NULL) {
+        win_output->print(error_string[ERR_CANCELLED]);
+        return NULL;
+    }
+    
     std::pair<int, int> offset = dir_to_offset(dir);
     std::pair<int, int> cur = std::pair<int, int>(act_player->x + offset.first, act_player->y + offset.second);
     
@@ -492,19 +277,111 @@ vector<tile*> * UI::prompt_adjacent(string prompt, argmap * args, vector<require
     return r;
 }
 
-// Prompt the user for a letter to select an item. $ creates a gold object, * or ? opens
-// inventory for viewing (and multi-select, for now)
+vector<actor*> * UI::extract_actors(vector<tile*> * tiles) {
+    
+    vector<actor*> * r = new vector<actor*>();
+    
+    vector<tile*>::iterator it = tiles->begin();
+    for(; it != tiles->end(); ++it) {
+        if ((*it)->my_actor != NULL) {
+            r->push_back((*it)->my_actor);
+        }
+    }
+    
+    return r;
+}
+
+vector<object*> * UI::extract_objects(vector<tile*> * tiles) {
+    
+    vector<object*> * r = new vector<object*>();
+
+    vector<tile*>::iterator it = tiles->begin();
+    for(; it != tiles->end(); ++it) {
+        vector<object*>::iterator it2 = (*it)->my_objects->begin();
+        for(; it2 != (*it)->my_objects->end(); ++it2) {
+            r->push_back(*it2);
+        }
+    }
+    
+    return r;
+}
+
+vector<object*> * UI::extract_inventories(vector<tile*> * tiles) {
+    
+    vector<object*> * r = new vector<object*>();
+    
+    vector<tile*>::iterator it = tiles->begin();
+    for(; it != tiles->end(); ++it) {
+        if ((*it)->my_actor != NULL) {
+            actor * cur_act = (*it)->my_actor;
+            vector<object*>::iterator it2 = cur_act->inventory->begin();
+            for(; it2 != cur_act->inventory->end(); ++it2) {
+                r->push_back((*it2));
+            }
+        }
+    }
+    
+    return r;
+}
+
+vector<feature*> * UI::extract_features(vector<tile*> * tiles) {
+    
+    vector<feature*> * r = new vector<feature*>();
+    
+    vector<tile*>::iterator it = tiles->begin();
+    for(; it != tiles->end(); ++it) {
+        if ((*it)->my_feature != NULL) {
+            r->push_back((*it)->my_feature);
+        }
+    }
+    
+    return r;
+}
+
+vector<object*> * UI::prompt_objects(string prompt, vector<object*> * items, argmap * args, vector<requirement*> * reqs){
+
+	vector<object*> * ret = new vector<object*>();
+	if (items->size() <= 0) {
+        return ret;
+    }
+
+    bool gold_ok = (args->get_int(ARG_TARGET_GOLDOK) == 1);
+    int assume_threshold = args->get_int(ARG_TARGET_ASSUME);
+    
+    if (items->size() <= assume_threshold) {
+        for(int i = 0; i < assume_threshold && i < items->size(); ++i) {
+            ret->push_back(items->at(i));
+        }
+        return ret;
+    }
+    
+    flagset * flags = new flagset();
+    flags->add_flag(FLAG_MENU_SORT);
+	ret = menu_select_objects(win_screen, prompt, items, args, flags);
+	return ret;
+}
+
+// Prompt the player's inventory (special case because of letters)
 vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requirement*> * reqs){
 
 	int input;
+    vector<object*> * items = act_player->inventory;
 	vector<object*> * ret = new vector<object*>();
-	
+    if (items->size() <= 0) {
+        return ret;
+    }
+    
 	win_output->print(prompt);
     win_output->clear();
     win_output->print_buf(buf_main);
     break_buffer(buf_main);
     bool gold_ok = (args->get_int(ARG_TARGET_GOLDOK) == 1);
-    int max_selects = args->get_int(ARG_TARGET_NUMBER);
+    int assume_threshold = args->get_int(ARG_TARGET_ASSUME);
+    
+    if (items->size() <= assume_threshold) {
+        ret = items;
+        return ret;
+    }
     
 	while(true){
 		input = wgetch(stdscr);
@@ -516,7 +393,10 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
             }
 			return ret;
 		} else if(input == '*' || input == '?'){
-			ret = win_screen->menu_select_objects(prompt, act_player->inventory, max_selects, true);
+            flagset * flags = new flagset();
+            flags->add_flag(FLAG_MENU_SORT);
+            flags->add_flag(FLAG_MENU_PLAYER);
+			ret = menu_select_objects(win_screen, prompt, items, args, flags);
 			return ret;
 		} else if(input == 27){
 			return ret;
@@ -530,19 +410,133 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
 	}
 }
 
-// Extraction for prompts ====================================
+// Complex menus =============================================
 
-vector<feature*> * UI::extract_features(vector<tile*> * tile_vect) {
+/*
+    Menu for selecting a number of items from a set.
+    Uses special rules for when that set is the player's inventory, as in that case
+    we're using the letters attached to the objects to refer to them. In any other case,
+    we simply assign them letters in order.
+    
+    The selected array stores whether an item has been selected by the player. This letter
+    corresponds to the letter of the item in player mode, not necessarily its order in the list
+    since we're sorting things.
+*/
+vector<object*> * UI::menu_select_objects(window * win, string prompt, vector<object*> * in_items, argmap * args, flagset * flags){
 
-    vector<feature*> * r = new vector<feature*>();
-    for (int i = 0; i < tile_vect->size(); ++i) {
+	curs_set(0);
+	
     
-        if (tile_vect->at(i)->my_feature != NULL) {
-            r->push_back(tile_vect->at(i)->my_feature);
-        }
-    }
+    int start = 0, winsize = 10;
+	int x = 3, y = 3;
+    int max_select = args->get_int(ARG_TARGET_NUMBER);
+    int player_inv = flags->has_flag(FLAG_MENU_PLAYER);
     
-    return r;
+    const char sym[] = {'-', '+'};
+    int sel_size = (player_inv) ? max(INV_MAX, (int)(in_items->size())) : in_items->size();
+    bool selected[sel_size];
+    for(int i = 0; i < sel_size; ++i) selected[i] = 0;
+    vector<object*> * items = new vector<object*>();
+    (*items) = (*in_items);
+    
+    int sel_count = 0;
+	int input, headers;
+	vector<object*> * ret = new vector<object*>();
+	
+	if(flags->has_flag(FLAG_MENU_SORT)){
+		std::sort(items->begin(), items->end(), object::compare_type);
+	}
+	
+	while(true){
+	
+		clear();
+		printcolor(x, y, prompt);
+		headers = 1;
+        
+		for(int i = start; i - start < winsize && i < items->size(); ++i){
+		
+			if(flags->has_flag(FLAG_MENU_SORT) && (i == start || items->at(i)->get_type() != items->at(i-1)->get_type())) {
+				//We need to print a header
+				printcolor(x, y + i + headers++ - start, color_string(str_obj_type[items->at(i)->get_type()], C_YELLOW));
+			}
+            char sel_symb;
+            string to_print = "";
+            if (player_inv) {
+                sel_symb = sym[selected[letter_to_int(items->at(i)->letter)]];
+                to_print = to_print + (char)(items->at(i)->letter) + " " + sel_symb + " " + items->at(i)->get_name();
+            } else {
+                sel_symb = sym[selected[i]];
+                to_print = to_print + int_to_letter(i) + " " + sel_symb + " " + items->at(i)->get_name();
+            }
+
+            printcolor(x, y + (i - start) + headers, to_print);
+		}
+		
+		input = wgetch(stdscr);
+		
+		if((input >= 'a' && input <= 'z') || (input >= 'A' && input <= 'Z')){
+		
+            if(max_select == 1) {
+                // With no multi select, return immediately        
+                if (player_inv) {
+                    int num = letter_to_int(input);
+                    if (num != -1 && obj_letter[num] != NULL) {
+                        ret->push_back(obj_letter[num]);
+                    }
+                } else {
+                    int num = letter_to_int(input) + start;
+                    if (num < items->size()) {
+                        ret->push_back(items->at(num));
+                    }
+                }
+                return ret;
+            } else if (max_select == -1 || max_select > sel_count) {
+                // Toggle selection for this letter, and update count
+                int to_add;
+                to_add = letter_to_int(input) + start;
+                
+                if (to_add != -1) {
+                    sel_count += (selected[to_add]) ? -1 : 1;
+                    selected[to_add] = !selected[to_add];
+                }
+            }
+		} else {
+		
+            if (player_inv) {
+                for(int i = 0; i < items->size(); ++i) {
+                    if (selected[letter_to_int(items->at(i)->letter)]) {
+                        ret->push_back(items->at(i));
+                    }
+                }
+            } else {
+                for(int i = 0; i < items->size(); ++i) {
+                    if (selected[i]) {
+                        ret->push_back(items->at(i));
+                    }
+                }
+            }
+            
+			switch(input){
+				case 10:			
+					return ret;
+				case 27:
+					return ret;
+				case KEY_UP:
+					if(start > 0)
+						start -= 1;
+					break;
+				case KEY_DOWN:
+					if(start + winsize < items->size())
+						start += 1;
+					break;
+				default:
+					break;
+			}
+		}
+		
+	}
+		
+	curs_set(1);
 }
 
 // Simple prompts ============================================
@@ -591,15 +585,13 @@ direction_t UI::prompt_direction(string prompt) {
     win_output->print_buf(buf_main);
     break_buffer(buf_main);
     
-    int input = 0;
-    
-    while (input == 0) {
-        input = wgetch(stdscr);
+    int input = wgetch(stdscr);
         
-        if (direction_key->count(input) != 0) {
-            return direction_key->at(input);
-        }
+    if (direction_key->count(input) != 0) {
+        return direction_key->at(input);
     }
+    
+    return DIR_NULL;
 }
 
 // UTILITIES =======================================
@@ -662,48 +654,9 @@ int UI::letter_to_int(char in){
 char UI::get_next_letter(){
 
 	int i;
-	for(i = 0; obj_letter[i] != NULL && i < 52; ++i);
+	for(i = 0; obj_letter[i] != NULL && i < INV_MAX; ++i);
 	
-	if(i == 52) return 0;
+	if(i == INV_MAX) return 0;
 	
 	return int_to_letter(i);
-}
-
-int UI::type_to_slot(int type, int subtype){
-	if(type == OT_WEAPON){
-		return ES_MAINHAND;
-	} else if(type == OT_ARMOR){
-		switch(subtype){
-			case OST_HAT:
-			case OST_HELM:
-				return ES_HEAD;
-			case OST_SUIT:
-				return ES_BODY;
-			case OST_CLOAK:
-				return ES_BACK;
-			case OST_GLOVES:
-				return ES_HANDS;
-			case OST_BOOTS:
-				return ES_FEET;
-			default:
-				return -1;
-		}
-	} else if(type == OT_ACCESSORY){
-		switch(subtype){
-			case OST_RING:
-				return ES_RING1;
-			case OST_AMULET:
-				return ES_AMULET;
-			default:
-				return -1;
-		}
-	} else if(type == OT_TOOL){
-		switch(subtype){
-			case OST_LAMP:
-				return ES_LIGHT;
-			default:
-				return -1;
-		}
-	} else
-		return -1;
 }

@@ -31,7 +31,7 @@ class action;
 
 // =====================================
 
-#define MAX_INVENTORY 48
+#define INV_MAX 52
 
 /*
 int map_id = 1;

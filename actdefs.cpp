@@ -15,6 +15,8 @@ void define_actors(){
 	aclass[c]->add_stat(ASTAT_MIND, 5);	
 	aclass[c]->add_flag(FLAG_ACT_CAN_WALK);
     aclass[c]->add_action(ACTION_WALK_BASIC);
+    aclass[c]->add_action(ACTION_TAKE_BASIC);
+    aclass[c]->add_action(ACTION_DROP_BASIC);
     aclass[c]->add_action(ACTION_EAT_BASIC);
     aclass[c]->add_action(ACTION_DRINK_BASIC);
     aclass[c]->add_action(ACTION_OPEN_BASIC);
@@ -28,6 +30,8 @@ void define_actors(){
 	aclass[c]->add_stat(ASTAT_MIND, 2);
     aclass[c]->add_flag(FLAG_ACT_CAN_WALK);
     aclass[c]->add_action(ACTION_WALK_BASIC);
+    aclass[c]->add_action(ACTION_TAKE_BASIC);
+    aclass[c]->add_action(ACTION_DROP_BASIC);
     aclass[c]->add_action(ACTION_OPEN_BASIC);
     aclass[c]->add_action(ACTION_CLOSE_BASIC);
     aclass[c]->add_action(ACTION_STRIKE);

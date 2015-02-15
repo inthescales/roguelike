@@ -13,8 +13,8 @@ class feature : public mapentity {
 
     featclass * get_class();
     
-    bool can_open();
-    bool can_close();
+    int can_open();
+    int can_close();
 };
 
 #endif

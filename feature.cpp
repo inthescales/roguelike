@@ -1,3 +1,4 @@
+#include "error.h"
 #include "featclass.h"
 #include "feature.h"
 #include "globals.h"
@@ -22,25 +23,22 @@ featclass * feature::get_class(){
     return (featclass *)entity::get_class();
 }
 
-bool feature::can_open() {
+int feature::can_open() {
 
-    bool test = has_state(STATE_FEAT_OPEN);
-    bool test2 = has_state(STATE_FEAT_CLOSED);
-    
     if (has_state(STATE_FEAT_OPEN) &&
         has_flag(FLAG_FEAT_CAN_OPEN)) {
-        return true;
+        return ERR_NONE;
     }
     
-    return false;
+    return ERR_CANT_OPEN;
 }
 
-bool feature::can_close() {
+int feature::can_close() {
 
     if (has_state(STATE_FEAT_CLOSED) &&
         has_flag(FLAG_FEAT_CAN_CLOSE)) {
-        return true;
+        return ERR_NONE;
     }
     
-    return false;
+    return ERR_CANT_CLOSE;
 }

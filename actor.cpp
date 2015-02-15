@@ -1,6 +1,7 @@
 #include "action.h"
 #include "actor.h"
 #include "actclass.h"
+#include "error.h"
 #include "feature.h"
 #include "flagset.h"
 #include "globals.h"
@@ -251,11 +252,8 @@ bool actor::execute_action(action * in, argmap * args, bool get_targets) {
         cur_agent = args->get_actor(ARG_ACTION_AGENT);
         cur_patient = args->get_vector(ARG_ACTION_PATIENT);
         cur_instrument = args->get_vector(ARG_ACTION_INSTRUMENT);
-        tile * test = (tile *)args->get_vector(ARG_ACTION_PATIENT)->front();
-        int x = 4;
     }
-    
-    actor * temp;
+
     // Process each block in the action in order
     for (int i = 0; i < in->blocks->size(); ++i) {
     
@@ -276,6 +274,10 @@ bool actor::execute_action(action * in, argmap * args, bool get_targets) {
             case TARGET_BLOCK:
                 if (get_targets) {
                     nvect = select_target((targetActionBlock *)curBlock);
+                    if (nvect == NULL) {
+                        // Some error happened in targeting - we can't continue
+                        return false;
+                    }
                     switch(((targetActionBlock *)curBlock)->position) {
                     
                         case ACTROLE_PATIENT:
@@ -408,20 +410,107 @@ bool actor::pick_up(object * target) {
     return pick_up(target, current);
 }
 
-// Drop an object on the ground
-bool actor::drop(object * target, tile * place){
-	
-	remove_object(target);
-	place->get_object(target);
-	
-	return true;
+bool actor::drop(object * item){
+
+    if (item->equipped) {
+        win_output->print("That item is equipped.");
+        bool uneq = UI::prompt_yesno("Unequip it?");
+        if (uneq) {
+            int err = can_unequip(item);
+            if (err == ERR_NONE) {
+                unequip(item);
+            } else {
+                win_output->print(error_string[err]);
+            }
+        } else {
+            win_output->print(error_string[ERR_CANCELLED]);
+            return false;
+        }
+    }
+
+    tile * current = &(current_map->tiles[x][y]);
+    remove_object(item);
+    current->get_object(item);
+}
+
+int actor::pick_slot_for(object * item) {
+
+    int type = item->get_class()->type;
+    int subtype = item->get_class()->subtype;
+    
+    if(type == OT_WEAPON){
+		return ES_MAINHAND;
+	} else if(type == OT_ARMOR){
+		switch(subtype){
+			case OST_HAT:
+			case OST_HELM:
+				return ES_HEAD;
+			case OST_SUIT:
+				return ES_BODY;
+			case OST_CLOAK:
+				return ES_BACK;
+			case OST_GLOVES:
+				return ES_HANDS;
+			case OST_BOOTS:
+				return ES_FEET;
+			default:
+				return -1;
+		}
+	} else if(type == OT_ACCESSORY){
+		switch(subtype){
+			case OST_RING:
+				return ES_RING1;
+			case OST_AMULET:
+				return ES_AMULET;
+			default:
+				return -1;
+		}
+	} else if(type == OT_TOOL){
+		switch(subtype){
+			case OST_LAMP:
+				return ES_LIGHT;
+			default:
+				return -1;
+		}
+	} else {
+		return -1;
+    }
+}
+
+bool actor::equip(object * item) {
+
+    equip(item, pick_slot_for(item));
 }
 
 // Equip an object
 bool actor::equip(object * item, int slot){
 
-	equipped_item[slot] = item;
-	item->equipped = 1;
+    if(slot == ES_RING1 && equipped_item[ES_RING1] != NULL){
+        slot = ES_RING2;
+    }
+    
+    object * old_item = act_player->equipped_item[slot];
+    if(this == act_player && old_item != NULL){
+        bool temp = UI::prompt_yesno("Replace " + old_item->get_name() + "?");
+        if(temp){
+            int err = can_unequip(old_item);
+            if (err != ERR_NONE) {
+                act_player->unequip(old_item);
+            } else {
+                win_output->print(error_string[err]); // Consider moving this to error.cpp
+            }
+        } else {
+            return ERR_CANCELLED;
+        }
+    }
+    
+	do_equip(item, slot);
+    
+    if (this == act_player) {
+        win_output->print("You equip the " + item->get_name_color());
+    } else {
+        win_output->print("The " + get_name_color() + " equips the " + item->get_name_color());
+    }
 }
 
 // Unequip an object
@@ -431,8 +520,14 @@ bool actor::unequip(object * item){
 		
 		if(equipped_item[i] == item){
 		
-			equipped_item[i] = NULL;
-			item->equipped = 0;
+            do_unequip(item, i);
+            
+            if (this == act_player) {
+                win_output->print("You unequip the " + item->get_name_color());
+            } else {
+                win_output->print("The " + get_name_color() + " unequips the " + item->get_name_color());
+            }
+            
 			return true;
 		}
 	}
@@ -576,103 +671,164 @@ bool actor::remove_object(object * item){
 	return true;
 }
 
-// Print a descriptive string. The format depends on whether
-// the actor is the player or not.
-void actor::print(string a, string b){
-	
-	if(this == act_player)
-		win_output->print(a);
-	else
-		win_output->print(b);
+// Equip object and manage state
+void actor::do_equip(object * item, int slot) {
+
+    equipped_item[slot] = item;
+	item->equipped = true;
 }
+
+// Unequip object and manage state
+void actor::do_unequip(object * item, int slot) {
+	
+    equipped_item[slot] = NULL;
+	item->equipped = 0;
+}
+
+// REQUIREMENT FUNCTIONS =========================================
 
 // Returns true if this actor is able to enter the tile
-bool actor::can_travel(tile * t) {
+int actor::can_travel(tile * t) {
 
-    return can_walk(t) || can_swim(t) || can_fly(t);
+    if (can_walk(t) || can_swim(t) || can_fly(t)) {
+        return ERR_NONE;
+    } else {
+        return ERR_SILENT;
+    }
 }
 
-bool actor::can_walk(tile * t) {
+int actor::can_walk(tile * t) {
 
     feature * feat = t->my_feature;
     if (t->my_actor == NULL && has_flag(FLAG_ACT_CAN_WALK) && t->has_flag(FLAG_TILE_CAN_WALK) && !(feat && feat->has_flag(FLAG_FEAT_NO_WALK))){
-        return true;
+        return ERR_NONE;
     }
     
-    return false;
+    return ERR_SILENT;
 }
 
-bool actor::can_swim(tile * t) {
+int actor::can_swim(tile * t) {
 
     feature * feat = t->my_feature;
     if (t->my_actor == NULL && has_flag(FLAG_ACT_CAN_SWIM) && t->has_flag(FLAG_TILE_CAN_SWIM) && !(feat && feat->has_flag(FLAG_FEAT_NO_SWIM))){
-        return true;
+        return ERR_NONE;
     }
     
-    return false;
+    return ERR_SILENT;
 }
 
-bool actor::can_fly(tile * t) {
+int actor::can_fly(tile * t) {
 
     feature * feat = t->my_feature;
     if (t->my_actor == NULL && has_flag(FLAG_ACT_CAN_FLY) && t->has_flag(FLAG_TILE_CAN_FLY) && !(feat && feat->has_flag(FLAG_FEAT_NO_FLY))){
-        return true;
+        return ERR_NONE;
     }
-    return false;
+    return ERR_SILENT;
 }
 
-// TODO - check whether item is in an inventory?
-bool actor::can_take(object * obj) {
+int actor::can_take(object * obj) {
     
+    bool ok = false;
 	vector<object*>::iterator it = inventory->begin();
 	
 	for(; it != inventory->end(); ++it) {
 	
         if (object::can_stack(*it, obj)) {
-            return true;
+            ok = true;
         }
 	}
 
-    if(inventory->size() >= MAX_INVENTORY) {
-		return false;
+    if(!ok && inventory->size() < INV_MAX) {
+		ok = true;
 	}
     
-    return true;
+    if (!ok) {
+        if (this == act_player) {
+            return ERR_CANT_CARRY;
+        } else {
+            return ERR_SILENT;
+        }
+    } else {
+        return ERR_NONE;
+    }
+}
+
+int actor::can_drop(object * obj) {
+
+    return ERR_NONE;
+}
+
+int actor::can_equip(object * obj) {
     
+    int slot = pick_slot_for(obj);
+
+    if (this == act_player) {
+        if (slot == -1) {
+            return ERR_CANT_EQUIP;
+        } else if (obj->equipped) {
+            return ERR_ALREADY_EQUIPPED;
+        }
+    } else {
+        if (slot == -1 || obj->equipped) {
+            return ERR_SILENT;
+        }
+    }
+    
+    return ERR_NONE;
 }
 
-bool actor::can_eat(object * obj) {
-
-    return obj->get_class()->type == OT_FOOD;
+int actor::can_unequip(object * obj) {
+    
+    bool ok = obj->equipped;
+    if (!ok && this == act_player) {
+        return ERR_NOT_EQUIPPED;
+    }
+    
+    return ERR_NONE;
 }
 
-bool actor::can_drink(object * obj) {
+int actor::can_eat(object * obj) {
 
-    return obj->get_class()->type == OT_DRINK;
+    bool ok = obj->get_class()->type == OT_FOOD;
+    
+    if (!ok && this == act_player) {
+        return ERR_CANT_EAT;
+    }
+    
+    return ERR_NONE;
 }
 
-bool actor::can_open(feature * feat) {
+int actor::can_drink(object * obj) {
+
+    bool ok = obj->get_class()->type == OT_DRINK;
+    
+    if (!ok && this == act_player) {
+        return ERR_CANT_DRINK;
+    }
+    
+    return ERR_NONE;
+}
+
+int actor::can_open(feature * feat) {
 
     return feat->can_open();
 }
 
-bool actor::can_close(feature * feat) {
+int actor::can_close(feature * feat) {
 
     return feat->can_close();
 }
 
-bool actor::can_strike(actor * actor) {
+int actor::can_strike(actor * actor) {
 
-    int ok = true;
+    if (equipped_item[ES_MAINHAND] == NULL) {
+        return ERR_SILENT;
+    }
     
-    if (equipped_item[ES_MAINHAND] == NULL) ok = false;
-    
-    return ok;
+    return ERR_NONE;
 }
 
-bool actor::can_punch(actor * actor) {
-
-    int ok = true;
-    
-    return ok;
+int actor::can_punch(actor * actor) {
+  
+    return ERR_NONE;
 }

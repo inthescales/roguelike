@@ -51,6 +51,8 @@ glyph tile::get_display_glyph() {
 
 bool tile::get_object(object * in) {
     
+    in->x = x;
+    in->y = y;
     my_objects->push_back(in);
     
     return true;

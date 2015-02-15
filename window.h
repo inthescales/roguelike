@@ -28,6 +28,7 @@ class window{
 	void display_inventory(actor &, string prompt);
 	void display_equipment(actor &);
 	void display_conditions(actor *);
+    static void display_all();
     
     // Text output
 	void print(string);
@@ -36,9 +37,6 @@ class window{
 	void print_buf(buffer *);
 	void print_line(string, int);
     void print_error(string);
-    
-    // Display menus
-	vector<object*> * menu_select_objects(string, vector<object*> *, int, bool);
 	
 	int x, y, width, height;
 

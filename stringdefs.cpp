@@ -5,10 +5,10 @@ using std::string;
 string str_obj_type[] = 
 {
 	"food",
+    "drink",
 	"weapon",
 	"armor",
 	"accessory",
-	"potion",
 	"scroll",
 	"wand",
 	"tool",

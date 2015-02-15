@@ -21,7 +21,7 @@ condclass * cclass[COND_MAX];
 action * actiondef[ACTION_MAX];
 symbol_code symboldef[CHAR_MAX];
 
-object * obj_letter[52];
+object * obj_letter[INV_MAX];
 
 window * win_output;
 window * win_world;

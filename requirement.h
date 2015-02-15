@@ -16,7 +16,12 @@ enum requirement_t {
     REQ_STAT_EQUALS,
     REQ_STAT_GREATER_THAN,
     REQ_STAT_LESS_THAN, // ^^^
+    REQ_ACTOR_HAS_ITEMS, // vvv - checks for general actor info
     REQ_ACTOR_CAN_HOLD, // vvv - checks for actor capabilities
+    REQ_ACTOR_CAN_TAKE,
+    REQ_ACTOR_CAN_DROP,
+    REQ_ACTOR_CAN_EQUIP,
+    REQ_ACTOR_CAN_UNEQUIP,
     REQ_ACTOR_CAN_WALK,
     REQ_ACTOR_CAN_SWIM,
     REQ_ACTOR_CAN_FLY,

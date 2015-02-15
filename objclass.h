@@ -5,6 +5,7 @@
 #include "display.h"
 #include "enums.h"
 #include "glyph.h"
+#include "object.h"
 #include "mapentityclass.h"
 
 #include <utility>

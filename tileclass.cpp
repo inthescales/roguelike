@@ -3,6 +3,7 @@
 
 // Setup and teardown ============================
 
-tileclass::tileclass(symbol_code s, colorName c) {
+tileclass::tileclass(string nname, symbol_code s, colorName c) {
+    name = nname;
     my_glyph = glyph(s, c);
 }

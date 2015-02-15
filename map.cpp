@@ -48,7 +48,7 @@ void map::add_actor( int x, int y, short code ){
 }
 
 // TODO - separate out these errors
-void map::put_actor( int x, int y, actor * n){
+void map::put_actor( int x, int y, actor * act){
 
 	if( tiles[x][y].my_actor != NULL ) {
 		move(2, 2);
@@ -57,10 +57,11 @@ void map::put_actor( int x, int y, actor * n){
 		exit(0);
 	}
 
-	n->x = x;
-	n->y = y;
-	tiles[x][y].my_actor = n;
-    n->queue_turn(0);
+    tiles[x][y].my_actor = act;
+	act->x = x;
+	act->y = y;
+    act->current_map = this;
+    act->queue_turn(0);
 }
 
 // put something to do this in the actor's destructor
@@ -91,6 +92,9 @@ void map::add_object(int x, int y, short code ){
 
 void map::put_object(int x, int y, object * obj) {
     tiles[x][y].my_objects->push_back(obj);
+    obj->x = x;
+    obj->y = y;
+    obj->current_map = this;
 }
 
 void map::add_feature(int x, int y, short code ){
@@ -99,6 +103,9 @@ void map::add_feature(int x, int y, short code ){
 
 void map::put_feature( int x, int y, feature * feat){
 	tiles[x][y].my_feature = feat;
+    feat->x = x;
+    feat->y = y;
+    feat->current_map = this;
 }
 
 //===============================================

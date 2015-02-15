@@ -18,42 +18,6 @@ enum equip_slot {
 	ES_MAX
 };
 
-//Item types
-enum object_type {
-	OT_FOOD = 0,
-    OT_DRINK,
-	OT_WEAPON,
-	OT_ARMOR,
-	OT_ACCESSORY,
-	OT_SCROLL,
-	OT_WAND,
-	OT_TOOL,
-	OT_TREASURE,
-	OT_MISC
-};
-
-//Item subtypes
-enum object_subtype {
-	OST_FOOD = 0,
-    OST_POTION,
-	OST_SWORD,
-	OST_KNIFE,
-	OST_SPEAR,
-	OST_AXE,
-	OST_MACE,
-	OST_BOW,
-	OST_HAT,
-	OST_HELM,
-	OST_SUIT,
-	OST_GLOVES,
-	OST_BOOTS,
-	OST_CLOAK,
-	OST_RING,
-	OST_AMULET,
-	OST_LAMP,
-	OST_COIN
-};
-
 //Color IDs
 enum colorName {
 	C_BLACK = 0,
@@ -112,30 +76,6 @@ enum trigger_t {
     TRG_TILE_WALK_IN,
     TRG_TILE_SWIM_IN,
     TRG_TILE_FLY_IN
-};
-
-//Effect radii (patterns of tiles they affect)
-enum radius_t {
-    RAD_NONE = 0,
-	RAD_SINGLE
-};
-
-//The actual effect that occurs
-enum effect_t {
-    EFF_TURN = 0,
-    EFF_WALK,
-    EFF_SWIM,
-    EFF_FLY,
-    EFF_PICK_UP,
-    EFF_EAT,
-    EFF_DRINK,
-    EFF_STRIKE,
-    EFF_PUNCH,
-    EFF_COND_TIMEOUT,
-	EFF_EAT_BREAD,
-    EFF_DRINK_WATER,
-    EFF_FEAT_OPEN,
-    EFF_FEAT_CLOSE
 };
 
 //Condition stacking policies

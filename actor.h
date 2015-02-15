@@ -51,11 +51,8 @@ class actor : public mapentity {
     string get_name();
     string get_name_color();
     vector<int> * get_actions();
-    vector<int> * get_actions_for(actionPurpose_t);
-        
-    // Display
-	void print(string, string);
-    
+    vector<int> * get_actions_for(actionPurpose_t);        
+
     // Effects
     void resolve_trigger(trigger_t, argmap *);
     
@@ -69,6 +66,8 @@ class actor : public mapentity {
     // State management
     void get_object(object *);
 	bool remove_object(object * item);
+    void do_equip(object *, int);
+    void do_unequip(object *, int);
     
     // Actions
     int take_turn();
@@ -83,7 +82,9 @@ class actor : public mapentity {
     void fly(tile *);
 	bool pick_up(object *, tile *);
     bool pick_up(object *);
-	bool drop(object *, tile*);
+	bool drop(object *);
+    int pick_slot_for(object *);
+    bool equip(object *);
 	bool equip(object *, int);
 	bool unequip(object *);
 	bool eat(object *);
@@ -95,20 +96,20 @@ class actor : public mapentity {
     bool strike(actor *);
     bool punch(actor *);
     
-	//void open(int, int);
-	//void close(int, int);
-    
-    bool can_travel(tile *);
-    bool can_walk(tile*);
-    bool can_swim(tile*);
-    bool can_fly(tile*);
-    bool can_eat(object *);
-    bool can_drink(object *);
-    bool can_take(object *);
-    bool can_open(feature *);
-    bool can_close(feature *);
-    bool can_strike(actor *);
-    bool can_punch(actor *);
+    int can_travel(tile *);
+    int can_walk(tile*);
+    int can_swim(tile*);
+    int can_fly(tile*);
+    int can_take(object *);
+    int can_drop(object *);
+    int can_equip(object *);
+    int can_unequip(object *);
+    int can_eat(object *);
+    int can_drink(object *);
+    int can_open(feature *);
+    int can_close(feature *);
+    int can_strike(actor *);
+    int can_punch(actor *);
 };
 
 #endif
