@@ -16,6 +16,7 @@
 #include LIB_CURSES
 
 #include <algorithm>
+#include <iterator>
 #include <stack>
 
 using std::stack;
@@ -43,17 +44,26 @@ void window::clear(){
 // Display a map
 void window::display_map(map * m){
 
-	for(int i = 0; i < height; ++i){
-	
-		move(i + y, x);
-		for(int j = 0; j < width; ++j){
-		
-            if (i + scrn_y < m->height && j + scrn_x < m->width) {
-                tile * cur = &(m->tiles[j + scrn_x][i + scrn_y]);
-                printglyph(cur->get_display_glyph());
-            }
-		}
-	}
+    if (cur_seen_tiles == NULL) {
+        // Something went wrong
+        return;
+    }
+    
+    set<tile*> * to_draw;
+    if (last_seen_tiles == NULL) {
+        // First time, draw what we can see now
+        to_draw = new set<tile*>(*cur_seen_tiles);
+    } else {
+        to_draw = new set<tile*>();
+        std::set_union(last_seen_tiles->begin(), last_seen_tiles->end(),
+                       cur_seen_tiles->begin(), cur_seen_tiles->end(),
+                       std::inserter(*to_draw, to_draw->begin()));
+    }
+    set<tile*>::iterator it = to_draw->begin();
+    for(; it != to_draw->end(); ++it) {
+        move(y + (*it)->y, x + (*it)->x);
+        printglyph((*it)->get_display_glyph());
+    }
 }
 
 // Display player's status
@@ -176,6 +186,13 @@ void window::display_all() {
     win_status->display_status();
     win_output->clear();
     win_output->print_buf(buf_main);
+    center_cursor();
+}
+
+void window::center_cursor() {
+    int x = win_world->x + act_player->x;
+    int y = win_world->y + act_player->y;
+    move(y, x);
 }
 
 // Text output ================================================

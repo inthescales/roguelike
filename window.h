@@ -29,6 +29,7 @@ class window{
 	void display_equipment(actor &);
 	void display_conditions(actor *);
     static void display_all();
+    static void center_cursor();
     
     // Text output
 	void print(string);
