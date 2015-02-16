@@ -1,4 +1,5 @@
 #include "actor.h"
+#include "color.h"
 #include "object.h"
 #include "feature.h"
 #include "globals.h"
@@ -58,7 +59,7 @@ glyph tile::get_display_glyph() {
     
     if (!seen) {
         // If we've seen this tile but it's not in view, print in gray
-        ret.color = C_GRAY;
+        ret.color = color::get_grayed(ret.color);
     }
     
     return ret;

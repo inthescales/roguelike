@@ -47,16 +47,18 @@ void printchar_cw(symbol_code s) {
 void printchar_cw(symbol_code sym, colorName color) {
 
 #if DISPLAY_TYPE == DISPLAY_CURSES
-  attron(COLOR_PAIR(get_color(color)));
-  if (get_bold(color)) attron(A_BOLD);
+  attron(COLOR_PAIR(color::get_pair(color)));
+  if (color::get_bold(color)) attron(A_BOLD);
+  if (color::get_blink(color)) attron(A_BLINK);
   addch(sym);
-  attroff(COLOR_PAIR(get_color(color)));
-  if (get_bold(color)) attroff(A_BOLD);
+  attroff(COLOR_PAIR(color::get_pair(color)));
+  if (color::get_bold(color)) attroff(A_BOLD);
+  if (color::get_blink(color)) attroff(A_BLINK);
 #elif DISPLAY_TYPE == DISPLAY_WCURSES
   cchar_t cc;
   wchar_t wc = sym;
-  long col = get_color(color);
-  long attr = get_attr(color);
+  long col = color::get_pair(color);
+  long attr = color::get_attr(color);
 
   setcchar(&cc, &wc, attr, col, NULL);
   add_wch(&cc);

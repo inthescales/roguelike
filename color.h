@@ -1,10 +1,16 @@
+#ifndef COLOR_H
+#define COLOR_H
+
 #include "enums.h"
 
-// Returns color pair corresponding to color name
-long get_color(short colorName);
+class color {
+    public:
+    
+    static short get_pair(short);
+    static colorName get_grayed(short);
+    static bool get_bold(short);
+    static bool get_blink(short);
+    static int get_attr(short);
+};
 
-// Returns the color pair component of a color
-bool get_bold(short colorName);
-
-// Returns attributes needed for a color
-int get_attr(short colorName);
+#endif
