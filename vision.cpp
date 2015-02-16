@@ -16,17 +16,19 @@ int multipliers[4][8] = {
 
 bool vision::run_player_vision() {
 
-    vector<tile*> * tiles = tiles_in_view(act_player);
+    set<tile*> * tiles = tiles_in_view(act_player);
     
-    vector<tile*>::iterator it = tiles->begin();
-    for(; it != tiles->end(); ++it) {
-        (*it)->known = (*it)->seen = true;
-    }
+    last_seen_tiles = cur_seen_tiles;
+    cur_seen_tiles = tiles;
+        
+    update_seen();
+    
+    return true;
 }
 
-vector<tile*> * vision::tiles_in_view(actor * act) {
+set<tile*> * vision::tiles_in_view(actor * act) {
 
-    vector<tile*> * ret = new vector<tile*>();
+    set<tile*> * ret = new set<tile*>();
     
 #if FOV_ALGORITHM == FOV_SHADOW
     ret = tiles_shadow(act);
@@ -35,22 +37,22 @@ vector<tile*> * vision::tiles_in_view(actor * act) {
     return ret;
 }
 
-vector<tile*> * vision::tiles_shadow(actor * act) {
+set<tile*> * vision::tiles_shadow(actor * act) {
 
     map * m = act->current_map;
     int radius = act->get_stat(ASTAT_VISION_RANGE);
-    vector<tile*> * ret = new vector<tile*>();
+    set<tile*> * ret = new set<tile*>();
     
     if (radius >= 1) {
-        ret->push_back(&m->tiles[act->x][act->y]);
+        ret->insert(&m->tiles[act->x][act->y]);
     }
     if (radius > 1) {
         
         for (uint i = 0; i < 8; i++) {
-            vector<tile*> * temp;
+            set<tile*> * temp;
             temp = cast_light(m, act->x, act->y, radius, 1, 1.0, 0.0, multipliers[0][i],
                    multipliers[1][i], multipliers[2][i], multipliers[3][i]);
-            ret->insert(ret->end(), temp->begin(), temp->end());
+            ret->insert(temp->begin(), temp->end());
         }
     }
     
@@ -58,11 +60,11 @@ vector<tile*> * vision::tiles_shadow(actor * act) {
 }
 
 
-vector<tile*> * vision::cast_light(map * m, uint x, uint y, uint radius, uint row,
+set<tile*> * vision::cast_light(map * m, uint x, uint y, uint radius, uint row,
         float start_slope, float end_slope, uint xx, uint xy, uint yx,
         uint yy) {
         
-    vector<tile*> * ret = new vector<tile*>();
+    set<tile*> * ret = new set<tile*>();
     if (start_slope < end_slope) {
         return ret;
     }
@@ -94,7 +96,7 @@ vector<tile*> * vision::cast_light(map * m, uint x, uint y, uint radius, uint ro
             tile * cur_tile = &(m->tiles[ax][ay]); // Tile we care about at the moment
             
             if ((uint)(dx * dx + dy * dy) < radius2) {
-                ret->push_back(cur_tile);
+                ret->insert(cur_tile);
             }
 
             if (blocked) {
@@ -118,4 +120,32 @@ vector<tile*> * vision::cast_light(map * m, uint x, uint y, uint radius, uint ro
     }
     
     return ret;
+}
+
+// GENERAL FUNCTIONS ====================================
+
+void vision::update_seen() {
+
+    set<tile*>::iterator it;
+    
+    // Reveal new tiles
+    if (cur_seen_tiles != NULL) {
+        it = cur_seen_tiles->begin();
+        for(; it != cur_seen_tiles->end(); ++it) {
+            if (last_seen_tiles == NULL ||
+                (last_seen_tiles != NULL && last_seen_tiles->count(*it) == 0)) {
+                (*it)->known = (*it)->seen = true;
+            }
+        }
+    }
+
+    if (last_seen_tiles != NULL) {
+        // Fog tiles no longer in view
+        it = last_seen_tiles->begin();
+        for(; it != last_seen_tiles->end(); ++it) {
+            if (cur_seen_tiles != NULL && cur_seen_tiles->count(*it) == 0) {
+                (*it)->seen = false;
+            }
+        }
+    }
 }

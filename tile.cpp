@@ -46,7 +46,7 @@ glyph tile::get_display_glyph() {
         return ret;
     }
     
-	if(my_actor != NULL){
+	if(my_actor != NULL && seen){
 		ret = my_actor->get_glyph();
 	} else if(my_feature != NULL){
         ret = my_feature->get_glyph();

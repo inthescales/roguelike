@@ -1,17 +1,23 @@
 #ifndef VISION_H
 #define VISION_H
 
-class actor;
+#include <set>
+
+using std::set;
 
 typedef unsigned int uint;
+
+class actor;
 
 class vision {
 
 public:
     static bool run_player_vision();
-    static vector<tile*> * tiles_in_view(actor *);
-    static vector<tile*> * tiles_shadow(actor *);
-    static vector<tile*> * cast_light(map *, uint, uint, uint, uint, float, float, uint, uint, uint, uint);
+    static set<tile*> * tiles_in_view(actor *);
+    static set<tile*> * tiles_shadow(actor *);
+    static set<tile*> * cast_light(map *, uint, uint, uint, uint, float, float, uint, uint, uint, uint);
+    
+    static void update_seen();
 };
 
 #endif

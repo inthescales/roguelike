@@ -7,6 +7,8 @@
 #include "window.h"
 #include "classdefs.h"
 
+class tile;
+
 void init_game();
 void game_loop();
 
@@ -32,6 +34,9 @@ buffer * buf_main;
 
 map * map_current = 0;
 actor * act_player = 0;
+
+set<tile*> * cur_seen_tiles = NULL;
+set<tile*> * last_seen_tiles = NULL;
 
 short scrn_x = 0, scrn_y = 0;
 
