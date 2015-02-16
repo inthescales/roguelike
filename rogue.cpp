@@ -4,6 +4,7 @@
 #include "map.h"
 #include "rogue.h"
 #include "setup.h"
+#include "vision.h"
 #include "window.h"
 #include "world.h"
 
@@ -30,6 +31,7 @@ void game_loop()
     while(1)
 	{
 		curs_set(1);
+        vision::run_player_vision();
         window::display_all();
         if (win_output->should_update) {
             win_output->clear();

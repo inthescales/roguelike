@@ -25,6 +25,7 @@ void tile::init() {
 
     mapentity::init();
     
+    known = seen = false;
     my_objects = new vector<object *>;
 }
 
@@ -36,15 +37,40 @@ tileclass * tile::get_class() {
 
 glyph tile::get_display_glyph() {
 
+    glyph ret;
+    
+    if (!known) {
+        // If we've never seen this tile, print a black tile
+        ret.symbol = symboldef[SYM_UNKNOWN];
+        ret.color = C_BLACK;
+        return ret;
+    }
+    
 	if(my_actor != NULL){
-		my_actor->get_glyph();
+		ret = my_actor->get_glyph();
 	} else if(my_feature != NULL){
-        my_feature->get_glyph();
+        ret = my_feature->get_glyph();
 	} else if(!my_objects->empty()){
-		my_objects->back()->get_glyph();
+		ret = my_objects->back()->get_glyph();
 	} else {
-	    get_glyph();
+	    ret = get_glyph();
 	}
+    
+    if (!seen) {
+        // If we've seen this tile but it's not in view, print in gray
+        ret.color = C_GRAY;
+    }
+    
+    return ret;
+}
+
+// Common flags ===========================
+
+bool tile::is_opaque() {
+    bool ret = (has_flag(FLAG_TILE_OPAQUE) ||
+                (my_feature != NULL && my_feature->is_opaque()) ||
+                (my_actor != NULL && my_actor->is_opaque()) );
+    return ret;
 }
 
 // Contents management ===========================

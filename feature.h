@@ -13,6 +13,7 @@ class feature : public mapentity {
 
     featclass * get_class();
     
+    bool is_opaque();
     int can_open();
     int can_close();
 };

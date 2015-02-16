@@ -23,6 +23,10 @@ featclass * feature::get_class(){
     return (featclass *)entity::get_class();
 }
 
+bool feature::is_opaque() {
+    return has_flag(FLAG_FEAT_OPAQUE);
+}
+
 int feature::can_open() {
 
     if (has_state(STATE_FEAT_OPEN) &&

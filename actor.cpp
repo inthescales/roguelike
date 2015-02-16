@@ -832,3 +832,9 @@ int actor::can_punch(actor * actor) {
   
     return ERR_NONE;
 }
+
+// Other simple info =======================
+
+bool actor::is_opaque() {
+    return has_flag(FLAG_ACT_OPAQUE);
+}

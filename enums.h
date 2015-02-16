@@ -107,6 +107,7 @@ enum stats_t {
 	// Actor stats
 	ASTAT_BODY = 0,
 	ASTAT_MIND,
+    ASTAT_VISION_RANGE,
 	// Object stats
 	OSTAT_MIN,
 	OSTAT_WEP_DMG,

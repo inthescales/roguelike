@@ -110,6 +110,8 @@ class actor : public mapentity {
     int can_close(feature *);
     int can_strike(actor *);
     int can_punch(actor *);
+    
+    bool is_opaque();
 };
 
 #endif

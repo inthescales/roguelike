@@ -26,3 +26,9 @@
 #endif
 
 #endif
+
+// GAMEPLAY ===========================================
+
+#define FOV_SHADOW 0
+
+#define FOV_ALGORITHM FOV_SHADOW

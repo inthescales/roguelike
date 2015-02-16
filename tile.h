@@ -19,6 +19,8 @@ class tile : public mapentity {
 
 	public:
 
+    bool known, seen;
+    
 	actor * my_actor;
 	feature * my_feature;
 	vector<object*> * my_objects;
@@ -31,6 +33,9 @@ class tile : public mapentity {
     glyph get_display_glyph();
 	bool can_walk();
 	
+    // Common flags
+    bool is_opaque();
+    
     bool get_object(object *);
 	bool remove_object(object *);
 };

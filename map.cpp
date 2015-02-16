@@ -64,28 +64,6 @@ void map::put_actor( int x, int y, actor * act){
     act->queue_turn(0);
 }
 
-// put something to do this in the actor's destructor
-/*void remove_actor( struct actor * act ){
-	struct actor * t;
-	if(map->act_list == act){
-		map->act_list = act->next;
-	} else {
-		t = map->act_list;
-		while(t != NULL && t->next != NULL){ 
-			msg(0, 0, 1, t->name);
-			getch();
-			if( t->next == act ){
-				t->next = act->next;
-				act->next = NULL;
-				return;
-			}
-			t = t->next;
-		}
-		fast_msg("Error: tried to remove actor that wasn't in the list\n");
-		getch();
-	}
-}*/
-
 void map::add_object(int x, int y, short code ){
 	put_object(x, y, new object(code ));
 }
