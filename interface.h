@@ -20,6 +20,9 @@ class requirement;
 class targetActionBlock;
 class tile;
 
+#define ENTER_KEY 10
+#define ESCAPE_KEY 27
+
 //Cardinal directions, for easy reference
 enum direction_t {
 	DIR_NULL = 0,
@@ -64,6 +67,7 @@ class UI {
     static vector<tile*> * prompt_adjacent(string, argmap *, vector<requirement*> *);
     static vector<object*> * prompt_objects(string, vector<object*>*, argmap *, vector<requirement*> *);
     static vector<object*> * prompt_inventory(string, argmap *, vector<requirement*> *);
+    static vector<tile*> * prompt_tile(string, bool, tile*, argmap *, vector<requirement*> *);
     
     // Menus
 	static vector<object*> * menu_select_objects(window *, string, vector<object*> *, argmap *, flagset *);

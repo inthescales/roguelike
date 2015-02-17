@@ -24,14 +24,13 @@ map::map(short n_width, short n_height, int n_id, map * last_map) {
 	for(int i = 0; i < width; ++i){
 		for(int j = 0; j < height; ++j){
 			if( i == 0 || j == 0 || i == width-1 || j == height-1) {
-				//tiles[i][j] = tile(1 /*TILE_WALL*/);
 				tiles[i].push_back(tile(2));
 			} else {
-				//tiles[i][j] = tile(0 /*TILE_FLOOR*/);
 				tiles[i].push_back(tile(0));
             }
             tiles[i].back().x = i;
             tiles[i].back().y = j;
+            tiles[i].back().current_map = this;
 		}
 	}
 	

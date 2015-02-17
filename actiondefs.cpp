@@ -180,5 +180,30 @@ void define_actions() {
     new_action->purpose = ACTPUR_HARM;
     new_action->priority = 5;
     new_action->contextOk = true;
-    actiondef[++c] = new_action; 
+    actiondef[++c] = new_action;
+    
+    //#POINT
+    // target adj(tile.1), 
+    new_action = new action();
+    new_target_block = new targetActionBlock("Choose a point!!", TAR_TILE, RAD_SINGLE, EXT_TILE, ACTROLE_PATIENT);
+    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
+    new_target_block->args->add_int(ARG_TARGET_DISTANCE, 5);
+    new_action->add_block(new_target_block);
+    //new_action->purpose = ACTPUR_HARM;
+    new_action->priority = 10;
+    new_action->contextOk = true;
+    actiondef[++c] = new_action;
+    
+    //#LINE
+    // target adj(tile.1), 
+    new_action = new action();
+    new_target_block = new targetActionBlock("Draw a line!", TAR_TILE, RAD_LINE, EXT_TILE, ACTROLE_PATIENT);
+    new_target_block->args->add_int(ARG_TARGET_NUMBER, 10);
+    new_target_block->args->add_int(ARG_TARGET_DISTANCE, 5);
+    new_action->add_block(new_target_block);
+    //new_action->purpose = ACTPUR_HARM;
+    new_action->priority = 10;
+    new_action->contextOk = true;
+    actiondef[++c] = new_action;
+
 }

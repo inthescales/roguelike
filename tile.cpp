@@ -7,6 +7,7 @@
 #include "tileclass.h"
 
 #include <algorithm>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -93,3 +94,74 @@ bool tile::remove_object(object * in){
 	
 	return true;
 }
+
+// Class methods ===================================
+
+vector<tile*> * tile::line_between(tile * orig, tile * dest) {
+
+    if(orig->current_map != dest->current_map) {
+        // Something is horribly wrong
+        return NULL;
+    }
+    
+    map * m = orig->current_map;
+    
+    int x1 = orig->x, x2 = dest->x, y1 = orig->y, y2 = dest->y;
+    vector<tile*> * ret = new vector<tile*>();
+    
+#if LINE_ALGORITHM == LINE_BRESENHAM
+    // Bresenham's line algorithm
+    
+    const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
+    float error;
+    const float dx = fabs(x2 - x1);
+    const float dy = fabs(y2 - y1);
+    const int xstep = (x1 < x2) ? 1 : -1;
+    const int ystep = (y1 < y2) ? 1 : -1;
+
+    if (!steep) {
+        error = dx / 2.0f;
+        int y = (int)y1;
+        const int xend = (x1 < x2) ? x2+1 : x2-1;
+        for(int x=(int)x1; x != xend; x += xstep)
+        {
+        
+            if(!(x == x1 && y == y1)) {
+                ret->push_back(&m->tiles[x][y]);
+            }
+
+            error -= dy;
+            if(error < 0)
+            {
+                y += ystep;
+                error += dx;
+            }
+
+        }
+    } else {
+        error = dy / 2.0f;
+        int x = (int)x1;
+        const int yend = (y1 < y2) ? y2+1 : y2-1;
+        for(int y=(int)y1; y != yend; y += ystep)
+        {
+        
+            if(!(x == x1 && y == y1)) {
+                ret->push_back(&m->tiles[x][y]);
+            }
+
+            error -= dx;
+            if(error < 0)
+            {
+                x += xstep;
+                error += dy;
+            }
+
+        }
+    }
+  
+#endif
+
+    return ret;
+
+}
+

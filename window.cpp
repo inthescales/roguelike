@@ -61,9 +61,23 @@ void window::display_map(map * m){
     }
     set<tile*>::iterator it = to_draw->begin();
     for(; it != to_draw->end(); ++it) {
-        move(y + (*it)->y, x + (*it)->x);
-        printglyph((*it)->get_display_glyph());
+        display_tile(*it);
     }
+}
+
+// Print a particular tile
+void window::display_tile(tile * t) {
+    display_glyph(t->get_display_glyph(), x + t->x, y + t->y);
+}
+
+void window::display_tile(map * m, int x, int y) {
+
+    display_tile(&m->tiles[x][y]);
+}
+
+void window::display_glyph(glyph g, int x, int y) {
+    move(y, x);
+    printglyph(g);
 }
 
 // Display player's status

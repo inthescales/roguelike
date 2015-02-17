@@ -24,6 +24,9 @@ class window{
     
     // Display map and info panels
 	void display_map(map *);
+    void display_tile(map *, int, int);
+    void display_tile(tile *);
+    void display_glyph(glyph, int, int);
 	void display_status();
 	void display_inventory(actor &, string prompt);
 	void display_equipment(actor &);

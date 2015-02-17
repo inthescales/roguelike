@@ -21,11 +21,13 @@ enum target_t {
     TAR_NONE = 0,
 	TAR_SELF, // Target self
 	TAR_ADJ, // Target an adjacent tile
+    TAR_TILE, // Target a specific tile
 };
 
 enum radius_t {
     RAD_NONE = 0,
-	RAD_SINGLE
+	RAD_SINGLE,
+    RAD_LINE
 };
 
 enum extract_t {

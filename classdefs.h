@@ -37,6 +37,8 @@
 #define ACTION_CLOSE_BASIC 8
 #define ACTION_STRIKE 9
 #define ACTION_PUNCH 10
-#define ACTION_MAX 11
+#define ACTION_POINT 11
+#define ACTION_LINE 12
+#define ACTION_MAX 13
 
 #endif

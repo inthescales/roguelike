@@ -49,6 +49,9 @@ void UI::setup_ui() {
     (*action_key)['q'] = actiondef[ACTION_DRINK_BASIC];
     (*action_key)['o'] = actiondef[ACTION_OPEN_BASIC];
     (*action_key)['c'] = actiondef[ACTION_CLOSE_BASIC];
+    
+    (*action_key)['p'] = actiondef[ACTION_POINT];
+    (*action_key)['l'] = actiondef[ACTION_LINE];
 }
 
 void UI::get_action(){
@@ -208,6 +211,12 @@ vector<void*> * UI::prompt_target(targetActionBlock * in) {
         case TAR_ADJ:
             tile_vect = prompt_adjacent(in->prompt, in->args, in->requirements);
             break;
+        case TAR_TILE:
+            if (in->radius_type == RAD_SINGLE) {
+                tile_vect = prompt_tile(in->prompt, false, &act_player->current_map->tiles[act_player->x][act_player->y], in->args, in->requirements);
+            } else if (in->radius_type == RAD_LINE) {
+                tile_vect = prompt_tile(in->prompt, true, &act_player->current_map->tiles[act_player->x][act_player->y], in->args, in->requirements);
+            }
         case TAR_NONE:
         default:
             break;
@@ -276,6 +285,106 @@ vector<tile*> * UI::prompt_adjacent(string prompt, argmap * args, vector<require
     
     return r;
 }
+
+/*
+    Prompt for a specific tile. The origin argument specifies an origin for
+    range-based targeting and resolving lines. If it is null, only a single
+    tile can be returned - the one selected.
+*/
+vector<tile*> * UI::prompt_tile(string prompt, bool line, tile * origin, argmap * args, vector<requirement*> * reqs) {
+    
+    map * m = map_current;
+    window * w = win_world;
+    int cur_x = 0, cur_y = 0;
+    vector<tile*> * ret = new vector<tile*>();
+    vector<tile*> * last_sel = new vector<tile*>();
+    vector<tile*> * cur_sel = new vector<tile*>();
+    
+    if (origin != NULL) {
+        cur_x = origin->x;
+        cur_y = origin->y;
+        //cur_sel->push_back(origin);
+    }
+    
+    if (prompt != "") {
+        win_output->print(prompt);
+        win_output->clear();
+        win_output->print_buf(buf_main);
+        break_buffer(buf_main);
+    }
+    
+    bool done = false;
+    int input;
+    
+    while (!done) {
+        
+        // Display latest markers
+        if (!line) {
+            w->display_glyph(glyph(symboldef[CHAR_X], C_YELLOW), w->x + cur_x, w->y + cur_y);
+        } else {
+        
+            cur_sel = tile::line_between(origin, &m->tiles[cur_x][cur_y]);
+            if (cur_sel->size() > 0) {
+                vector<tile*>::iterator it = cur_sel->begin();
+                for(; it != cur_sel->end(); ++it) {
+                    w->display_glyph(glyph(symboldef[CHAR_X], C_YELLOW), w->x + (*it)->x, w->y + (*it)->y);
+                }
+            }
+        }
+        move(w->y + cur_y, w->x + cur_x);
+         
+        // Handle input
+        input = wgetch(stdscr);
+        
+        if (input == ESCAPE_KEY) {
+        
+            done = true;
+        }
+        else if (input == ENTER_KEY) {
+        
+            ret->insert(ret->begin(), cur_sel->begin(), cur_sel->end());
+            done = true;
+        } else if (direction_key->count(input) != 0) {
+            
+            // The target changed - undo our old markers
+            if (!line) {
+                w->display_tile(m, cur_x, cur_y);
+            } else {
+                last_sel = cur_sel;
+                if (last_sel->size() > 0) {
+                    vector<tile*>::iterator it = last_sel->begin();
+                    for(; it != last_sel->end(); ++it) {
+                        w->display_tile(*it);
+                    }
+                }
+            }
+            
+            // Update target
+            std::pair<int,int> pair = dir_to_offset(direction_key->at(input));
+            if (cur_x + pair.first < m->width &&
+                cur_x + pair.first >= 0 &&
+                cur_y + pair.second < m->height &&
+                cur_y + pair.second >= 0) {
+                cur_x += pair.first;
+                cur_y += pair.second;
+            }
+        }
+    }
+    
+    if (!line) {
+        w->display_tile(m, cur_x, cur_y);
+    } else {
+        // Remove last markers
+        vector<tile*>::iterator it = cur_sel->begin();
+        for(; it != cur_sel->end(); ++it) {
+            w->display_tile(*it);
+        }
+    }
+    
+    return ret;
+}
+
+// Extract targets from tiles =========================================
 
 vector<actor*> * UI::extract_actors(vector<tile*> * tiles) {
     
@@ -398,7 +507,7 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
             flags->add_flag(FLAG_MENU_PLAYER);
 			ret = menu_select_objects(win_screen, prompt, items, args, flags);
 			return ret;
-		} else if(input == 27){
+		} else if(input == ESCAPE_KEY){
 			return ret;
 		} else {
 			int slot = letter_to_int(input);
@@ -517,10 +626,10 @@ vector<object*> * UI::menu_select_objects(window * win, string prompt, vector<ob
             }
             
 			switch(input){
-				case 10:			
+				case ENTER_KEY:			
 					return ret;
-				case 27:
-					return ret;
+				case ESCAPE_KEY:
+					return new vector<object*>();
 				case KEY_UP:
 					if(start > 0)
 						start -= 1;
@@ -580,10 +689,12 @@ object * UI::prompt_gold_to_object(){
 
 direction_t UI::prompt_direction(string prompt) {
 
-    win_output->print(prompt);
-    win_output->clear();
-    win_output->print_buf(buf_main);
-    break_buffer(buf_main);
+    if (prompt != "") {
+        win_output->print(prompt);
+        win_output->clear();
+        win_output->print_buf(buf_main);
+        break_buffer(buf_main);
+    }
     
     int input = wgetch(stdscr);
         
