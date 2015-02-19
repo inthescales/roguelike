@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "argmap.h"
-#include "flagset.h"
 
 enum entity_type {
     ENT_TYPE_ACTOR = 0,

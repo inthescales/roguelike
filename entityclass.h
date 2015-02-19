@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "argmap.h"
-#include "flagset.h"
 
 using std::string;
 using std::vector;
@@ -23,7 +22,6 @@ class entityclass {
     std::map<trigger_t, vector<effect *> *> * trigger_effects;
     vector<timer_effect *> * timer_effects;
     statmap * stats;
-    flagset * flags;
     
     // Functions =============
     entityclass();

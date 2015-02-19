@@ -3,7 +3,6 @@
 #include "actclass.h"
 #include "error.h"
 #include "feature.h"
-#include "flagset.h"
 #include "globals.h"
 #include "interface.h"
 #include "map.h"

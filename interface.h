@@ -14,7 +14,6 @@ class action;
 class actor;
 class argmap;
 class feature;
-class flagset;
 class object;
 class requirement;
 class targetActionBlock;
@@ -70,7 +69,7 @@ class UI {
     static vector<tile*> * prompt_tile(string, bool, tile*, argmap *, vector<requirement*> *);
     
     // Menus
-	static vector<object*> * menu_select_objects(window *, string, vector<object*> *, argmap *, flagset *);
+	static vector<object*> * menu_select_objects(window *, string, vector<object*> *, argmap *);
 
     // Smaller prompts
     static bool prompt_yesno(string);

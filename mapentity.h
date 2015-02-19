@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "argmap.h"
-#include "flagset.h"
 
 using std::vector;
 

@@ -4,7 +4,6 @@
 #include "classdefs.h"
 #include "error.h"
 #include "feature.h"
-#include "flagset.h"
 #include "globals.h"
 #include "interface.h"
 #include "map.h"
@@ -463,10 +462,9 @@ vector<object*> * UI::prompt_objects(string prompt, vector<object*> * items, arg
         }
         return ret;
     }
-    
-    flagset * flags = new flagset();
-    flags->add_flag(FLAG_MENU_SORT);
-	ret = menu_select_objects(win_screen, prompt, items, args, flags);
+
+    args->add_flag(FLAG_MENU_SORT);
+	ret = menu_select_objects(win_screen, prompt, items, args);
 	return ret;
 }
 
@@ -502,10 +500,9 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
             }
 			return ret;
 		} else if(input == '*' || input == '?'){
-            flagset * flags = new flagset();
-            flags->add_flag(FLAG_MENU_SORT);
-            flags->add_flag(FLAG_MENU_PLAYER);
-			ret = menu_select_objects(win_screen, prompt, items, args, flags);
+            args->add_flag(FLAG_MENU_SORT);
+            args->add_flag(FLAG_MENU_PLAYER);
+			ret = menu_select_objects(win_screen, prompt, items, args);
 			return ret;
 		} else if(input == ESCAPE_KEY){
 			return ret;
@@ -531,7 +528,7 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
     corresponds to the letter of the item in player mode, not necessarily its order in the list
     since we're sorting things.
 */
-vector<object*> * UI::menu_select_objects(window * win, string prompt, vector<object*> * in_items, argmap * args, flagset * flags){
+vector<object*> * UI::menu_select_objects(window * win, string prompt, vector<object*> * in_items, argmap * args){
 
 	curs_set(0);
 	
@@ -539,7 +536,7 @@ vector<object*> * UI::menu_select_objects(window * win, string prompt, vector<ob
     int start = 0, winsize = 10;
 	int x = 3, y = 3;
     int max_select = args->get_int(ARG_TARGET_NUMBER);
-    int player_inv = flags->has_flag(FLAG_MENU_PLAYER);
+    int player_inv = args->has_flag(FLAG_MENU_PLAYER);
     
     const char sym[] = {'-', '+'};
     int sel_size = (player_inv) ? max(INV_MAX, (int)(in_items->size())) : in_items->size();
@@ -552,7 +549,7 @@ vector<object*> * UI::menu_select_objects(window * win, string prompt, vector<ob
 	int input, headers;
 	vector<object*> * ret = new vector<object*>();
 	
-	if(flags->has_flag(FLAG_MENU_SORT)){
+	if(args->has_flag(FLAG_MENU_SORT)){
 		std::sort(items->begin(), items->end(), object::compare_type);
 	}
 	
@@ -564,7 +561,7 @@ vector<object*> * UI::menu_select_objects(window * win, string prompt, vector<ob
         
 		for(int i = start; i - start < winsize && i < items->size(); ++i){
 		
-			if(flags->has_flag(FLAG_MENU_SORT) && (i == start || items->at(i)->get_type() != items->at(i-1)->get_type())) {
+			if(args->has_flag(FLAG_MENU_SORT) && (i == start || items->at(i)->get_type() != items->at(i-1)->get_type())) {
 				//We need to print a header
 				printcolor(x, y + i + headers++ - start, color_string(str_obj_type[items->at(i)->get_type()], C_YELLOW));
 			}
