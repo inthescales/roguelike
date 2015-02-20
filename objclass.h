@@ -37,4 +37,6 @@ class objclass : public mapentityclass {
     void init();
 };
 
+extern objclass * oclass[];
+
 #endif

@@ -4,13 +4,15 @@
 #include "classdefs.h"
 #include "error.h"
 #include "feature.h"
-#include "globals.h"
 #include "interface.h"
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
 #include "requirement.h"
+#include "rogue.h"
+#include "stringdefs.h"
 #include "stringutils.h"
+#include "symboldefs.h"
 #include "tile.h"
 #include "window.h"
 
@@ -172,27 +174,27 @@ vector<int> * UI::get_context_action(actionPurpose_t purp) {
 
 bool UI::command_inventory(){
 	win_screen->display_inventory(*act_player, "Inventory:");
-	redraw_windows();
+	window::display_all();
     
     return false;
 }
 
 bool UI::command_equipment(){
 	win_screen->display_equipment(*act_player);
-	redraw_windows();
+	window::display_all();
     
     return false;
 }
 
 bool UI::command_conditions(){
 	win_screen->display_conditions(act_player);
-	redraw_windows();
+	window::display_all();
     
     return false;
 }
 
 bool UI::command_quit() {
-  exit_game(0);
+    exit_game(0);
 }
 
 // Target prompts =====================================

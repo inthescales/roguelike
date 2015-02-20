@@ -4,6 +4,8 @@
 
 #include "mapentity.h"
 
+class featclass;
+
 class feature : public mapentity {
 
 	public:

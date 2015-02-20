@@ -1,9 +1,9 @@
 #include "condition.h"
 #include "condclass.h"
 #include "enums.h"
-#include "globals.h"
 #include "map.h"
 #include "mapentity.h"
+#include "rogue.h"
 #include "stringutils.h"
 
 #include <algorithm>

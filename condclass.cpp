@@ -1,5 +1,8 @@
+#include "classdefs.h"
 #include "condclass.h"
 #include "effect.h"
+
+condclass * cclass[COND_MAX];
 
 condclass::condclass(string nname, colorName ncolor, int nstrength, int nduration, int stack_d, int strength_d, int duration_d, int n_iters,
                      bool s_stat, bool s_str, int n_maxstack, cond_stack_policy_t nstackpol, cond_timer_policy_t ntimerpol) {

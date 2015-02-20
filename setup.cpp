@@ -5,11 +5,12 @@
 #include "enums.h"
 #include "error.h"
 #include "featdefs.h"
-#include "globals.h"
 #include "interface.h"
 #include "objdefs.h"
+#include "rogue.h"
 #include "settings.h"
 #include "setup.h"
+#include "symboldefs.h"
 #include "tiledefs.h"
 #include "window.h"
 
@@ -28,7 +29,9 @@ void setup(){
 
     setlocale(LC_ALL, "en_US.UTF-8");
 	initscr();
-	resize_term(win_output->height + win_world->height + win_status->height, win_output->width);
+    term_w = win_output->width;
+    term_h = win_output->height + win_world->height + win_status->height;
+	resize_term(term_h, term_w);
 	keypad(stdscr, TRUE);
 	setup_color();
 

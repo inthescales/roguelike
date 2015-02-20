@@ -3,6 +3,7 @@
 #include "error.h"
 #include "mapentity.h"
 #include "requirement.h"
+#include "rogue.h"
 #include "tile.h"
 #include "window.h"
 

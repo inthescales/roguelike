@@ -1,6 +1,5 @@
 #include "config.h"
 #include "enums.h"
-#include "globals.h"
 #include "stringutils.h"
 
 #include <ostream>

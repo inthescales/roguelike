@@ -1,6 +1,4 @@
 #include "display.h"
-#include "globals.h"
-//    z#include "effect.h"
 #include "symboldefs.h"
 #include "tileclass.h"
 #include "tiledefs.h"

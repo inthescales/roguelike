@@ -15,7 +15,7 @@
 using std::string;
 using std::vector;
 
-class condition;
+class objclass;
 
 //Item types
 enum object_type {

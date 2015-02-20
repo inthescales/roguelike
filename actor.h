@@ -18,6 +18,7 @@
 using std::string;
 using std::vector;
 
+class actclass;
 class action;
 class targetActionBlock;
 class object;

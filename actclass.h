@@ -24,4 +24,6 @@ class actclass : public mapentityclass {
     void init();
 };
 
+extern actclass * aclass[];
+
 #endif

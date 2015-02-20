@@ -2,6 +2,8 @@
 
 #define WINDOW_H
 
+#include "glyph.h"
+
 #include <string>
 #include <vector>
 
@@ -23,7 +25,7 @@ class window{
     void clear();
     
     // Display map and info panels
-	void display_map(map *);
+	void display_map(map *, bool);
     void display_tile(map *, int, int);
     void display_tile(tile *);
     void display_glyph(glyph, int, int);

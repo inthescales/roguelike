@@ -1,5 +1,4 @@
 #include "condition.h"
-#include "globals.h"
 #include "object.h"
 #include "objclass.h"
 #include "stringutils.h"

@@ -3,7 +3,6 @@
 #include "actor.h"
 #include "effect.h"
 #include "feature.h"
-#include "globals.h"
 #include "object.h"
 #include "tile.h"
 #include "timer.h"

@@ -3,43 +3,43 @@
 #define ROGUE_H
 
 #include "display.h"
-#include "globals.h"
 #include "window.h"
 #include "classdefs.h"
 
+#include <set>
+
+using std::set;
+
 class tile;
 
+#define INV_MAX 52
+
+// Extern values:
+
+// Display objects
+extern window * win_output;
+extern window * win_world;
+extern window * win_status;
+extern window * win_screen;
+extern buffer * buf_main;
+
+// Window and screen properties
+extern short scrn_x, scrn_y; // Position of shown portion of map
+extern short term_w, term_h; // Terminal size
+
+// Current map and player
+extern map * map_current;
+extern actor * act_player;
+
+// Current player interface details
+extern set<tile*> * cur_seen_tiles;
+extern set<tile*> * last_seen_tiles;
+extern object * obj_letter[];
+
+// Functions relevant to rogue.cpp
 void init_game();
 void game_loop();
-
-// some globals:
-
-actclass * aclass[ACT_MAX];
-objclass * oclass[OBJ_MAX];
-featclass * fclass[FEAT_MAX];
-tileclass * tclass[TILE_MAX];
-condclass * cclass[COND_MAX];
-
-action * actiondef[ACTION_MAX];
-symbol_code symboldef[CHAR_MAX];
-
-object * obj_letter[INV_MAX];
-
-window * win_output;
-window * win_world;
-window * win_status;
-window * win_screen;
-
-buffer * buf_main;
-
-map * map_current = 0;
-actor * act_player = 0;
-
-set<tile*> * cur_seen_tiles = NULL;
-set<tile*> * last_seen_tiles = NULL;
-
-short scrn_x = 0, scrn_y = 0;
-
-int turn = 1;
+void redraw_windows();
+void exit_game(int sig);
 
 #endif

@@ -1,4 +1,7 @@
 #include "action.h"
+#include "classdefs.h"
+
+action * actiondef[ACTION_MAX];
 
 // Actionblock stuff ===================
 

@@ -2,7 +2,7 @@
 #include "color.h"
 #include "object.h"
 #include "feature.h"
-#include "globals.h"
+#include "symboldefs.h"
 #include "tile.h"
 #include "tileclass.h"
 

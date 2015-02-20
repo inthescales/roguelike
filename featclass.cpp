@@ -1,4 +1,7 @@
+#include "classdefs.h"
 #include "featclass.h"
+
+featclass * fclass[FEAT_MAX];
 
 featclass::featclass(string n, symbol_code s, colorName c) {
 

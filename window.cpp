@@ -3,11 +3,12 @@
 #include "condclass.h"
 #include "config.h"
 #include "display.h"
-#include "globals.h"
 #include "interface.h"
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
+#include "rogue.h"
+#include "stringdefs.h"
 #include "stringutils.h"
 #include "symboldefs.h"
 #include "tile.h"
@@ -42,7 +43,18 @@ void window::clear(){
 }
 
 // Display a map
-void window::display_map(map * m){
+void window::display_map(map * m, bool force){
+
+    if (force) {
+        // Force all tiles to be redrawn, e.g., after closing a menu
+        for(int i = 0; i < height; ++i){
+            for(int j = 0; j < width; ++j){
+            
+                display_tile(m, j, i);
+            }
+        }
+        return;
+    }
 
     if (cur_seen_tiles == NULL) {
         // Something went wrong
@@ -196,7 +208,7 @@ void window::display_conditions(actor * act){
 }
 
 void window::display_all() {
-	win_world->display_map(map_current);
+	win_world->display_map(map_current, true);
     win_status->display_status();
     win_output->clear();
     win_output->print_buf(buf_main);

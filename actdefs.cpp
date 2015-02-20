@@ -2,7 +2,6 @@
 #include "actdefs.h"
 #include "classdefs.h"
 #include "display.h"
-#include "globals.h"
 #include "symboldefs.h"
 
 void define_actors(){

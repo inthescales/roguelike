@@ -1,7 +1,6 @@
 #include "error.h"
 #include "featclass.h"
 #include "feature.h"
-#include "globals.h"
 #include "map.h"
 
 #include "feature.h"

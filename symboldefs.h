@@ -132,6 +132,8 @@ enum symbol {
 };
 #endif
 
+extern symbol_code symboldef[];
+
 symbol_code get_symbol(character);
 
 #endif

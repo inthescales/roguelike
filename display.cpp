@@ -1,7 +1,6 @@
 #include "color.h"
 #include "enums.h"
 #include "display.h"
-#include "globals.h"
 #include "glyph.h"
 #include "stringutils.h"
 

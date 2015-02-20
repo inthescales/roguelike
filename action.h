@@ -128,6 +128,8 @@ class action {
     void add_block(actionBlock *);
 };
 
+extern action * actiondef[];
+
 bool priority_comp(int, int);
 
 #endif

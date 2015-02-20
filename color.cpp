@@ -1,6 +1,5 @@
 #include "color.h"
 #include "config.h"
-#include "globals.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include LIB_CURSES

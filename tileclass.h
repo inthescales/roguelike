@@ -12,4 +12,6 @@ struct tileclass : public mapentityclass {
     tileclass(string, symbol_code, colorName);
 };
 
+extern tileclass * tclass[];
+
 #endif

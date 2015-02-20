@@ -43,4 +43,6 @@ class condclass : public entityclass {
 
 };
 
+extern condclass * cclass[];
+
 #endif

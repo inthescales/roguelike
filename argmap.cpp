@@ -1,6 +1,8 @@
 #include "argmap.h"
 #include "config.h"
 
+#include <stdlib.h>
+
 argmap::argmap(){
     the_map = new std::map<int, void *>;
 }

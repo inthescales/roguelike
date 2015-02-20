@@ -1,6 +1,7 @@
 #include "display.h"
-#include "globals.h"
 #include "symboldefs.h"
+
+symbol_code symboldef[CHAR_MAX];
 
 void define_symbols() {
   

@@ -17,4 +17,6 @@ class featclass : public mapentityclass {
     void init();	
 };
 
+extern featclass * fclass[];
+
 #endif

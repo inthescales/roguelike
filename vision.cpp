@@ -2,6 +2,7 @@
 #include "config.h"
 #include "enums.h"
 #include "map.h"
+#include "rogue.h"
 #include "tile.h"
 #include "vision.h"
 

@@ -14,6 +14,7 @@ class actor;
 class condition;
 class object;
 class feature;
+class tileclass;
 
 class tile : public mapentity {
 

@@ -3,11 +3,15 @@
 #define ARGMAP_H
 
 #include "enums.h"
-#include "globals.h"
 
 #include <map>
 #include <set>
 #include <vector>
+
+class actor;
+class feature;
+class object;
+class tile;
 
 enum args_t {
     ARG_HOLDER_ENTITY = 0, // ===== TRIGGER CARRIERS =======

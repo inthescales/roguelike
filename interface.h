@@ -18,6 +18,7 @@ class object;
 class requirement;
 class targetActionBlock;
 class tile;
+class window;
 
 #define ENTER_KEY 10
 #define ESCAPE_KEY 27

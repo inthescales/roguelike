@@ -2,6 +2,7 @@
 #include "feature.h"
 #include "map.h"
 #include "tile.h"
+#include "tileclass.h"
 #include "utils.h"
 #include "world.h"
 

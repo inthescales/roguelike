@@ -1,3 +1,5 @@
+#include "stringdefs.h"
+
 #include <string>
 
 using std::string;

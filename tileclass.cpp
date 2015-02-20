@@ -1,5 +1,8 @@
+#include "classdefs.h"
 #include "display.h"
 #include "tileclass.h"
+
+tileclass * tclass[TILE_MAX];
 
 // Setup and teardown ============================
 

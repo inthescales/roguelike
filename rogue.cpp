@@ -14,6 +14,26 @@
 #include <stdlib.h>
 #include <clocale>
 
+// Display objects
+window * win_output = NULL;
+window * win_world = NULL;
+window * win_status = NULL;
+window * win_screen = NULL;
+buffer * buf_main = NULL;
+
+// Window and screen properties
+short scrn_x = 0, scrn_y = 0; // Position of shown portion of map
+short term_w = 0, term_h = 0; // Terminal size
+
+// Current map and player
+map * map_current = NULL;
+actor * act_player = NULL;
+
+// Current player interface details
+set<tile*> * cur_seen_tiles = NULL;
+set<tile*> * last_seen_tiles = NULL;
+object * obj_letter[INV_MAX];
+
 // Setup and action loop
 int main(void){
   
@@ -33,25 +53,17 @@ void game_loop()
 		curs_set(1);
         vision::run_player_vision();
         window::display_all();
-        if (win_output->should_update) {
-            win_output->clear();
-            win_output->print_buf(buf_main);
-            win_output->should_update = false;
-        }
 		break_buffer(buf_main);
         
 		move(act_player->y - scrn_y + win_world->y, act_player->x - scrn_x + win_world->x);    
         
 		map_current->advance_time();
-		
-		++turn;
 	}
 }
 
 // Initialize the starting game state
 void init_game() {
 
-	turn = 0;
 	map_current = new map(60, 32, 1, NULL);
     world::pond(map_current, 30, 12, 10);
     world::forest(map_current, 25, 7, 20);
@@ -71,7 +83,7 @@ void init_game() {
     
     map_current->add_feature( 12, 20, 0);
 	
-	win_world->display_map(map_current);
+	win_world->display_map(map_current, true);
 	win_status->display_status();	
 	win_output->print("You enter another dungeon...");
     
@@ -81,8 +93,13 @@ void init_game() {
 // Redraw the main gameplay screen
 void redraw_windows()
 {
-	win_output->print_buf(buf_main);
-	win_world->display_map(map_current);
+    
+    if (win_output->should_update) {
+        win_output->clear();
+        win_output->print_buf(buf_main);
+        win_output->should_update = false;
+    }
+    win_world->display_map(map_current, false);
 	win_status->display_status();
 }
 

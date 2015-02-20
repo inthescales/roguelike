@@ -1,7 +1,6 @@
 #include "featclass.h"
 #include "featdefs.h"
 #include "display.h"
-#include "globals.h"
 #include "symboldefs.h"
 
 void define_features(){

@@ -1,4 +1,7 @@
 #include "actclass.h"
+#include "classdefs.h"
+
+actclass * aclass[ACT_MAX];
 
 actclass::actclass(string n, symbol_code s, colorName c) {
 

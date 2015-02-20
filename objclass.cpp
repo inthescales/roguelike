@@ -1,5 +1,8 @@
+#include "classdefs.h"
 #include "effect.h"
 #include "objclass.h"
+
+objclass * oclass[OBJ_MAX];
 
 objclass::objclass(string tname, symbol_code tsym, colorName tcol, object_type ttyp, object_subtype tstyp,
 				   material_t tmat, int tweigh, int tcost) {
