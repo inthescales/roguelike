@@ -34,13 +34,16 @@ class tile : public mapentity {
     glyph get_display_glyph();
     
     // Basic information
-	bool can_walk();
+    bool can_walk();
+    bool can_swim();
+	bool can_fly();
     bool is_opaque();
     
     // State management
     bool get_object(object *);
 	bool remove_object(object *);
     
+    static float distance_between(tile *, tile *);
     static vector<tile*> * line_between(tile *, tile *);
 };
 

@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <stdio.h>
+#include <math.h>
 
 using std::max;
 
@@ -271,10 +272,11 @@ vector<tile*> * UI::prompt_adjacent(string prompt, argmap * args, vector<require
     std::pair<int, int> offset = dir_to_offset(dir);
     std::pair<int, int> cur = std::pair<int, int>(act_player->x + offset.first, act_player->y + offset.second);
     
-    int maxDist = (args->has_value(ARG_TARGET_DISTANCE) ? args->get_int(ARG_TARGET_DISTANCE) : 1);
+    int minDist = (args->has_value(ARG_TARGET_MIN_DISTANCE) ? args->get_int(ARG_TARGET_MIN_DISTANCE) : 1);
+    int maxDist = (args->has_value(ARG_TARGET_MAX_DISTANCE) ? args->get_int(ARG_TARGET_MAX_DISTANCE) : 1);
     int maxNum = (args->has_value(ARG_TARGET_NUMBER) ? args->get_int(ARG_TARGET_NUMBER) : 1);
         
-    for(int i = 0; i < maxDist && r->size() < maxNum; ++i) {
+    for(int i = minDist; i <= maxDist && r->size() < maxNum; ++i) {
     
         tile * cur_tile = &map_current->tiles[cur.first][cur.second];
         if (requirement::check_requirements_for(cur_tile, reqs)) {
@@ -301,6 +303,9 @@ vector<tile*> * UI::prompt_tile(string prompt, bool line, tile * origin, argmap 
     vector<tile*> * last_sel = new vector<tile*>();
     vector<tile*> * cur_sel = new vector<tile*>();
     
+    int minDist = (args->has_value(ARG_TARGET_MIN_DISTANCE) ? args->get_int(ARG_TARGET_MIN_DISTANCE) : 1);
+    int maxDist = (args->has_value(ARG_TARGET_MAX_DISTANCE) ? args->get_int(ARG_TARGET_MAX_DISTANCE) : 1);
+    
     if (origin != NULL) {
         cur_x = origin->x;
         cur_y = origin->y;
@@ -321,14 +326,26 @@ vector<tile*> * UI::prompt_tile(string prompt, bool line, tile * origin, argmap 
         
         // Display latest markers
         if (!line) {
-            w->display_glyph(glyph(symboldef[CHAR_X], C_YELLOW), w->x + cur_x, w->y + cur_y);
+            float dist = floor(sqrt( pow( fabs(cur_x - origin->x), 2) + pow( fabs(cur_y - origin->y), 2) ));
+            colorName col = (dist >= minDist && dist <= maxDist) ? C_YELLOW : C_RED;
+            w->display_glyph(glyph(symboldef[CHAR_X], col), w->x + cur_x, w->y + cur_y);
         } else {
         
+            float dist;
+            colorName col;
+            bool broken = false;
             cur_sel = tile::line_between(origin, &m->tiles[cur_x][cur_y]);
             if (cur_sel->size() > 0) {
                 vector<tile*>::iterator it = cur_sel->begin();
                 for(; it != cur_sel->end(); ++it) {
-                    w->display_glyph(glyph(symboldef[CHAR_X], C_YELLOW), w->x + (*it)->x, w->y + (*it)->y);
+                    dist = tile::distance_between(origin, (*it));
+                    col = (!broken && dist >= minDist && dist <= maxDist) ? C_YELLOW : C_RED;
+                    w->display_glyph(glyph(symboldef[CHAR_X], col), w->x + (*it)->x, w->y + (*it)->y);
+                    
+                    // Break
+                    if (!broken && args->has_flag(FLAG_TARGET_BREAK_PROJECTILE) && ((*it)->my_actor != NULL || ((*it)->my_feature != NULL && (*it)->my_feature->has_flag(FLAG_FEAT_NO_FLY)))) {
+                        broken = true;
+                    }
                 }
             }
         }

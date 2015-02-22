@@ -97,6 +97,12 @@ bool tile::remove_object(object * in){
 
 // Class methods ===================================
 
+float tile::distance_between(tile * orig, tile * dest) {
+
+    float dist = floor(sqrt( pow( fabs(orig->x - dest->x), 2) + pow( fabs(orig->y - dest->y), 2) ));
+    return dist;
+}
+
 vector<tile*> * tile::line_between(tile * orig, tile * dest) {
 
     if(orig->current_map != dest->current_map) {

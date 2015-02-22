@@ -123,7 +123,8 @@ void define_actions() {
     new_action = new action();
     new_target_block = new targetActionBlock("Open what?", TAR_ADJ, RAD_SINGLE, EXT_FEATURE, ACTROLE_PATIENT);
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 1);
     new_action->add_block(new_target_block);
     new_require_block = new requirementActionBlock(false, false, true);
     new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_OPEN_FEAT));
@@ -139,7 +140,8 @@ void define_actions() {
     new_action = new action();
     new_target_block = new targetActionBlock("Close what?", TAR_ADJ, RAD_SINGLE, EXT_FEATURE, ACTROLE_PATIENT);
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 1);
     new_action->add_block(new_target_block);
     new_require_block = new requirementActionBlock(false, false, true);
     new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_CLOSE_FEAT));
@@ -155,7 +157,8 @@ void define_actions() {
     new_action = new action();
     new_target_block = new targetActionBlock("Attack what?", TAR_ADJ, RAD_SINGLE, EXT_ACTOR, ACTROLE_PATIENT);
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 1);
     new_action->add_block(new_target_block);
     new_require_block = new requirementActionBlock(false, false, true);
     new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_STRIKE));
@@ -171,7 +174,8 @@ void define_actions() {
     new_action = new action();
     new_target_block = new targetActionBlock("Attack what?", TAR_ADJ, RAD_SINGLE, EXT_ACTOR, ACTROLE_PATIENT);
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_target_block->args->add_int(ARG_TARGET_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 1);
     new_action->add_block(new_target_block);
     new_require_block = new requirementActionBlock(false, false, true);
     new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_PUNCH));
@@ -187,7 +191,8 @@ void define_actions() {
     new_action = new action();
     new_target_block = new targetActionBlock("Choose a point!!", TAR_TILE, RAD_SINGLE, EXT_TILE, ACTROLE_PATIENT);
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_target_block->args->add_int(ARG_TARGET_DISTANCE, 5);
+    new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 5);
     new_action->add_block(new_target_block);
     //new_action->purpose = ACTPUR_HARM;
     new_action->priority = 10;
@@ -199,7 +204,9 @@ void define_actions() {
     new_action = new action();
     new_target_block = new targetActionBlock("Draw a line!", TAR_TILE, RAD_LINE, EXT_TILE, ACTROLE_PATIENT);
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 10);
-    new_target_block->args->add_int(ARG_TARGET_DISTANCE, 5);
+    new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
+    new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 5);
+    new_target_block->args->add_flag(FLAG_TARGET_BREAK_PROJECTILE);
     new_action->add_block(new_target_block);
     //new_action->purpose = ACTPUR_HARM;
     new_action->priority = 10;

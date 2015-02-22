@@ -28,7 +28,8 @@ enum args_t {
     ARG_EFFECT_RADIUS, // ===== EFFECTS =======
     ARG_TARGET_ENTITY_TYPE, // ===== TARGETING =======
     ARG_TARGET_NUMBER, // Max number that can be chosen
-    ARG_TARGET_DISTANCE, // Distance from agent
+    ARG_TARGET_MAX_DISTANCE, // Distance from agent
+    ARG_TARGET_MIN_DISTANCE,
     ARG_TARGET_GOLDOK, // Can gold be chosen from inventory
     ARG_TARGET_ASSUME, // Automatically choose all if this many or fewer
     ARG_REQUIRE_STAT, // ===== REQUIREMENTS =======
@@ -56,7 +57,8 @@ enum flags_t {
     FLAG_FEAT_CAN_CLOSE,
     FLAG_FEAT_OPAQUE,
     FLAG_MENU_SORT, // MENUS ==============
-    FLAG_MENU_PLAYER
+    FLAG_MENU_PLAYER,
+    FLAG_TARGET_BREAK_PROJECTILE // Target options =========
 };
 
 /*
