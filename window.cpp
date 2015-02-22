@@ -27,6 +27,13 @@ using std::stack;
 window::window(int n_x, int n_y, int n_w, int n_h) : x(n_x), y(n_y), width(n_w), height(n_h) {
 
     should_update = false;
+    frame_x = frame_y = 0;
+}
+
+void window::set_frame(int new_x, int new_y) {
+
+    frame_x = new_x;
+    frame_y = new_y;
 }
 
 // Window display =============================================
@@ -47,8 +54,8 @@ void window::display_map(map * m, bool force){
 
     if (force) {
         // Force all tiles to be redrawn, e.g., after closing a menu
-        for(int i = 0; i < height; ++i){
-            for(int j = 0; j < width; ++j){
+        for(int i = frame_y; i < height + frame_y; ++i){
+            for(int j = frame_x; j < width + frame_x; ++j){
             
                 display_tile(m, j, i);
             }
@@ -73,13 +80,17 @@ void window::display_map(map * m, bool force){
     }
     set<tile*>::iterator it = to_draw->begin();
     for(; it != to_draw->end(); ++it) {
-        display_tile(*it);
+        // Print the tile if it is within the frame
+        if((*it)->x >= frame_x && (*it)->x < frame_x + width &&
+           (*it)->y >= frame_y && (*it)->y < frame_y + height) {
+            display_tile(*it);
+        }
     }
 }
 
 // Print a particular tile
 void window::display_tile(tile * t) {
-    display_glyph(t->get_display_glyph(), x + t->x, y + t->y);
+    display_glyph(t->get_display_glyph(), x + t->x - frame_x, y + t->y - frame_y);
 }
 
 void window::display_tile(map * m, int x, int y) {

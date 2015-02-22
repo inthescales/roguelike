@@ -24,8 +24,8 @@ extern window * win_screen;
 extern buffer * buf_main;
 
 // Window and screen properties
-extern short scrn_x, scrn_y; // Position of shown portion of map
 extern short term_w, term_h; // Terminal size
+extern short scroll_border;
 
 // Current map and player
 extern map * map_current;

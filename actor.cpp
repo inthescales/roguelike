@@ -329,16 +329,42 @@ vector<void*> * actor::select_target(targetActionBlock * in) {
 
 // Specific actions =============================
 
+void actor::move(tile * new_tile) {
+
+	tile * old_tile = &map_current->tiles[x][y];
+    old_tile->my_actor = NULL;
+    new_tile->my_actor = this;
+    x = new_tile->x;
+    y = new_tile->y;
+    
+    // Move the window's frame if necessary
+    if (this == act_player) {
+        if (x < win_world->frame_x + scroll_border && win_world->frame_x > 0) {
+            win_world->frame_x = x - scroll_border;
+            win_world->should_update = true;
+        } else if ( x > win_world->frame_x + win_world->width-1 - scroll_border && win_world->frame_x < current_map->width - win_world->width) {
+            win_world->frame_x = x + scroll_border - (win_world->width-1);
+            win_world->should_update = true;
+        }
+        
+        if (y < win_world->frame_y + scroll_border && win_world->frame_y > 0) {
+            win_world->frame_y = y - scroll_border;
+            win_world->should_update = true;
+        } else if ( y > win_world->frame_y + win_world->height-1 - scroll_border && win_world->frame_y < current_map->height - win_world->height) {
+            win_world->frame_y = y + scroll_border - (win_world->height-1);
+            win_world->should_update = true;
+        }
+    }
+}
+
 void actor::walk(tile * new_tile) {
 
 	tile * old_tile = &map_current->tiles[x][y];
     argmap * args = new argmap();
     args->add_actor(ARG_ACTION_AGENT, this);
-    
-	old_tile->my_actor = NULL;
     old_tile->resolve_trigger(TRG_TILE_WALK_OUT, args);
-	new_tile->my_actor = this;
-    new_tile->resolve_trigger(TRG_TILE_WALK_OUT, args);
+    move(new_tile);
+    new_tile->resolve_trigger(TRG_TILE_WALK_IN, args);
     resolve_trigger(TRG_ACT_WALK, new argmap());
     enter_tile(new_tile);
 }
@@ -352,7 +378,7 @@ void actor::swim(tile * new_tile) {
 	old_tile->my_actor = NULL;
     old_tile->resolve_trigger(TRG_TILE_SWIM_OUT, args);
 	new_tile->my_actor = this;
-    new_tile->resolve_trigger(TRG_TILE_SWIM_OUT, args);
+    new_tile->resolve_trigger(TRG_TILE_SWIM_IN, args);
     resolve_trigger(TRG_ACT_SWIM, new argmap());
     enter_tile(new_tile);
 }
@@ -366,15 +392,12 @@ void actor::fly(tile * new_tile) {
 	old_tile->my_actor = NULL;
     old_tile->resolve_trigger(TRG_TILE_FLY_OUT, args);
 	new_tile->my_actor = this;
-    new_tile->resolve_trigger(TRG_TILE_FLY_OUT, args);
+    new_tile->resolve_trigger(TRG_TILE_FLY_IN, args);
     resolve_trigger(TRG_ACT_FLY, new argmap());
     enter_tile(new_tile);
 }
 
 void actor::enter_tile(tile * t) {
-
-    x = t->x;
-    y = t->y;
     
 	// If this tile has objects, print a message
     if(t->my_objects->size() == 1){

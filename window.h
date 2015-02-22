@@ -18,12 +18,16 @@ class map;
 class window{
 
 	public:
-	
+		
+	int x, y, width, height;
+    int frame_x, frame_y;
     bool should_update;
     
 	window(int, int, int, int);
-    void clear();
+    void set_frame(int, int);
     
+    void clear();
+        
     // Display map and info panels
 	void display_map(map *, bool);
     void display_tile(map *, int, int);
@@ -43,8 +47,6 @@ class window{
 	void print_buf(buffer *);
 	void print_line(string, int);
     void print_error(string);
-	
-	int x, y, width, height;
 
 };
 

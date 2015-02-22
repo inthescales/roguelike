@@ -69,6 +69,8 @@ class actor : public mapentity {
 	bool remove_object(object * item);
     void do_equip(object *, int);
     void do_unequip(object *, int);
+    void move(tile*);
+    void enter_tile(tile *);
     
     // Actions
     int take_turn();
@@ -77,7 +79,6 @@ class actor : public mapentity {
     bool execute_action(action *, argmap *, bool);
     vector<void*> * select_target(targetActionBlock *);
     
-    void enter_tile(tile *);
     void walk(tile *);
     void swim(tile *);
     void fly(tile *);

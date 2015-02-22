@@ -22,8 +22,8 @@ window * win_screen = NULL;
 buffer * buf_main = NULL;
 
 // Window and screen properties
-short scrn_x = 0, scrn_y = 0; // Position of shown portion of map
 short term_w = 0, term_h = 0; // Terminal size
+short scroll_border = 5;
 
 // Current map and player
 map * map_current = NULL;
@@ -55,7 +55,7 @@ void game_loop()
         window::display_all();
 		break_buffer(buf_main);
         
-		move(act_player->y - scrn_y + win_world->y, act_player->x - scrn_x + win_world->x);    
+		move(act_player->y + win_world->y - win_world->frame_y, act_player->x + win_world->x - win_world->frame_x);    
         
 		map_current->advance_time();
 	}
@@ -64,7 +64,7 @@ void game_loop()
 // Initialize the starting game state
 void init_game() {
 
-	map_current = new map(60, 32, 1, NULL);
+	map_current = new map(75, 47, 1, NULL);
     world::pond(map_current, 30, 12, 10);
     world::forest(map_current, 25, 7, 20);
     
@@ -99,7 +99,7 @@ void redraw_windows()
         win_output->print_buf(buf_main);
         win_output->should_update = false;
     }
-    win_world->display_map(map_current, false);
+    win_world->display_map(map_current, win_world->should_update);
 	win_status->display_status();
 }
 
