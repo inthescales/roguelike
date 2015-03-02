@@ -123,6 +123,7 @@ void define_actions() {
     new_action = new action();
     new_target_block = new targetActionBlock("Open what?", TAR_ADJ, RAD_SINGLE, EXT_FEATURE, ACTROLE_PATIENT);
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
+    new_target_block->args->add_int(ARG_TARGET_ASSUME, 1);
     new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
     new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 1);
     new_action->add_block(new_target_block);
@@ -140,6 +141,7 @@ void define_actions() {
     new_action = new action();
     new_target_block = new targetActionBlock("Close what?", TAR_ADJ, RAD_SINGLE, EXT_FEATURE, ACTROLE_PATIENT);
     new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
+    new_target_block->args->add_int(ARG_TARGET_ASSUME, 1);
     new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
     new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 1);
     new_action->add_block(new_target_block);

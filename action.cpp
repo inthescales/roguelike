@@ -29,6 +29,14 @@ targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nr
     block_type = TARGET_BLOCK;
 }
 
+extractActionBlock::extractActionBlock(extract_t etype, actionRole_t frompos, actionRole_t topos) {
+
+    extract_type = etype;
+    from_position = frompos;
+    to_position = topos;
+    block_type = EXTRACT_BLOCK;
+}
+
 effectActionBlock::effectActionBlock(effect * neff) {
 
     args = new argmap();

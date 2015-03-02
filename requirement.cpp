@@ -272,6 +272,10 @@ bool requirement::check_for(mapentity * ent) {
 
 bool requirement::check_requirements(vector<requirement*> * reqs) {
 
+    if (reqs == NULL) {
+        return true;
+    }
+    
     vector<requirement*>::iterator it = reqs->begin();
     
     for(; it != reqs->end(); ++it) {
@@ -286,6 +290,10 @@ bool requirement::check_requirements(vector<requirement*> * reqs) {
 
 bool requirement::check_requirements_for(mapentity * ent, vector<requirement*> * reqs) {
 
+    if (reqs == NULL) {
+        return true;
+    }
+    
     vector<requirement*>::iterator it = reqs->begin();
     
     for(; it != reqs->end(); ++it) {

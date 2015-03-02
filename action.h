@@ -13,6 +13,7 @@ using std::vector;
 
 enum action_block_t {
     TARGET_BLOCK = 0,
+    EXTRACT_BLOCK,
     EFFECT_BLOCK,
     REQUIREMENT_BLOCK
 };
@@ -41,6 +42,7 @@ enum extract_t {
 enum actionRole_t {
     ACTROLE_AGENT,
     ACTROLE_PATIENT,
+    ACTROLE_PATIENT_2,
     ACTROLE_INSTRUMENT,
     ACTROLE_LOCATION,
     ACTROLE_MAX
@@ -86,6 +88,17 @@ class targetActionBlock : public actionBlock {
     
     targetActionBlock(string, target_t, radius_t, extract_t, actionRole_t);
     targetActionBlock(string, target_t, radius_t, extract_t, actionRole_t, argmap *);
+};
+
+// Allow
+class extractActionBlock : public actionBlock {
+
+    public:
+    extract_t extract_type;
+    actionRole_t from_position;
+    actionRole_t to_position;
+    
+    extractActionBlock(extract_t, actionRole_t, actionRole_t);
 };
 
 // Continue affecting targets as long as the condition is true

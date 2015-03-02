@@ -198,20 +198,36 @@ bool UI::command_quit() {
     exit_game(0);
 }
 
-// Target prompts =====================================
+// Master target selection function =====================================
 
-// Handle all prompts related to targeting for actions.
 vector<void*> * UI::prompt_target(targetActionBlock * in) {
 
-    vector<tile*> * tile_vect;;
+    vector<tile*> * tile_vect = NULL;
     vector<void*> * r;
+    bool didAssume = false;
     switch (in->target_type) {
     
         case TAR_SELF:
-            tile_vect = target_self(act_player);
+            if (in->args->get_int(ARG_TARGET_ASSUME) > 0) {
+                tile_vect = assume_self(in->extract_type, in->args, in->requirements);
+            }
+            if (tile_vect != NULL) {
+                didAssume = true;
+            } else {
+                tile_vect = prompt_self(act_player);
+            }
             break;
+
         case TAR_ADJ:
-            tile_vect = prompt_adjacent(in->prompt, in->args, in->requirements);
+            // If we can assume, give that a try before prompting
+            if (in->args->get_int(ARG_TARGET_ASSUME) > 0) {
+                tile_vect = assume_adjacent(in->extract_type, in->args, in->requirements);
+            }
+            if (tile_vect != NULL) {
+                didAssume = true;
+            } else {
+                tile_vect = prompt_adjacent(in->prompt, in->args, in->requirements);
+            }
             break;
         case TAR_TILE:
             if (in->radius_type == RAD_SINGLE) {
@@ -229,30 +245,36 @@ vector<void*> * UI::prompt_target(targetActionBlock * in) {
     
     if (in->extract_type == EXT_ACTOR) {
     
-        r = (vector<void*>*)extract_actors(tile_vect);
+        r = (vector<void*>*)extract_actors(tile_vect, in->requirements);
     } if (in->extract_type == EXT_OBJECTS) {
     
-        r = (vector<void*>*)prompt_objects(in->prompt, extract_objects(tile_vect), in->args, in->requirements);
+        if (!didAssume) {
+            r = (vector<void*>*)prompt_objects(in->prompt, extract_objects(tile_vect, in->requirements), in->args, in->requirements);
+        } else {
+            r = (vector<void*>*)extract_objects(tile_vect, in->requirements);
+        }
         in->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
     } else if (in->extract_type == EXT_INVENTORY) {
     
         if (tile_vect->size() == 1 && tile_vect->back()->my_actor == act_player) {
             r = (vector<void*>*)prompt_inventory(in->prompt, in->args, in->requirements);
         } else {
-            r = (vector<void*>*)prompt_objects(in->prompt, extract_inventories(tile_vect), in->args, in->requirements);
+            r = (vector<void*>*)prompt_objects(in->prompt, extract_inventories(tile_vect, in->requirements), in->args, in->requirements);
         }
         window::display_all();
         in->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_OBJECT);
     } else if (in->extract_type == EXT_FEATURE) {
     
-        r = (vector<void*>*)extract_features(tile_vect);
+        r = (vector<void*>*)extract_features(tile_vect, in->requirements);
         in->args->add_int(ARG_TARGET_ENTITY_TYPE, ENT_TYPE_FEATURE);
     }
 
     return r;
 }
 
-vector<tile*> * UI::target_self(actor * agent) {
+// Target selections prompts ============================================
+
+vector<tile*> * UI::prompt_self(actor * agent) {
 
     vector<tile*> * r = new vector<tile*>();
     r->push_back(&(agent->current_map->tiles[agent->x][agent->y]));
@@ -268,7 +290,7 @@ vector<tile*> * UI::prompt_adjacent(string prompt, argmap * args, vector<require
         win_output->print(error_string[ERR_CANCELLED]);
         return NULL;
     }
-    
+        
     std::pair<int, int> offset = dir_to_offset(dir);
     std::pair<int, int> cur = std::pair<int, int>(act_player->x + offset.first, act_player->y + offset.second);
     
@@ -402,69 +424,7 @@ vector<tile*> * UI::prompt_tile(string prompt, bool line, tile * origin, argmap 
     return ret;
 }
 
-// Extract targets from tiles =========================================
-
-vector<actor*> * UI::extract_actors(vector<tile*> * tiles) {
-    
-    vector<actor*> * r = new vector<actor*>();
-    
-    vector<tile*>::iterator it = tiles->begin();
-    for(; it != tiles->end(); ++it) {
-        if ((*it)->my_actor != NULL) {
-            r->push_back((*it)->my_actor);
-        }
-    }
-    
-    return r;
-}
-
-vector<object*> * UI::extract_objects(vector<tile*> * tiles) {
-    
-    vector<object*> * r = new vector<object*>();
-
-    vector<tile*>::iterator it = tiles->begin();
-    for(; it != tiles->end(); ++it) {
-        vector<object*>::iterator it2 = (*it)->my_objects->begin();
-        for(; it2 != (*it)->my_objects->end(); ++it2) {
-            r->push_back(*it2);
-        }
-    }
-    
-    return r;
-}
-
-vector<object*> * UI::extract_inventories(vector<tile*> * tiles) {
-    
-    vector<object*> * r = new vector<object*>();
-    
-    vector<tile*>::iterator it = tiles->begin();
-    for(; it != tiles->end(); ++it) {
-        if ((*it)->my_actor != NULL) {
-            actor * cur_act = (*it)->my_actor;
-            vector<object*>::iterator it2 = cur_act->inventory->begin();
-            for(; it2 != cur_act->inventory->end(); ++it2) {
-                r->push_back((*it2));
-            }
-        }
-    }
-    
-    return r;
-}
-
-vector<feature*> * UI::extract_features(vector<tile*> * tiles) {
-    
-    vector<feature*> * r = new vector<feature*>();
-    
-    vector<tile*>::iterator it = tiles->begin();
-    for(; it != tiles->end(); ++it) {
-        if ((*it)->my_feature != NULL) {
-            r->push_back((*it)->my_feature);
-        }
-    }
-    
-    return r;
-}
-
+// Prompt from a set of objects using interactive menu
 vector<object*> * UI::prompt_objects(string prompt, vector<object*> * items, argmap * args, vector<requirement*> * reqs){
 
 	vector<object*> * ret = new vector<object*>();
@@ -473,14 +433,6 @@ vector<object*> * UI::prompt_objects(string prompt, vector<object*> * items, arg
     }
 
     bool gold_ok = (args->get_int(ARG_TARGET_GOLDOK) == 1);
-    int assume_threshold = args->get_int(ARG_TARGET_ASSUME);
-    
-    if (items->size() <= assume_threshold) {
-        for(int i = 0; i < assume_threshold && i < items->size(); ++i) {
-            ret->push_back(items->at(i));
-        }
-        return ret;
-    }
 
     args->add_flag(FLAG_MENU_SORT);
 	ret = menu_select_objects(win_screen, prompt, items, args);
@@ -502,13 +454,7 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
     win_output->print_buf(buf_main);
     break_buffer(buf_main);
     bool gold_ok = (args->get_int(ARG_TARGET_GOLDOK) == 1);
-    int assume_threshold = args->get_int(ARG_TARGET_ASSUME);
-    
-    if (items->size() <= assume_threshold) {
-        ret = items;
-        return ret;
-    }
-    
+
 	while(true){
 		input = wgetch(stdscr);
 		
@@ -535,7 +481,151 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
 	}
 }
 
-// Complex menus =============================================
+// Assume targets if possible =============================================
+
+vector<tile*> * UI::assume_self(extract_t extr, argmap * args, vector<requirement*> * reqs) {
+
+    vector<tile*> * tiles = prompt_self(act_player);
+    return assume(tiles, extr, args, reqs);
+}
+
+vector<tile*> * UI::assume_adjacent(extract_t extr, argmap * args, vector<requirement*> * reqs) {
+
+    vector<tile*> * tiles = tile::adjacent_to(&(act_player->current_map->tiles[act_player->x][act_player->y]));
+    return assume(tiles, extr, args, reqs);
+}
+
+vector<tile*> * UI::assume(vector<tile*> * tiles, extract_t extr, argmap * args, vector<requirement*> * reqs) {
+
+    
+    vector<tile*> * ret = new vector<tile*>();
+    int found = 0;
+    
+    // For each adjacent tile, see if it has the kind of thing we're looking for
+    // Add to the return list, but return NULL if there are too many
+    vector<tile*>::iterator it = tiles->begin();
+    for(; it != tiles->end(); ++it) {
+    
+        // Check relevant entities in each tile, return NULL if too many are found
+        if (extr == EXT_ACTOR) {
+        
+            if ((*it)->my_actor != NULL && requirement::check_requirements_for(*it, reqs)) {
+                ret->push_back(*it);
+                ++found;
+            }
+        } if (extr == EXT_OBJECTS) {
+        
+            if ((*it)->my_objects->size() > 0) {
+                if ((*it)->my_objects->size() > args->get_int(ARG_TARGET_ASSUME)) {
+                    return NULL;
+                } else {
+                    // Get the number of acceptable objects
+                    vector<object*>::iterator it2 = (*it)->my_objects->begin();
+                    bool newly_found = 0;
+                    for(; it2 != (*it)->my_objects->end(); ++it2) {
+                        if(requirement::check_requirements_for(*it2, reqs)) {
+                            ++newly_found;
+                        }
+                    }
+                    // If this tile contains objects we can assume, add it
+                    if (newly_found > 0) {
+                        found += newly_found;
+                        ret->push_back(*it);
+                    }
+                }
+            }
+        } else if (extr == EXT_FEATURE) {
+        
+            if ((*it)->my_feature != NULL && requirement::check_requirements_for(*it, reqs)) {
+                ret->push_back(*it);
+                ++found;
+            }
+        }
+        
+        if (found > args->get_int(ARG_TARGET_ASSUME)) {
+            return NULL;
+        }
+    }
+    
+    if (ret->size() == 0) {
+        return NULL;
+    }
+    
+    return ret;
+}
+
+// Extract targets from tiles =========================================
+
+vector<actor*> * UI::extract_actors(vector<tile*> * tiles, vector<requirement*> * reqs) {
+    
+    vector<actor*> * r = new vector<actor*>();
+    
+    vector<tile*>::iterator it = tiles->begin();
+    for(; it != tiles->end(); ++it) {
+        if ((*it)->my_actor != NULL) {
+            if (requirement::check_requirements_for((*it)->my_actor, reqs)) {
+                r->push_back((*it)->my_actor);
+            }
+        }
+    }
+    
+    return r;
+}
+
+vector<object*> * UI::extract_objects(vector<tile*> * tiles, vector<requirement*> * reqs) {
+    
+    vector<object*> * r = new vector<object*>();
+
+    vector<tile*>::iterator it = tiles->begin();
+    for(; it != tiles->end(); ++it) {
+        vector<object*>::iterator it2 = (*it)->my_objects->begin();
+        for(; it2 != (*it)->my_objects->end(); ++it2) {
+            if (requirement::check_requirements_for((*it2), reqs)) {
+                r->push_back(*it2);
+            }
+        }
+    }
+    
+    return r;
+}
+
+vector<object*> * UI::extract_inventories(vector<tile*> * tiles, vector<requirement*> * reqs) {
+    
+    vector<object*> * r = new vector<object*>();
+    
+    vector<tile*>::iterator it = tiles->begin();
+    for(; it != tiles->end(); ++it) {
+        if ((*it)->my_actor != NULL) {
+            actor * cur_act = (*it)->my_actor;
+            vector<object*>::iterator it2 = cur_act->inventory->begin();
+            for(; it2 != cur_act->inventory->end(); ++it2) {
+                if (requirement::check_requirements_for((*it2), reqs)) {
+                    r->push_back((*it2));
+                }
+            }
+        }
+    }
+    
+    return r;
+}
+
+vector<feature*> * UI::extract_features(vector<tile*> * tiles, vector<requirement*> * reqs) {
+    
+    vector<feature*> * r = new vector<feature*>();
+    
+    vector<tile*>::iterator it = tiles->begin();
+    for(; it != tiles->end(); ++it) {
+        if ((*it)->my_feature != NULL) {
+            if (requirement::check_requirements_for((*it)->my_feature, reqs)) {
+                r->push_back((*it)->my_feature);
+            }
+        }
+    }
+    
+    return r;
+}
+
+// Targeting menus =============================================
 
 /*
     Menu for selecting a number of items from a set.
@@ -711,6 +801,7 @@ direction_t UI::prompt_direction(string prompt) {
         win_output->print_buf(buf_main);
         break_buffer(buf_main);
     }
+    
     
     int input = wgetch(stdscr);
         

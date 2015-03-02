@@ -45,6 +45,7 @@ class tile : public mapentity {
     
     static float distance_between(tile *, tile *);
     static vector<tile*> * line_between(tile *, tile *);
+    static vector<tile*> * adjacent_to(tile *);
 };
 
 #endif

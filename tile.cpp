@@ -171,3 +171,24 @@ vector<tile*> * tile::line_between(tile * orig, tile * dest) {
 
 }
 
+vector<tile*> * tile::adjacent_to(tile * orig) {
+
+    vector<tile*> * ret = new vector<tile*>();
+    map * m = orig->current_map;
+    
+    for(int i = -1; i < 2; ++i) {
+    
+        for(int j = -1; j < 2; ++j) {
+
+            int x = orig->x + i, y = orig->y + j;
+            
+            if(!(i == 0 && j == 0) &&
+               x > 0 && y > 0 &&
+               x < m->width && y < m->height) {
+                ret->push_back(&m->tiles[x][y]);
+            }
+        }
+    }
+    
+    return ret;
+}

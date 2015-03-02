@@ -34,7 +34,8 @@ enum direction_t {
     DIR_DOWNLEFT,
     DIR_LEFT,
     DIR_UPLEFT,
-    DIR_CENTER
+    DIR_CENTER,
+    DIR_MAX
 };
 
 extern std::map<int, direction_t> * direction_key;
@@ -56,18 +57,21 @@ class UI {
 	static bool command_move(direction_t);
 	static bool command_quit();
 	
-    static vector<tile*> * target_self();
-    static vector<actor*> * extract_actors(vector<tile*> *);
-    static vector<object*> * extract_objects(vector<tile*> *);
-    static vector<object*> * extract_inventories(vector<tile*> *);
-    static vector<feature*> * extract_features(vector<tile*> *);
-    
-    static vector<tile*> * target_self(actor *);
+    static vector<tile*> * prompt_self(actor *);
     static vector<void*> * prompt_target(targetActionBlock *);
     static vector<tile*> * prompt_adjacent(string, argmap *, vector<requirement*> *);
     static vector<object*> * prompt_objects(string, vector<object*>*, argmap *, vector<requirement*> *);
     static vector<object*> * prompt_inventory(string, argmap *, vector<requirement*> *);
     static vector<tile*> * prompt_tile(string, bool, tile*, argmap *, vector<requirement*> *);
+    
+    static vector<tile*> * assume(vector<tile*> *, extract_t, argmap *, vector<requirement*> *);
+    static vector<tile*> * assume_self(extract_t, argmap *, vector<requirement*> *);
+    static vector<tile*> * assume_adjacent(extract_t, argmap *, vector<requirement*> *);
+    
+    static vector<actor*> * extract_actors(vector<tile*> *, vector<requirement*> *);
+    static vector<object*> * extract_objects(vector<tile*> *, vector<requirement*> *);
+    static vector<object*> * extract_inventories(vector<tile*> *, vector<requirement*> *);
+    static vector<feature*> * extract_features(vector<tile*> *, vector<requirement*> *);
     
     // Menus
 	static vector<object*> * menu_select_objects(window *, string, vector<object*> *, argmap *);

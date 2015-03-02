@@ -242,15 +242,14 @@ bool actor::execute_action(action * in, argmap * args, bool get_targets) {
     
     bool failedReq = false;
     // implement stack for loops
-    actor * cur_agent = this;
-    vector<void*> * cur_patient = NULL;
-    vector<void*> * cur_instrument = NULL;
+    argmap * roles = new argmap(); // NOT using normal arg keys. Using action role keys instead.
+    roles->add_actor((args_t)ACTROLE_AGENT, this);
     vector<void*> * nvect;
     
     if (args) {
-        cur_agent = args->get_actor(ARG_ACTION_AGENT);
-        cur_patient = args->get_vector(ARG_ACTION_PATIENT);
-        cur_instrument = args->get_vector(ARG_ACTION_INSTRUMENT);
+        if (args->has_value(ARG_ACTION_AGENT)) roles->add_actor((args_t)ACTROLE_AGENT, args->get_actor(ARG_ACTION_AGENT));
+        if (args->has_value(ARG_ACTION_PATIENT)) roles->add_vector((args_t)ACTROLE_PATIENT, args->get_vector(ARG_ACTION_PATIENT));
+        if (args->has_value(ARG_ACTION_INSTRUMENT)) roles->add_vector((args_t)ACTROLE_INSTRUMENT, args->get_vector(ARG_ACTION_INSTRUMENT));
     }
 
     // Process each block in the action in order
@@ -262,9 +261,15 @@ bool actor::execute_action(action * in, argmap * args, bool get_targets) {
         if (failedReq && !(curBlock->block_type == REQUIREMENT_BLOCK && ((requirementActionBlock *)curBlock)->endBlock)) continue;
         
         if (curBlock->block_type != TARGET_BLOCK) {
-            if (cur_agent != NULL) curBlock->args->add_actor(ARG_ACTION_AGENT, cur_agent);
-            if (cur_patient != NULL) curBlock->args->add_vector(ARG_ACTION_PATIENT, cur_patient);
-            if (cur_instrument != NULL) curBlock->args->add_vector(ARG_ACTION_INSTRUMENT, cur_instrument);
+            if(roles->has_value((args_t)ACTROLE_AGENT)) {
+                curBlock->args->add_actor(ARG_ACTION_AGENT, roles->get_actor((args_t)ACTROLE_AGENT));
+            }
+            if(roles->has_value((args_t)ACTROLE_PATIENT)) {
+                curBlock->args->add_vector(ARG_ACTION_PATIENT, roles->get_vector((args_t)ACTROLE_PATIENT));
+            }
+            if(roles->has_value((args_t)ACTROLE_INSTRUMENT)) {
+                curBlock->args->add_vector(ARG_ACTION_INSTRUMENT, roles->get_vector((args_t)ACTROLE_INSTRUMENT));
+            }
         }
         
         switch (curBlock->block_type) {
@@ -273,23 +278,61 @@ bool actor::execute_action(action * in, argmap * args, bool get_targets) {
             case TARGET_BLOCK:
                 if (get_targets) {
                     nvect = select_target((targetActionBlock *)curBlock);
-                    if (nvect == NULL) {
-                        // Some error happened in targeting - we can't continue
-                        return false;
-                    }
                     switch(((targetActionBlock *)curBlock)->position) {
                     
+                        case ACTROLE_AGENT:
+                            roles->add_actor((args_t)ACTROLE_AGENT, (actor*)nvect->at(0));
+                        break;
                         case ACTROLE_PATIENT:
-                            cur_patient = nvect;
+                        case ACTROLE_PATIENT_2:
+                            roles->add_vector((args_t)ACTROLE_PATIENT, nvect);
                         break;
-                        
                         case ACTROLE_INSTRUMENT:
-                            cur_instrument = nvect;
+                            roles->add_vector((args_t)ACTROLE_INSTRUMENT, nvect);
                         break;
-                            
-                        default:
+                        case ACTROLE_LOCATION:
+                            roles->add_vector((args_t)ACTROLE_LOCATION, nvect);
                         break;
                     }
+                }
+            break;
+            
+            // EXTRACT BLOCK - take role, run extraction function, store in new role
+            case EXTRACT_BLOCK:
+            
+                switch (((extractActionBlock *)curBlock)->from_position) {
+                    case ACTROLE_AGENT:
+                        nvect = new vector<void*>();
+                        nvect->push_back((void*)roles->get_actor((args_t)ACTROLE_AGENT));
+                    break;
+                    default:
+                        nvect = roles->get_vector((args_t)((extractActionBlock *)curBlock)->from_position);
+                    break;
+                }
+            
+                switch (((extractActionBlock *)curBlock)->extract_type) {
+                    case EXT_ACTOR:
+                        nvect = (vector<void*>*)UI::extract_actors((vector<tile*> *)nvect, curBlock->requirements);
+                    break;
+                    case EXT_OBJECTS:
+                        nvect = (vector<void*>*)UI::extract_objects((vector<tile*> *)nvect, curBlock->requirements);
+                    break;
+                    case EXT_INVENTORY:
+                        nvect = (vector<void*>*)UI::extract_inventories((vector<tile*> *)nvect, curBlock->requirements);
+                    break;
+                    case EXT_FEATURE:
+                        nvect = (vector<void*>*)UI::extract_features((vector<tile*> *)nvect, curBlock->requirements);
+                    break;
+                }
+                
+                switch(((extractActionBlock *)curBlock)->to_position) {
+                
+                    case ACTROLE_AGENT:
+                        roles->add_actor((args_t)ARG_ACTION_AGENT, (actor*)nvect->at(0));
+                    break;
+                    default:
+                        roles->add_vector((args_t)((extractActionBlock *)curBlock)->to_position, nvect);
+                    break;
                 }
             break;
             
