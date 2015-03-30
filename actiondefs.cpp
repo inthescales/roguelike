@@ -21,8 +21,15 @@ void define_actions() {
     new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_WALK));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock( new effect(EFF_WALK)));
+    
     new_action->purpose = ACTPUR_MOVE;
+    new_action->priority = 10;
     new_action->contextOk = true;
+    new_action->args->add_int(ARG_AI_MIN_DISTANCE, 1);
+    new_action->args->add_int(ARG_AI_MAX_DISTANCE, 1);
+    new_action->args->add_int(ARG_AI_TARG_TYPE, AI_TARG_TILE);
+    new_action->args->add_flag(FLAG_ACTION_WALK);
+    
     actiondef[++c] = new_action;
     
     //#TAKE_BASIC
@@ -131,9 +138,13 @@ void define_actions() {
     new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_OPEN_FEAT));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock(new effect(EFF_FEAT_OPEN)));
+    
     new_action->purpose = ACTPUR_OPEN_FEAT;
     new_action->priority = 10;
     new_action->contextOk = true;
+    new_action->args->add_int(ARG_AI_MIN_DISTANCE, 1);
+    new_action->args->add_int(ARG_AI_MAX_DISTANCE, 1);
+    new_action->args->add_int(ARG_AI_TARG_TYPE, AI_TARG_TILE);
     actiondef[++c] = new_action;
     
     //#CLOSE_BASIC
@@ -149,9 +160,14 @@ void define_actions() {
     new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_CLOSE_FEAT));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock(new effect(EFF_FEAT_CLOSE)));
+    
     new_action->purpose = ACTPUR_CLOSE_FEAT;
     new_action->priority = 10;
     new_action->contextOk = true;
+    new_action->args->add_int(ARG_AI_MIN_DISTANCE, 1);
+    new_action->args->add_int(ARG_AI_MAX_DISTANCE, 1);
+    new_action->args->add_int(ARG_AI_TARG_TYPE, AI_TARG_TILE);
+    
     actiondef[++c] = new_action;
 
     //#STRIKE
@@ -166,9 +182,15 @@ void define_actions() {
     new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_STRIKE));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock(new effect(EFF_STRIKE)));
+    
     new_action->purpose = ACTPUR_HARM;
     new_action->priority = 10;
     new_action->contextOk = true;
+    new_action->args->add_int(ARG_AI_MIN_DISTANCE, 1);
+    new_action->args->add_int(ARG_AI_MAX_DISTANCE, 1);
+    new_action->args->add_int(ARG_AI_TARG_TYPE, AI_TARG_TILE);
+    new_action->args->add_int(ARG_AI_REQUIRE_EQUIPPED, ES_MAINHAND);
+    
     actiondef[++c] = new_action;
     
     //#PUNCH
@@ -183,9 +205,14 @@ void define_actions() {
     new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_PUNCH));
     new_action->add_block(new_require_block);
     new_action->add_block(new effectActionBlock(new effect(EFF_PUNCH)));
+    
     new_action->purpose = ACTPUR_HARM;
     new_action->priority = 5;
     new_action->contextOk = true;
+    new_action->args->add_int(ARG_AI_MIN_DISTANCE, 1);
+    new_action->args->add_int(ARG_AI_MAX_DISTANCE, 1);
+    new_action->args->add_int(ARG_AI_TARG_TYPE, AI_TARG_TILE);
+    
     actiondef[++c] = new_action;
     
     //#POINT

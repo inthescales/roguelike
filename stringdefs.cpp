@@ -6,6 +6,7 @@ using std::string;
 
 string str_obj_type[] = 
 {
+    "ERR_NO_TYPE",
 	"food",
     "drink",
 	"weapon",
@@ -20,6 +21,7 @@ string str_obj_type[] =
 
 string str_eq_slot[] =
 {
+    "ERR_NO_SUBTYPE",
 	"main hand",
 	"offhand",
 	"head",

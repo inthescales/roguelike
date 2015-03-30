@@ -59,7 +59,12 @@ enum actionPurpose_t {
     ACTPUR_EAT,
     ACTPUR_DRINK,
     ACTPUR_OPEN_FEAT,
-    ACTPUR_CLOSE_FEAT
+    ACTPUR_CLOSE_FEAT,
+    // Abstract purposes
+    ACTPUR_ABSTRACT,
+    ACTPUR_WANDER,
+    ACTPUR_FOLLOW,
+    ACTPUR_GUARD
 };
 
 class effect;
@@ -139,6 +144,8 @@ class action {
     action(argmap *);
     action(argmap *, vector<actionBlock *> *);
     void add_block(actionBlock *);
+    
+    static vector<action*> * defs_for(vector<int>*);
 };
 
 extern action * actiondef[];

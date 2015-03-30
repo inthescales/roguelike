@@ -10,7 +10,8 @@
 #include "argmap.h"
 
 enum entity_type {
-    ENT_TYPE_ACTOR = 0,
+    ENT_TYPE_NONE = 0,
+    ENT_TYPE_ACTOR,
     ENT_TYPE_OBJECT,
     ENT_TYPE_FEATURE,
     ENT_TYPE_TILE,

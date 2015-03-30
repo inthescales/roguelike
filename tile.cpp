@@ -97,13 +97,13 @@ bool tile::remove_object(object * in){
 
 // Class methods ===================================
 
-float tile::distance_between(tile * orig, tile * dest) {
+float tile::distance_between(mapentity * orig, mapentity * dest) {
 
     float dist = floor(sqrt( pow( fabs(orig->x - dest->x), 2) + pow( fabs(orig->y - dest->y), 2) ));
     return dist;
 }
 
-vector<tile*> * tile::line_between(tile * orig, tile * dest) {
+vector<tile*> * tile::line_between(mapentity * orig, mapentity * dest) {
 
     if(orig->current_map != dest->current_map) {
         // Something is horribly wrong
@@ -171,6 +171,9 @@ vector<tile*> * tile::line_between(tile * orig, tile * dest) {
 
 }
 
+/*
+ Get all tiles adjacent to the specified tile
+*/
 vector<tile*> * tile::adjacent_to(tile * orig) {
 
     vector<tile*> * ret = new vector<tile*>();

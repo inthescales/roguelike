@@ -1,5 +1,4 @@
 #ifndef ACTOR_H
-
 #define ACTOR_H
 
 #include "action.h"
@@ -8,6 +7,7 @@
 #include "config.h"
 #include "display.h"
 #include "mapentity.h"
+#include "object.h"
 
 #include <map>
 #include <stdlib.h>
@@ -18,10 +18,21 @@
 using std::string;
 using std::vector;
 
+enum act_can_t {
+
+    ACTCAN_CAN_USE = 0,
+    ACTCAN_CANT_USE,
+    ACTCAN_TOO_FAR,
+    ACTCAN_TOO_CLOSE,
+    ACTCAN_NEED_EQUIP,
+    ACTCAN_NEED_INSTRUMENT
+};
+
 class actclass;
 class action;
-class targetActionBlock;
+class mind;
 class object;
+class targetActionBlock;
 class tile;
 
 class actor : public mapentity {
@@ -41,7 +52,7 @@ class actor : public mapentity {
     std::map<actionPurpose_t, vector<action*>*> actionsList;
     
 	//ai
-	int aitype;
+	mind * my_mind;
 	int state;
 
 	// Functions =====================
@@ -71,6 +82,14 @@ class actor : public mapentity {
     void do_unequip(object *, int);
     void move(tile*);
     void enter_tile(tile *);
+    
+    // AI
+    act_can_t check_can(action *, entity *);
+    int check_effort(action *, entity *);
+    bool move_toward(mapentity *);
+    bool can_move_to(action *, tile *);
+    vector<object*> * objects_of_type(object_type, object_subtype);
+    vector<object*> * objects_for_slot(equip_slot);
     
     // Actions
     int take_turn();

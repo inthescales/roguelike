@@ -1,5 +1,6 @@
 #include "actdefs.h"
 #include "actiondefs.h"
+#include "AIdefs.h"
 #include "conddefs.h"
 #include "config.h"
 #include "enums.h"
@@ -40,6 +41,7 @@ void setup(){
 	curs_set(1);
 	srand( time( NULL ) );
 
+    define_AI();
 	define_symbols();
 	define_actors();
 	define_objects();

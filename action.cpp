@@ -143,4 +143,15 @@ bool priority_comp(int a, int b) {
     return actiondef[a]->priority >= actiondef[b]->priority;
 }
 
+vector<action*> * action::defs_for(vector<int> * in) {
+
+    vector<action*> * ret = new vector<action*>();
+    vector<int>::iterator it = in->begin();
+    for(;it != in->end(); ++it) {
+        ret->push_back(actiondef[*it]);
+    }
+    
+    return ret;
+}
+
 // TODO - in requirements, add else blocks, and target extract blocks (get feature from last tile, etc)

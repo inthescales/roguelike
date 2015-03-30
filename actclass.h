@@ -2,6 +2,7 @@
 
 #define ACTCLASS_H
 
+#include "AI.h"
 #include "argmap.h"
 #include "display.h"
 #include "effect.h"
@@ -16,8 +17,7 @@ using std::string;
 class actclass : public mapentityclass {
 
 	public:
-	
-	short ai;
+	aimodule * aimod;	
 	
     // Functions ===
 	actclass(string, symbol_code, colorName);

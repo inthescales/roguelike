@@ -95,6 +95,10 @@ bool requirement::check_for(mapentity * ent) {
             if (!ok) err = ERR_NO_ITEMS;
         break;
         
+        case REQ_ACTOR_IS_PLAYER:
+            ok = ((actor *)ent) == act_player;
+        break;
+        
         // TODO - multitake.
         case REQ_ACTOR_CAN_TAKE:
         

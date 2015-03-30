@@ -43,8 +43,8 @@ class tile : public mapentity {
     bool get_object(object *);
 	bool remove_object(object *);
     
-    static float distance_between(tile *, tile *);
-    static vector<tile*> * line_between(tile *, tile *);
+    static float distance_between(mapentity *, mapentity *);
+    static vector<tile*> * line_between(mapentity *, mapentity *);
     static vector<tile*> * adjacent_to(tile *);
 };
 

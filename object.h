@@ -19,7 +19,8 @@ class objclass;
 
 //Item types
 enum object_type {
-	OT_FOOD = 0,
+    OT_NONE = 0,
+	OT_FOOD,
     OT_DRINK,
 	OT_WEAPON,
 	OT_ARMOR,
@@ -33,7 +34,8 @@ enum object_type {
 
 //Item subtypes
 enum object_subtype {
-	OST_FOOD = 0,
+    OST_NONE = 0,
+	OST_FOOD,
     OST_POTION,
 	OST_SWORD,
 	OST_KNIFE,

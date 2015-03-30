@@ -94,6 +94,21 @@ end
 
 fileout.write("#define ACTION_MAX " + count.to_s + "\n\n");
 
+#AIS
+count = 0
+filein = File.new("aidefs.cpp", "r")
+
+while (line = filein.gets)
+
+    if (name = /\/\/#(\S*)/.match(line))
+		fileout.write("#define AI_" + name[1] + " " + count.to_s + "\n")
+		count += 1
+	end
+	
+end
+
+fileout.write("#define AI_MAX " + count.to_s + "\n\n");
+
 
 #END
 

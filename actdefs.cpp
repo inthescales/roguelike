@@ -1,5 +1,7 @@
 #include "actclass.h"
 #include "actdefs.h"
+#include "AI.h"
+#include "aidefs.h"
 #include "classdefs.h"
 #include "display.h"
 #include "symboldefs.h"
@@ -37,4 +39,5 @@ void define_actors(){
     aclass[c]->add_action(ACTION_CLOSE_BASIC);
     aclass[c]->add_action(ACTION_STRIKE);
     aclass[c]->add_action(ACTION_PUNCH);
+    aclass[c]->aimod = aimod[AI_ATTACK_CLOSEST];
 };

@@ -1,6 +1,7 @@
 #include "action.h"
 #include "actor.h"
 #include "actclass.h"
+#include "AI.h"
 #include "error.h"
 #include "feature.h"
 #include "interface.h"
@@ -24,7 +25,7 @@ actor::actor(short code){
 
 	my_class = (entityclass*)aclass[code];
     individual_name = "";
-	//new->aitype = aclass[code].ai;
+	my_mind = new mind(((actclass *)my_class)->aimod);
 	
 	level = 1;
 	maxHP = HP = 5;
@@ -206,6 +207,179 @@ void actor::resolve_trigger(trigger_t trigger, argmap * args)
 
 }
 
+// AI ====================================================================
+
+// TODO - make this return set of problems
+act_can_t actor::check_can(action * ac, entity * targ) {
+
+    if (ac->args->has_value(ARG_AI_TARG_TYPE)) {
+        ai_target_type_t target_type = (ai_target_type_t)ac->args->get_int(ARG_AI_TARG_TYPE);
+        
+        if (targ == this && target_type != AI_TARG_SELF) {
+            return ACTCAN_CANT_USE;
+        } else
+        if (targ != this && target_type == AI_TARG_SELF) {
+            return ACTCAN_CANT_USE;
+        }
+    }
+
+    if (ac->args->has_value(ARG_AI_MIN_DISTANCE)) {
+        int dist = tile::distance_between(this, (mapentity*)targ);
+        if (dist < ac->args->get_int(ARG_AI_MIN_DISTANCE)) {
+            return ACTCAN_TOO_CLOSE;
+        }
+    }
+    
+    if (ac->args->has_value(ARG_AI_MAX_DISTANCE)) {
+        int dist = tile::distance_between(this, (mapentity*)targ);
+        if (dist > ac->args->get_int(ARG_AI_MAX_DISTANCE)) {
+            return ACTCAN_TOO_FAR;
+        }
+    }
+    
+    if (ac->args->has_value(ARG_AI_REQUIRE_EQUIPPED)) {
+        int slot = ac->args->get_int(ARG_AI_REQUIRE_EQUIPPED);
+        if (slot >= ES_MAX || equipped_item[slot] == NULL) {
+            return ACTCAN_NEED_EQUIP;
+        }
+    }
+    
+    return ACTCAN_CAN_USE;
+}
+
+// TODO - make this take in a set of reasons and process them
+int actor::check_effort(action * ac, entity * targ) {
+
+    if (ac->args->has_value(ARG_AI_TARG_TYPE)) {
+        ai_target_type_t target_type = (ai_target_type_t)ac->args->get_int(ARG_AI_TARG_TYPE);
+        
+        if (targ == this && target_type != AI_TARG_SELF) {
+            return -1000;
+        } else
+        if (targ != this && target_type == AI_TARG_SELF) {
+            return -1000;
+        }
+    }
+
+    if (ac->args->has_value(ARG_AI_MIN_DISTANCE)) {
+        int dist = tile::distance_between(this, (mapentity*)targ);
+        int diff = std::min(0, ac->args->get_int(ARG_AI_MIN_DISTANCE) - dist);
+        if (diff > 0) {
+            return diff;
+        }
+    }
+    
+    if (ac->args->has_value(ARG_AI_MAX_DISTANCE)) {
+        int dist = tile::distance_between(this, (mapentity*)targ);
+        int diff = std::min(0, dist - ac->args->get_int(ARG_AI_MAX_DISTANCE));
+        if (diff > 0) {
+            return diff;
+        }
+    }
+    
+    if (ac->args->has_value(ARG_AI_REQUIRE_EQUIPPED)) {
+        equip_slot slot = (equip_slot)ac->args->get_int(ARG_AI_REQUIRE_EQUIPPED);
+        if (slot < ES_MAX && equipped_item[slot] == NULL) {
+            if (objects_for_slot(slot)->size() > 0) {
+                return /*1*/0;
+            } else {
+                return -1000;
+            }
+        }
+    }
+    
+    return 0;
+
+}
+
+bool actor::move_toward(mapentity * target) {
+    
+    vector<action*> * actions = action::defs_for(get_actions_for(ACTPUR_MOVE));
+    vector<action*>::iterator it = actions->begin();
+    
+    vector<tile*> * line = tile::line_between(this, target);
+    action * best_action = NULL;
+    int best_dist = 0;
+    
+    for(;it != actions->end(); ++it) {
+    
+        int range = -1;
+        if ((*it)->args->has_value(ARG_AI_MAX_DISTANCE)) {
+            range = (*it)->args->get_int(ARG_AI_MAX_DISTANCE);
+        }
+        for(int i = 0; i < line->size() && (range == -1 || i < range); ++i) {
+            
+            if (best_action == NULL || best_dist < i
+             || can_move_to(*it, line->at(i))) {
+                best_action = (*it);
+                best_dist = i;
+                break;
+            }
+        }        
+    }
+    
+    if (best_action == NULL) {
+        return false;
+    }
+    
+    argmap * args = new argmap();
+    vector<void*> * pat = new vector<void*>();
+    pat->push_back((void*)line->at(best_dist));
+    args->add_vector(ARG_ACTION_PATIENT, pat);
+    execute_action(best_action, args, false);
+    return true;
+}
+
+bool actor::can_move_to(action * ac, tile * t) {
+
+    int dist = tile::distance_between(this, t);
+    act_can_t can = check_can(ac, t);
+    
+    if (can != ACTCAN_CAN_USE) {
+        return false;
+    }
+
+    if ((ac->args->has_flag(FLAG_ACTION_WALK) && !t->has_flag(FLAG_TILE_CAN_WALK))
+     || (ac->args->has_flag(FLAG_ACTION_SWIM) && !t->has_flag(FLAG_TILE_CAN_SWIM))
+     || (ac->args->has_flag(FLAG_ACTION_FLY) && !t->has_flag(FLAG_TILE_CAN_FLY))) {
+     
+        return false;
+    }
+    
+    return true;
+}
+
+vector<object*> * actor::objects_of_type(object_type t, object_subtype st) {
+
+    vector<object*> * ret = new vector<object*>();
+
+    vector<object*>::iterator it = inventory->begin();
+    for(;it != inventory->end(); ++it) {
+    
+        if((t == 0 || (*it)->get_type() == t)
+        || (st == 0 || (*it)->get_subtype() == st)) {
+            ret->push_back(*it);
+        }        
+    }
+
+    return ret;
+}
+
+vector<object*> * actor::objects_for_slot(equip_slot slot) {
+
+    vector<object*> * ret = new vector<object*>();
+
+    vector<object*>::iterator it = inventory->begin();
+    for(;it != inventory->end(); ++it) {
+    
+        if(pick_slot_for(*it) == slot) {
+            ret->push_back(*it);
+        }        
+    }
+
+    return ret;
+}
+
 // Action and turn setup ====================================================================
 
 // get_actions
@@ -214,6 +388,9 @@ int actor::take_turn() {
 
     if (this == act_player) {
         UI::get_action(); // This should return delay until next turn
+    } else {
+        goal * my_goal = AI::select_goal(this);
+        AI::take_action(this, my_goal);
     }
     
     return 5; // Return time until next action - effect resolutio will handle requeueing

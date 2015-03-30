@@ -36,7 +36,25 @@ enum args_t {
     ARG_REQUIRE_FLAG,
     ARG_REQUIRE_VALUE,
     ARG_REQUIRE_PATIENT, 
+    ARG_AI_TARG_TYPE, // ============= AI ANNOTATION ================
+    ARG_AI_MOVE_TYPE,
+    ARG_AI_MIN_DISTANCE, 
+    ARG_AI_MAX_DISTANCE,
+    ARG_AI_REQUIRE_EQUIPPED, // Takes equip slot
+    ARG_AI_REQUIRE_EQUIP_TYPE, // Takes object type
+    ARG_AIR_REQUIRE_EQUIP_SUBTYPE, // Takes object subtype
     ARG_FLAGS // ========== MISCELLANEOUS ================
+};
+
+enum ai_target_type_t { // Target type annotation for AI
+    AI_TARG_SELF = 0,
+    AI_TARG_TILE
+};
+
+enum ai_move_type_t {
+    AI_MOVE_TYPE_WALK = 0,
+    AI_MOVE_TYPE_SWIM,
+    AI_MOVE_TYPE_FLY
 };
 
 enum flags_t {
@@ -56,6 +74,9 @@ enum flags_t {
     FLAG_FEAT_CAN_OPEN,
     FLAG_FEAT_CAN_CLOSE,
     FLAG_FEAT_OPAQUE,
+    FLAG_ACTION_WALK, // ACTIONS ===================
+    FLAG_ACTION_SWIM,
+    FLAG_ACTION_FLY,
     FLAG_MENU_SORT, // MENUS ==============
     FLAG_MENU_PLAYER,
     FLAG_TARGET_BREAK_PROJECTILE // Target options =========

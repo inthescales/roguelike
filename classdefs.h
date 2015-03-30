@@ -41,4 +41,7 @@
 #define ACTION_LINE 12
 #define ACTION_MAX 13
 
+#define AI_ATTACK_CLOSEST 0
+#define AI_MAX 1
+
 #endif
