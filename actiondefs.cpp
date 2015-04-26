@@ -2,36 +2,72 @@
 #include "actiondefs.h"
 #include "entity.h"
 
+// A bunch of helpful macros
+
+#define _new_action new_action = new action();
+
+#define _new_target_block(prompt, type, radius, extract, role)           new_target_block = new targetActionBlock(prompt,type,radius,extract,role);
+#define _add_target_block_arg(code,val)                                  new_target_block->args->add_int((args_t)code,(int)val);
+#define _add_target_block_flag(code)                                     new_target_block->args->add_flag(code);
+#define _add_target_block_req                                            new_target_block->requirements->push_back(new_requirement);
+#define _append_target                                                   new_action->add_block(new_target_block);
+
+#define _new_require_block(loop,end,critical)                            new_require_block = new requirementActionBlock(loop,end,critical);
+#define _add_require_block_arg(code,val)                                 new_require_block->args->add_int((args_t)code,(int)val);
+#define _new_requirement(type)                                           new_requirement = new requirement(type);
+#define _add_requirement_arg(code,val)                                   new_requirement->args->add_int((args_t)code,(int)val);
+#define _add_require_block_req                                           new_require_block->requirements->push_back(new_requirement);
+#define _append_require                                                  new_action->add_block(new_require_block);
+
+#define _new_extract_block(type,from,to)                                 new_extract_block = new extractActionBlock(type,from,to);
+#define _append_extract                                                  new_action->add_block(new_extract_block);
+
+#define _new_effect_block(eff)                                           new_effect_block = new effectActionBlock(new effect(eff));
+#define _effect_block_ends_test                                          new_effect_block->testDone = true;
+#define _new_effect(type)                                                new_effect = new effect(type);
+#define _add_effect_arg(code,val)                                        new_effect->args->add_int((args_t)code,(int)val);
+#define _append_effect                                                   new_action->add_block(new_effect_block);
+
+#define _action_purpose(purp)                                            new_action->purpose = purp;
+#define _action_priority(pri)                                            new_action->priority = pri;
+#define _action_is_context_ok                                            new_action->contextOk = true;
+#define _finish_action                                                   actiondef[++c] = new_action;
+
 void define_actions() {
 
 	int c = -1;
 
     action * new_action;
     targetActionBlock * new_target_block;
+    extractActionBlock * new_extract_block;
     requirementActionBlock * new_require_block;
     effectActionBlock * new_effect_block;
+    effect * new_effect;
+    requirement * new_requirement;
     argmap * new_effect_args;
+    set<int> * new_set;
     
-    //#WALK_BASIC
-    new_action = new action();
-    new_target_block = new targetActionBlock("Walk where?", TAR_ADJ, RAD_SINGLE, EXT_TILE, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_WALK));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock( new effect(EFF_WALK)));
-    
-    new_action->purpose = ACTPUR_MOVE;
-    new_action->priority = 10;
-    new_action->contextOk = true;
-    new_action->args->add_int(ARG_AI_MIN_DISTANCE, 1);
-    new_action->args->add_int(ARG_AI_MAX_DISTANCE, 1);
-    new_action->args->add_int(ARG_AI_TARG_TYPE, AI_TARG_TILE);
-    new_action->args->add_flag(FLAG_ACTION_WALK);
-    
-    actiondef[++c] = new_action;
-    
+    //#WALK_BASIC    
+    _new_action
+        _new_target_block("Walk where?", TAR_ADJ, RAD_SINGLE, EXT_TILE, ACTROLE_LOCATION)
+            _add_target_block_arg(ARG_TARGET_NUMBER, 1)
+            _add_target_block_arg(ARG_TARGET_MIN_DISTANCE, 1)
+            _add_target_block_arg(ARG_TARGET_MAX_DISTANCE, 1)
+        _append_target
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_CAN_WALK_TO)
+            _add_require_block_req
+        _append_require
+        _new_extract_block(EXT_COPY, ACTROLE_AGENT, ACTROLE_PATIENT)
+        _append_extract
+        _new_effect_block(EFF_MOVE_ACT);
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_MOVE)
+    _action_priority(10)
+    _action_is_context_ok
+    _finish_action
+
     //#TAKE_BASIC
     new_action = new action();
     new_target_block = new targetActionBlock("Take what?", TAR_SELF, RAD_SINGLE, EXT_OBJECTS, ACTROLE_PATIENT);
@@ -142,9 +178,6 @@ void define_actions() {
     new_action->purpose = ACTPUR_OPEN_FEAT;
     new_action->priority = 10;
     new_action->contextOk = true;
-    new_action->args->add_int(ARG_AI_MIN_DISTANCE, 1);
-    new_action->args->add_int(ARG_AI_MAX_DISTANCE, 1);
-    new_action->args->add_int(ARG_AI_TARG_TYPE, AI_TARG_TILE);
     actiondef[++c] = new_action;
     
     //#CLOSE_BASIC
@@ -164,9 +197,6 @@ void define_actions() {
     new_action->purpose = ACTPUR_CLOSE_FEAT;
     new_action->priority = 10;
     new_action->contextOk = true;
-    new_action->args->add_int(ARG_AI_MIN_DISTANCE, 1);
-    new_action->args->add_int(ARG_AI_MAX_DISTANCE, 1);
-    new_action->args->add_int(ARG_AI_TARG_TYPE, AI_TARG_TILE);
     
     actiondef[++c] = new_action;
 
@@ -186,10 +216,6 @@ void define_actions() {
     new_action->purpose = ACTPUR_HARM;
     new_action->priority = 10;
     new_action->contextOk = true;
-    new_action->args->add_int(ARG_AI_MIN_DISTANCE, 1);
-    new_action->args->add_int(ARG_AI_MAX_DISTANCE, 1);
-    new_action->args->add_int(ARG_AI_TARG_TYPE, AI_TARG_TILE);
-    new_action->args->add_int(ARG_AI_REQUIRE_EQUIPPED, ES_MAINHAND);
     
     actiondef[++c] = new_action;
     
@@ -209,9 +235,6 @@ void define_actions() {
     new_action->purpose = ACTPUR_HARM;
     new_action->priority = 5;
     new_action->contextOk = true;
-    new_action->args->add_int(ARG_AI_MIN_DISTANCE, 1);
-    new_action->args->add_int(ARG_AI_MAX_DISTANCE, 1);
-    new_action->args->add_int(ARG_AI_TARG_TYPE, AI_TARG_TILE);
     
     actiondef[++c] = new_action;
     

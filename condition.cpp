@@ -171,7 +171,7 @@ void condition::resolve_trigger(trigger_t trigger, argmap * args) {
     my_map->add_condition(ARG_HOLDER_CONDITION, this);
     
 	if (args != NULL) {
-		my_map->add_args(args);
+		args->add_args(my_map);
 	}
     
     // Execute all these effects

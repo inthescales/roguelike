@@ -14,12 +14,13 @@ class object;
 class tile;
 
 enum args_t {
-    ARG_HOLDER_ENTITY = 0, // ===== TRIGGER CARRIERS =======
+    ARG_NONE = -1,
+    ARG_HOLDER_ENTITY, // ===== TRIGGER CARRIERS =======
     ARG_HOLDER_ACTOR,
     ARG_HOLDER_OBJECT,
     ARG_HOLDER_FEATURE,
     ARG_HOLDER_CONDITION,
-    ARG_ACTION_AGENT, // ===== ACTION ROLES =======
+    ARG_ACTION_AGENT, // ===== ACTION ROLES ======= - Returned by targeting, sent to blocks (ACTROLE is what is stored in the execute function, used by extract)
     ARG_ACTION_PATIENT,
     ARG_ACTION_INSTRUMENT,
     ARG_ACTION_LOCATION,
@@ -30,31 +31,20 @@ enum args_t {
     ARG_TARGET_NUMBER, // Max number that can be chosen
     ARG_TARGET_MAX_DISTANCE, // Distance from agent
     ARG_TARGET_MIN_DISTANCE,
-    ARG_TARGET_GOLDOK, // Can gold be chosen from inventory
     ARG_TARGET_ASSUME, // Automatically choose all if this many or fewer
     ARG_REQUIRE_STAT, // ===== REQUIREMENTS =======
     ARG_REQUIRE_FLAG,
     ARG_REQUIRE_VALUE,
     ARG_REQUIRE_PATIENT, 
+    ARG_REQUIRE_UNARY_ROLE,
     ARG_AI_TARG_TYPE, // ============= AI ANNOTATION ================
     ARG_AI_MOVE_TYPE,
     ARG_AI_MIN_DISTANCE, 
     ARG_AI_MAX_DISTANCE,
-    ARG_AI_REQUIRE_EQUIPPED, // Takes equip slot
+    ARG_AI_REQUIRE_EQUIPPED_SLOT, // Takes equip slot
     ARG_AI_REQUIRE_EQUIP_TYPE, // Takes object type
-    ARG_AIR_REQUIRE_EQUIP_SUBTYPE, // Takes object subtype
+    ARG_AI_REQUIRE_EQUIP_SUBTYPE, // Takes object subtype
     ARG_FLAGS // ========== MISCELLANEOUS ================
-};
-
-enum ai_target_type_t { // Target type annotation for AI
-    AI_TARG_SELF = 0,
-    AI_TARG_TILE
-};
-
-enum ai_move_type_t {
-    AI_MOVE_TYPE_WALK = 0,
-    AI_MOVE_TYPE_SWIM,
-    AI_MOVE_TYPE_FLY
 };
 
 enum flags_t {
@@ -63,7 +53,7 @@ enum flags_t {
     FLAG_ACT_CAN_SWIM,
     FLAG_ACT_CAN_FLY,
     FLAG_ACT_OPAQUE,
-    FLAG_OBJ_IN_INVENTORY,
+    FLAG_OBJ_IN_INVENTORY, // OBJECTS ===========
     FLAG_TILE_CAN_WALK, // TILES ==============
     FLAG_TILE_CAN_SWIM,
     FLAG_TILE_CAN_FLY,
@@ -77,6 +67,9 @@ enum flags_t {
     FLAG_ACTION_WALK, // ACTIONS ===================
     FLAG_ACTION_SWIM,
     FLAG_ACTION_FLY,
+    FLAG_TARGET_NOT_SELF, // Targeting ------------ 
+    FLAG_TARGET_SELF_ONLY,
+    FLAG_TARGET_GOLDOK, // Can gold be chosen from inventory
     FLAG_MENU_SORT, // MENUS ==============
     FLAG_MENU_PLAYER,
     FLAG_TARGET_BREAK_PROJECTILE // Target options =========
@@ -95,6 +88,7 @@ enum state_t {
 using std::set;
 using std::vector;
 
+class action;
 class entity;
 class entityclass;
 class feature;
@@ -116,7 +110,9 @@ class argmap {
     bool add_feature(args_t, feature *);
     bool add_tile(args_t, tile *);
     bool add_condition(args_t, condition *);
+    bool add_action(args_t, action *);
 	bool add_vector(args_t, vector<void*> *);
+    bool add_set(args_t, set<void*> *);
     
 	bool has_value(args_t);
 	int get_int(args_t);
@@ -126,7 +122,9 @@ class argmap {
 	feature * get_feature(args_t);
 	tile * get_tile(args_t);
     condition * get_condition(args_t);
+    action * get_action(args_t);
 	vector<void*> * get_vector(args_t);
+    set<void*> * get_set(args_t);
     
 	void add_args(argmap *);
 	void add_args(argmap *, bool);

@@ -14,8 +14,8 @@ argmap::argmap(argmap * copied) {
 
 // Functions for combining maps ================
 
-// Add args from another map to this one.
-// Original map is unchanged. Default to no replace;
+// Add args to another map to from this one.
+// This map is unchanged. Default to no replace;
 void argmap::add_args(argmap * args, bool replace) {
 
 	if (args == NULL) return;
@@ -24,8 +24,8 @@ void argmap::add_args(argmap * args, bool replace) {
 	
 	for (; it != the_map->end(); ++it) {
 		
-		if (args->has_value((args_t)it->first) && (!has_value((args_t)it->first) || replace)) {
-			(*the_map)[it->first] = it->second;
+		if (!args->has_value((args_t)it->first) || replace) {
+			args->add_int((args_t)it->first, (int)it->second);
 		}
 	}
 }
@@ -76,7 +76,17 @@ bool argmap::add_condition(args_t code, condition * obj_in){
 	return true;
 }
 
+bool argmap::add_action(args_t code, action * obj_in){
+	(*the_map)[code] = obj_in;
+	return true;
+}
+
 bool argmap::add_vector(args_t code, vector<void*> * obj_in){
+	(*the_map)[code] = obj_in;
+	return true;
+}
+
+bool argmap::add_set(args_t code, set<void*> * obj_in){
 	(*the_map)[code] = obj_in;
 	return true;
 }
@@ -114,7 +124,7 @@ actor * argmap::get_actor(args_t code){
     return NULL;
 }
 
-object * argmap::get_object (args_t code){
+object * argmap::get_object(args_t code){
     if (has_value(code)) {
         return (object *)(*the_map)[code];
     }
@@ -122,7 +132,7 @@ object * argmap::get_object (args_t code){
     return NULL;
 }
 
-feature * argmap::get_feature (args_t code){
+feature * argmap::get_feature(args_t code){
     if (has_value(code)) {
         return (feature *)(*the_map)[code];
     }
@@ -130,7 +140,7 @@ feature * argmap::get_feature (args_t code){
     return NULL;
 }
 
-tile * argmap::get_tile (args_t code){
+tile * argmap::get_tile(args_t code){
     if (has_value(code)) {
         return (tile *)(*the_map)[code];
     }
@@ -138,7 +148,7 @@ tile * argmap::get_tile (args_t code){
     return NULL;
 }
 
-condition * argmap::get_condition (args_t code){
+condition * argmap::get_condition(args_t code){
     if (has_value(code)) {
         return (condition *)(*the_map)[code];
     }
@@ -146,9 +156,25 @@ condition * argmap::get_condition (args_t code){
     return NULL;
 }
 
-vector<void*> * argmap::get_vector (args_t code){
+action * argmap::get_action(args_t code){
+    if (has_value(code)) {
+        return (action *)(*the_map)[code];
+    }
+    
+    return NULL;
+}
+
+vector<void*> * argmap::get_vector(args_t code){
     if (has_value(code)) {
         return (vector<void*> *)(*the_map)[code];
+    }
+    
+    return NULL;
+}
+
+set<void*> * argmap::get_set(args_t code){
+    if (has_value(code)) {
+        return (set<void*> *)(*the_map)[code];
     }
     
     return NULL;

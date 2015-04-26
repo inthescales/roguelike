@@ -2,12 +2,16 @@
 #define ACTION_H
 
 #include "argmap.h"
+#include "error.h"
 #include "requirement.h"
+
+#include <set>
 #include <string>
 #include <vector>
 
 #include "enums.h"
 
+using std::set;
 using std::string;
 using std::vector;
 
@@ -32,7 +36,8 @@ enum radius_t {
 };
 
 enum extract_t {
-    EXT_TILE = 0,
+    EXT_COPY = 0,
+    EXT_TILE,
     EXT_ACTOR,
     EXT_FEATURE,
     EXT_OBJECTS,
@@ -73,6 +78,7 @@ class requirement;
 class actionBlock {
 
     public:
+    bool testDone;
     action_block_t block_type;
     
     vector<requirement*> * requirements; // Act a bit differently for block types
@@ -126,7 +132,7 @@ class requirementActionBlock : public actionBlock {
     
     requirementActionBlock(bool, bool, bool);
     requirementActionBlock(bool, bool, bool, argmap *);
-    bool evaluate();
+    set<error_t> * evaluate();
 };
 
 class action {
@@ -136,6 +142,7 @@ class action {
     int priority;
     bool contextOk;
     bool equipOnly;
+    bool testDone;
     
     argmap * args;
     vector<actionBlock *> * blocks;
@@ -147,6 +154,8 @@ class action {
     
     static vector<action*> * defs_for(vector<int>*);
 };
+
+args_t actrole_to_arg(actionRole_t);
 
 extern action * actiondef[];
 

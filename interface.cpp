@@ -137,18 +137,24 @@ bool UI::command_direction(direction_t dir) {
         vect->push_back((void*)(dest->my_feature));
         args->add_vector(ARG_ACTION_PATIENT, vect);
     } else {
-		if(act_player->can_travel(dest) == ERR_NONE) {
+        // Check for a way to move and do so if possible.
+        vector<action*> * moves = act_player->how_to_travel(&act_player->current_map->tiles[act_player->x][act_player->y], dest);
+		if(moves->size() > 0) {
 			purpose = ACTPUR_MOVE;
             vector<void*> * vect = new vector<void*>();
             vect->push_back((void*)dest);
-            args->add_vector(ARG_ACTION_PATIENT, vect);
+            args->add_actor(ARG_ACTION_AGENT, act_player);
+            args->add_vector(ARG_ACTION_LOCATION, vect);
+            return (act_player->execute_action(moves->front(), args, false) == NULL);
         }
 	}
 	
+    // Pick an action for a non-move purpose and do it. May merge with above later - but currently
+    // only move actions are tested fully before attempting.
     bool done = false;
 	vector<int> * actions = get_context_action(purpose);
     for(int i = 0; !done && i < actions->size(); ++i) {
-        done = act_player->execute_action(actiondef[actions->at(i)], args, false);
+        done = (act_player->execute_action(actiondef[actions->at(i)], args, false) == NULL);
     }
 		
 	return done;
@@ -301,7 +307,7 @@ vector<tile*> * UI::prompt_adjacent(string prompt, argmap * args, vector<require
     for(int i = minDist; i <= maxDist && r->size() < maxNum; ++i) {
     
         tile * cur_tile = &map_current->tiles[cur.first][cur.second];
-        if (requirement::check_requirements_for(cur_tile, reqs)) {
+        if (requirement::check_requirements_for(reqs, cur_tile, NULL)) {
             r->push_back(cur_tile);
         }
         cur.first += offset.first;
@@ -432,7 +438,7 @@ vector<object*> * UI::prompt_objects(string prompt, vector<object*> * items, arg
         return ret;
     }
 
-    bool gold_ok = (args->get_int(ARG_TARGET_GOLDOK) == 1);
+    bool gold_ok = args->has_flag(FLAG_TARGET_GOLDOK);
 
     args->add_flag(FLAG_MENU_SORT);
 	ret = menu_select_objects(win_screen, prompt, items, args);
@@ -453,14 +459,14 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
     win_output->clear();
     win_output->print_buf(buf_main);
     break_buffer(buf_main);
-    bool gold_ok = (args->get_int(ARG_TARGET_GOLDOK) == 1);
+    bool gold_ok = args->has_flag(FLAG_TARGET_GOLDOK);
 
 	while(true){
 		input = wgetch(stdscr);
 		
 		if(input == '$' && gold_ok){
             object * goldObj = prompt_gold_to_object();
-            if (requirement::check_requirements_for(goldObj, reqs)) {
+            if (requirement::check_requirements_for(reqs, goldObj, NULL)) {
                 ret->push_back(goldObj);
             }
 			return ret;
@@ -509,7 +515,7 @@ vector<tile*> * UI::assume(vector<tile*> * tiles, extract_t extr, argmap * args,
         // Check relevant entities in each tile, return NULL if too many are found
         if (extr == EXT_ACTOR) {
         
-            if ((*it)->my_actor != NULL && requirement::check_requirements_for(*it, reqs)) {
+            if ((*it)->my_actor != NULL && requirement::check_requirements_for(reqs, *it, NULL)) {
                 ret->push_back(*it);
                 ++found;
             }
@@ -523,7 +529,7 @@ vector<tile*> * UI::assume(vector<tile*> * tiles, extract_t extr, argmap * args,
                     vector<object*>::iterator it2 = (*it)->my_objects->begin();
                     bool newly_found = 0;
                     for(; it2 != (*it)->my_objects->end(); ++it2) {
-                        if(requirement::check_requirements_for(*it2, reqs)) {
+                        if(requirement::check_requirements_for(reqs, *it2, NULL)) {
                             ++newly_found;
                         }
                     }
@@ -536,7 +542,7 @@ vector<tile*> * UI::assume(vector<tile*> * tiles, extract_t extr, argmap * args,
             }
         } else if (extr == EXT_FEATURE) {
         
-            if ((*it)->my_feature != NULL && requirement::check_requirements_for(*it, reqs)) {
+            if ((*it)->my_feature != NULL && requirement::check_requirements_for(reqs, *it, NULL)) {
                 ret->push_back(*it);
                 ++found;
             }
@@ -563,7 +569,7 @@ vector<actor*> * UI::extract_actors(vector<tile*> * tiles, vector<requirement*> 
     vector<tile*>::iterator it = tiles->begin();
     for(; it != tiles->end(); ++it) {
         if ((*it)->my_actor != NULL) {
-            if (requirement::check_requirements_for((*it)->my_actor, reqs)) {
+            if (requirement::check_requirements_for(reqs, (*it)->my_actor, NULL)) {
                 r->push_back((*it)->my_actor);
             }
         }
@@ -580,7 +586,7 @@ vector<object*> * UI::extract_objects(vector<tile*> * tiles, vector<requirement*
     for(; it != tiles->end(); ++it) {
         vector<object*>::iterator it2 = (*it)->my_objects->begin();
         for(; it2 != (*it)->my_objects->end(); ++it2) {
-            if (requirement::check_requirements_for((*it2), reqs)) {
+            if (requirement::check_requirements_for(reqs, *it2, NULL)) {
                 r->push_back(*it2);
             }
         }
@@ -599,7 +605,7 @@ vector<object*> * UI::extract_inventories(vector<tile*> * tiles, vector<requirem
             actor * cur_act = (*it)->my_actor;
             vector<object*>::iterator it2 = cur_act->inventory->begin();
             for(; it2 != cur_act->inventory->end(); ++it2) {
-                if (requirement::check_requirements_for((*it2), reqs)) {
+                if (requirement::check_requirements_for(reqs, *it2, NULL)) {
                     r->push_back((*it2));
                 }
             }
@@ -616,7 +622,7 @@ vector<feature*> * UI::extract_features(vector<tile*> * tiles, vector<requiremen
     vector<tile*>::iterator it = tiles->begin();
     for(; it != tiles->end(); ++it) {
         if ((*it)->my_feature != NULL) {
-            if (requirement::check_requirements_for((*it)->my_feature, reqs)) {
+            if (requirement::check_requirements_for(reqs, (*it)->my_feature, NULL)) {
                 r->push_back((*it)->my_feature);
             }
         }

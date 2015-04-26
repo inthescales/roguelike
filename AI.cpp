@@ -168,12 +168,29 @@ goal * AI::select_goal(actor * decider) {
 int AI::idea_value(actor * decider, entity * target, idea * thought) {
 
     int ret = thought->base;
-    
+    vector<void*> * pat = NULL;
     vector<motivator*>::iterator it = thought->motivators->begin();
+    
     for(; it != thought->motivators->end();++it) {
     
-        if(((*it)->self && (*it)->req->check_for(decider))
-       || !((*it)->self && (*it)->req->check_for((mapentity*)target))){
+        if ((*it)->self) {
+            (*it)->req->args->add_entity(ARG_ACTION_AGENT, (entity*)decider);
+            if (target != NULL) {
+                pat = new vector<void*>();
+                pat->push_back((void*)target);
+                (*it)->req->args->add_vector(ARG_ACTION_PATIENT, pat);
+            }            
+        } else {
+            (*it)->req->args->add_entity(ARG_ACTION_AGENT, (entity*)target);
+            if (decider != NULL) {
+                pat = new vector<void*>();
+                pat->push_back((void*)decider);
+                (*it)->req->args->add_vector(ARG_ACTION_PATIENT, pat);
+            }
+        }
+        (*it)->req->args->add_int(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT);
+        
+        if((*it)->req->check() == NULL) {
             ret += (*it)->value;
         }    
     }
@@ -183,57 +200,49 @@ int AI::idea_value(actor * decider, entity * target, idea * thought) {
 
 void AI::take_action(actor * act, goal * g) {
     
+    argmap * args = new argmap();
+    args->add_actor(ARG_ACTION_AGENT, act);
+    vector<void*> * pat = new vector<void*>();
+    pat->push_back((void*)g->target);
+    args->add_vector(ARG_ACTION_PATIENT, pat);
+    
     if (g->purpose < ACTPUR_ABSTRACT && g->purpose != ACTPUR_MOVE) {
+    
         // If concrete, find actions, determine range, move if needed
+        
+        // For each action, see if it's possible or how much work it would take to make
+        // it possible, and weigh that against its priority.
         vector<action*> * actions = action::defs_for(act->get_actions_for(g->purpose));
         int best_priority = -1000;
         action * best_action = NULL;
+        set<error_t> * errs; // Errors for chosen action
         
         vector<action*>::iterator it = actions->begin();
         for(; it != actions->end(); ++it) {
             
-            int mod_pri = (*it)->priority + act->check_effort(*it, g->target);
+            set<error_t> * cur_errs = act->test_action(*it, args);
+            int mod_pri = (*it)->priority - act->effort_heuristic(*it, args, cur_errs);
             
             if ((best_action == NULL || best_priority < mod_pri)
-              /*&& act->check_can(*it, g->target) != ACTCAN_CANT_USE*/) {
+             && (cur_errs == NULL || !cur_errs->count(ERR_FAIL)) ) {
               
                 best_action = (*it);
                 best_priority = mod_pri;
+                errs = cur_errs;
             }
         }
         
-        // We've chosen our action, but it might require a subtask
-        act_can_t reqstat = act->check_can(best_action, g->target);
-        
-        if (reqstat == ACTCAN_CAN_USE) {
-            // Use the action
-            argmap * args = new argmap();
-            vector<void*> * pat = new vector<void*>();
-            pat->push_back((void*)g->target);
-            args->add_vector(ARG_ACTION_PATIENT, pat);
+        if (errs == NULL) {
+            // No errors, use the action right away
             act->execute_action(best_action, args, false);
         } else {
         
-            actionPurpose_t sub_purpose = ACTPUR_NONE;
-            entity * new_target = NULL;
-        
-            switch (reqstat) {
-            
-                case ACTCAN_TOO_FAR:
-                    sub_purpose = ACTPUR_MOVE;
-                    new_target = g->target;
-                break;
-                
-                case ACTCAN_NEED_EQUIP:
-                    
-                break;
-                
-                default:
-                break;
-            }
-            
-            if (sub_purpose != ACTPUR_NONE) {
-                take_action(act, new goal(new_target, sub_purpose));
+            // We want to use this action, but need to do something else first
+            error_t to_fix = act->easiest_to_fix(best_action, args, errs);
+            goal * new_goal = goal_to_solve(act, g, to_fix);
+
+            if (new_goal != NULL) {
+                take_action(act, new_goal);
             }
         }
         
@@ -248,4 +257,44 @@ void AI::take_action(actor * act, goal * g) {
             
         }
     }
+}
+
+/*
+    We want to do the specified goal, but need a new subgoal to solve
+    the specified error.
+*/
+goal * AI::goal_to_solve(actor * act, goal * g, error_t err) {
+
+    
+    switch(err) {
+        case ERR_BAD_INPUT:
+        case ERR_ENTITY_TYPE:
+        case ERR_CANT_TARGET_SELF:
+        case ERR_MUST_TARGET_SELF:
+            return NULL;
+        break;
+    
+        case ERR_TOO_FAR:
+        {
+            return new goal(g->target, ACTPUR_MOVE);
+        }
+        break;
+        
+        case ERR_TOO_CLOSE:
+        {
+            // Find some way to move away from things
+        }
+        break;
+        
+        case ERR_NEED_WEAPON:
+        {
+            // Equip a weapon
+        }
+        break;
+        
+        default:
+        break;
+    }
+    
+    return NULL;
 }

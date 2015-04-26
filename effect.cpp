@@ -45,6 +45,10 @@ bool do_effect(argmap * args, effect * eff){
     
 	switch(eff->type){
     
+        /*
+            Take a turn as an actor
+            Agent: actor to act
+        */
         case EFF_TURN:
         {
             actor * agent = args->get_actor(ARG_ACTION_AGENT);
@@ -57,38 +61,23 @@ bool do_effect(argmap * args, effect * eff){
         }
         break;
         
-        case EFF_WALK:
+        /*
+            Move an actor to a new tile.
+            Patient: Actor being moved
+            Location: Destination tile
+        */
+        case EFF_MOVE_ACT:
         {
             actor * agent = args->get_actor(ARG_ACTION_AGENT);
-            tile * patient = (tile *)args->get_vector(ARG_ACTION_PATIENT)->front();
+            actor * patient = (actor *)args->get_vector(ARG_ACTION_PATIENT)->front();
+            tile * location = (tile *)args->get_vector(ARG_ACTION_LOCATION)->front();
             
-            agent->walk(patient);
+            if (patient != NULL && location != NULL) {
+                patient->move(location);
+            }
             
             return success;
         }
-        break;
-        
-        case EFF_SWIM:
-        {
-            actor * agent = args->get_actor(ARG_ACTION_AGENT);
-            tile * patient = (tile *)args->get_vector(ARG_ACTION_PATIENT)->front();
-            
-            agent->swim(patient);
-            
-            return success;
-        }
-        break;
-        
-        case EFF_FLY:
-        {
-            actor * agent = args->get_actor(ARG_ACTION_AGENT);
-            tile * patient = (tile *)args->get_vector(ARG_ACTION_PATIENT)->front();
-            
-            agent->fly(patient);
-            
-            return success;
-        }
-        break;
         
         case EFF_TAKE:
         {

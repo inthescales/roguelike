@@ -67,6 +67,7 @@ class AI {
     static goal * select_goal(actor*);
     static int idea_value(actor * decider, entity * target, idea * thought);
     static void take_action(actor *, goal *);
+    static goal * goal_to_solve(actor * act, goal * g, error_t err);
 };
 
 extern aimodule * aimod[];

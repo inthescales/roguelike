@@ -6,8 +6,18 @@ void define_errors() {
 
     error_string[ERR_NONE] = "";
     error_string[ERR_SILENT] = "";
-    error_string[ERR_GENERIC] = "Error.";
+    error_string[ERR_GENERIC] = "GENERIC ERROR";
+    error_string[ERR_BAD_INPUT] = "BAD INPUT ERROR";
+    error_string[ERR_FAIL] = "ERROR: FAILED";
+    error_string[ERR_ENTITY_TYPE] = "WRONG ENTITY TYPE";
+    error_string[ERR_CANT_TARGET_SELF] = "You cannot target yourself.";
+    error_string[ERR_MUST_TARGET_SELF] = "You can only target yourself.";
+    error_string[ERR_TOO_FAR] = "Too far away.";
+    error_string[ERR_TOO_CLOSE] = "Too close.";
+    error_string[ERR_NEED_WEAPON] = "A weapon is needed.";
     error_string[ERR_CANCELLED] = "Nevermind.";
+    error_string[ERR_CANT_MOVE_TO] = "You can't move there.";
+    error_string[ERR_CANT_WALK] = "You aren't able to walk.";
     error_string[ERR_CANT_CARRY] = "You cannot carry any more.";
     error_string[ERR_CANT_EQUIP] = "You cannot equip that.";
     error_string[ERR_CANT_UNEQUIP] = "You cannot unequip that.";

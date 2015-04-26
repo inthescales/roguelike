@@ -3,6 +3,7 @@
 
 #include "action.h"
 #include "enums.h"
+#include "error.h" // For AI
 #include "condition.h"
 #include "config.h"
 #include "display.h"
@@ -10,23 +11,15 @@
 #include "object.h"
 
 #include <map>
+#include <set>
 #include <stdlib.h>
 #include <string>
 #include <utility> //pair
 #include <vector>
 
+using std::set;
 using std::string;
 using std::vector;
-
-enum act_can_t {
-
-    ACTCAN_CAN_USE = 0,
-    ACTCAN_CANT_USE,
-    ACTCAN_TOO_FAR,
-    ACTCAN_TOO_CLOSE,
-    ACTCAN_NEED_EQUIP,
-    ACTCAN_NEED_INSTRUMENT
-};
 
 class actclass;
 class action;
@@ -84,8 +77,13 @@ class actor : public mapentity {
     void enter_tile(tile *);
     
     // AI
-    act_can_t check_can(action *, entity *);
-    int check_effort(action *, entity *);
+    set<error_t> * verify_target(targetActionBlock *, entity *);
+    int effort_heuristic(action *, argmap *, set<error_t> *);
+    error_t easiest_to_fix(action *, argmap *, set<error_t> *);
+    int effort_to_fix(action *, argmap *, error_t);
+    vector<tile*> * path_to(mapentity *);
+    vector<tile*> * path_astar(mapentity *, vector<action*> *);
+    
     bool move_toward(mapentity *);
     bool can_move_to(action *, tile *);
     vector<object*> * objects_of_type(object_type, object_subtype);
@@ -94,13 +92,12 @@ class actor : public mapentity {
     // Actions
     int take_turn();
     void queue_turn(int);
-    bool execute_action(action *);
-    bool execute_action(action *, argmap *, bool);
+    set<error_t> * execute_action(action *);
+    set<error_t> * test_action(action *, argmap *);
+    set<error_t> * execute_action(action *, argmap *, bool);
+    set<error_t> * execute_action(action *, argmap *, bool, bool);
     vector<void*> * select_target(targetActionBlock *);
     
-    void walk(tile *);
-    void swim(tile *);
-    void fly(tile *);
 	bool pick_up(object *, tile *);
     bool pick_up(object *);
 	bool drop(object *);
@@ -116,11 +113,11 @@ class actor : public mapentity {
     bool close_feature(feature *);
     bool strike(actor *);
     bool punch(actor *);
-    
-    int can_travel(tile *);
-    int can_walk(tile*);
-    int can_swim(tile*);
-    int can_fly(tile*);
+ 
+    bool can_travel(tile*);
+    bool can_travel(tile *, tile *);
+    vector<action*> * how_to_travel(tile *, tile *);
+    set<error_t> * can_travel_with(action *, tile *, tile *);
     int can_take(object *);
     int can_drop(object *);
     int can_equip(object *);
@@ -134,5 +131,9 @@ class actor : public mapentity {
     
     bool is_opaque();
 };
+
+float heuristic_cost_estimate(tile*, tile*);
+vector<tile*> * reconstruct_path(std::map<tile*,tile*> *, tile *);
+tile * get_lowest_f(vector<tile*> *, std::map<tile*, float> *);
 
 #endif

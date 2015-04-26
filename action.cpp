@@ -15,6 +15,7 @@ targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nr
     position = npos;
     prompt = nprompt;
     block_type = TARGET_BLOCK;
+    testDone = false;
 }
 
 targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nrad, extract_t next, actionRole_t npos, argmap * nargs) {
@@ -27,14 +28,18 @@ targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nr
     position = npos;
     prompt = nprompt;
     block_type = TARGET_BLOCK;
+    testDone = false;
 }
 
 extractActionBlock::extractActionBlock(extract_t etype, actionRole_t frompos, actionRole_t topos) {
 
+    args = new argmap();
+    requirements = new vector<requirement*>();
     extract_type = etype;
     from_position = frompos;
     to_position = topos;
     block_type = EXTRACT_BLOCK;
+    testDone = false;
 }
 
 effectActionBlock::effectActionBlock(effect * neff) {
@@ -43,6 +48,7 @@ effectActionBlock::effectActionBlock(effect * neff) {
     requirements = new vector<requirement*>();
     eff = neff;
     block_type = EFFECT_BLOCK;
+    testDone = false;
 }
 
 effectActionBlock::effectActionBlock(argmap * nargs, effect * neff) {
@@ -51,6 +57,7 @@ effectActionBlock::effectActionBlock(argmap * nargs, effect * neff) {
     requirements = new vector<requirement*>();
     eff = neff;
     block_type = EFFECT_BLOCK;
+    testDone = false;
 }
 
 requirementActionBlock::requirementActionBlock(bool nloop, bool nend, bool ncrit) {
@@ -61,6 +68,7 @@ requirementActionBlock::requirementActionBlock(bool nloop, bool nend, bool ncrit
     endBlock = nend;
     critical = ncrit;
     block_type = REQUIREMENT_BLOCK;
+    testDone = false;
 }
 
 requirementActionBlock::requirementActionBlock(bool nloop, bool nend, bool ncrit, argmap * nargs) {
@@ -71,6 +79,7 @@ requirementActionBlock::requirementActionBlock(bool nloop, bool nend, bool ncrit
     endBlock = nend;
     critical = ncrit;
     block_type = REQUIREMENT_BLOCK;
+    testDone = false;
 }
 
 // Action itself =====================
@@ -105,37 +114,21 @@ void action::add_block(actionBlock * nblock) {
     blocks->push_back(nblock);
 }
 
-// Requirement blocks ===============
+// Requirement block management ===============
 
 void actionBlock::add_requirement(requirement * nreq) {
 
     requirements->push_back(nreq);
 }
 
-bool requirementActionBlock::evaluate() {
+set<error_t> * requirementActionBlock::evaluate() {
 
     vector<requirement*>::iterator it = requirements->begin();
-    
-    // Pass role arguments onto requirements from block
-    for(; it != requirements->end(); ++it) {
-    
-        if(args->has_value(ARG_ACTION_AGENT)) {
-            (*it)->args->add_actor(ARG_ACTION_AGENT, args->get_actor(ARG_ACTION_AGENT));
-        }
-        if(args->has_value(ARG_ACTION_PATIENT)) {
-            (*it)->args->add_vector(ARG_ACTION_PATIENT, args->get_vector(ARG_ACTION_PATIENT));
-        }
-        if(args->has_value(ARG_ACTION_INSTRUMENT)) {
-            (*it)->args->add_vector(ARG_ACTION_INSTRUMENT, args->get_vector(ARG_ACTION_INSTRUMENT));
-        }
-    }
 
-    if (args->has_value(ARG_ACTION_AGENT)) {
-        return requirement::check_requirements_for((mapentity *)args->get_actor(ARG_ACTION_AGENT), requirements);
-    } else {
-        return requirement::check_requirements(requirements);
-    }
+    return requirement::check_requirements(requirements, args);
 }
+
+// Helper functions ============================
 
 // Compare priority of two actions
 bool priority_comp(int a, int b) {
@@ -152,6 +145,29 @@ vector<action*> * action::defs_for(vector<int> * in) {
     }
     
     return ret;
+}
+
+args_t actrole_to_arg(actionRole_t role) {
+    
+    switch (role) {
+    
+        case ACTROLE_AGENT:
+        return ARG_ACTION_AGENT;
+        
+        case ACTROLE_PATIENT:
+        return ARG_ACTION_PATIENT;
+        
+        case ACTROLE_INSTRUMENT:
+        return ARG_ACTION_INSTRUMENT;
+        
+        case ACTROLE_LOCATION:
+        return ARG_ACTION_LOCATION;
+    
+        default:
+        break;
+    }
+    
+    return ARG_NONE;    
 }
 
 // TODO - in requirements, add else blocks, and target extract blocks (get feature from last tile, etc)

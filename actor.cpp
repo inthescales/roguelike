@@ -209,111 +209,265 @@ void actor::resolve_trigger(trigger_t trigger, argmap * args)
 
 // AI ====================================================================
 
-// TODO - make this return set of problems
-act_can_t actor::check_can(action * ac, entity * targ) {
+/*
+    Check whether an action target block could be used to target the specified
+    entity. Return a set of errors if any, NULL otherwise.
+*/
+set<error_t> * actor::verify_target(targetActionBlock * block, entity * target) {
 
-    if (ac->args->has_value(ARG_AI_TARG_TYPE)) {
-        ai_target_type_t target_type = (ai_target_type_t)ac->args->get_int(ARG_AI_TARG_TYPE);
-        
-        if (targ == this && target_type != AI_TARG_SELF) {
-            return ACTCAN_CANT_USE;
+    set<error_t> * errs = new set<error_t>();
+    
+    // Check the block's targeting args
+    if (block->args->has_value(ARG_TARGET_ENTITY_TYPE)) {
+
+        if (target == this && block->args->has_flag(FLAG_TARGET_NOT_SELF)) {
+            errs->insert(ERR_CANT_TARGET_SELF);
         } else
-        if (targ != this && target_type == AI_TARG_SELF) {
-            return ACTCAN_CANT_USE;
+        if (target != this && block->args->has_flag(FLAG_TARGET_SELF_ONLY)) {
+            errs->insert(ERR_MUST_TARGET_SELF);
         }
     }
 
-    if (ac->args->has_value(ARG_AI_MIN_DISTANCE)) {
-        int dist = tile::distance_between(this, (mapentity*)targ);
-        if (dist < ac->args->get_int(ARG_AI_MIN_DISTANCE)) {
-            return ACTCAN_TOO_CLOSE;
+    if (block->args->has_value(ARG_TARGET_MIN_DISTANCE)) {
+        int dist = tile::distance_between(this, (mapentity*)target);
+        if (dist < block->args->get_int(ARG_TARGET_MIN_DISTANCE)) {
+            errs->insert(ERR_TOO_CLOSE);
         }
     }
     
-    if (ac->args->has_value(ARG_AI_MAX_DISTANCE)) {
-        int dist = tile::distance_between(this, (mapentity*)targ);
-        if (dist > ac->args->get_int(ARG_AI_MAX_DISTANCE)) {
-            return ACTCAN_TOO_FAR;
+    if (block->args->has_value(ARG_TARGET_MAX_DISTANCE)) {
+        int dist = tile::distance_between(this, (mapentity*)target);
+        if (dist > block->args->get_int(ARG_TARGET_MAX_DISTANCE)) {
+            errs->insert(ERR_TOO_FAR);
         }
     }
     
-    if (ac->args->has_value(ARG_AI_REQUIRE_EQUIPPED)) {
-        int slot = ac->args->get_int(ARG_AI_REQUIRE_EQUIPPED);
-        if (slot >= ES_MAX || equipped_item[slot] == NULL) {
-            return ACTCAN_NEED_EQUIP;
-        }
+    // Check the block's requirements
+    vector<requirement*>::iterator it = block->requirements->begin();
+    for(; it != block->requirements->end(); ++it) {
+        set<error_t> * reqerrs = (*it)->check_for(target);
+        errs->insert(reqerrs->begin(), reqerrs->end());
     }
     
-    return ACTCAN_CAN_USE;
+    if (errs->size() > 0) {
+        return errs;
+    } else {
+        return NULL;
+    }    
 }
 
-// TODO - make this take in a set of reasons and process them
-int actor::check_effort(action * ac, entity * targ) {
+/*
+    Estimate amount of effort (roughly, time) needed to perform an action.
+*/
+int actor::effort_heuristic(action * ac, argmap * args, set<error_t> * errors) {
 
-    if (ac->args->has_value(ARG_AI_TARG_TYPE)) {
-        ai_target_type_t target_type = (ai_target_type_t)ac->args->get_int(ARG_AI_TARG_TYPE);
+    int effort = 0;
+    
+    if (errors != NULL) {
+        set<error_t>::iterator err_it = errors->begin();
+        for(;err_it != errors->end(); ++err_it) {
+            
+            effort += effort_to_fix(ac, args, *err_it);
+        }
+    }
+    
+    return effort;
+}
+
+error_t actor::easiest_to_fix(action * ac, argmap * args, set<error_t> * errors) {
+
+    error_t easiest = ERR_NONE;
+    int effort = 1000;
+    
+    set<error_t>::iterator it = errors->begin();
+    for(; it != errors->end(); ++it) {
         
-        if (targ == this && target_type != AI_TARG_SELF) {
-            return -1000;
-        } else
-        if (targ != this && target_type == AI_TARG_SELF) {
-            return -1000;
+        int eff = effort_to_fix(ac, args, *it);
+        if (easiest == ERR_NONE || eff < effort) {
+            easiest = *it;
+            effort = eff;
         }
     }
+    
+    return easiest;
+}
 
-    if (ac->args->has_value(ARG_AI_MIN_DISTANCE)) {
-        int dist = tile::distance_between(this, (mapentity*)targ);
-        int diff = std::min(0, ac->args->get_int(ARG_AI_MIN_DISTANCE) - dist);
-        if (diff > 0) {
-            return diff;
-        }
-    }
+int actor::effort_to_fix(action * ac, argmap * args, error_t err) {
+
+    switch(err) {
+        
+        case ERR_BAD_INPUT:
+        case ERR_ENTITY_TYPE:
+        case ERR_CANT_TARGET_SELF:
+        case ERR_MUST_TARGET_SELF:
+            return 1000;
+        break;
     
-    if (ac->args->has_value(ARG_AI_MAX_DISTANCE)) {
-        int dist = tile::distance_between(this, (mapentity*)targ);
-        int diff = std::min(0, dist - ac->args->get_int(ARG_AI_MAX_DISTANCE));
-        if (diff > 0) {
-            return diff;
+        case ERR_TOO_FAR:
+        {
+            entity * target = (entity*)args->get_vector(ARG_ACTION_PATIENT)->front();
+            int dist = tile::distance_between(this, (mapentity*)target);
+            return std::min(0, dist - ac->args->get_int(ARG_TARGET_MAX_DISTANCE));
         }
-    }
-    
-    if (ac->args->has_value(ARG_AI_REQUIRE_EQUIPPED)) {
-        equip_slot slot = (equip_slot)ac->args->get_int(ARG_AI_REQUIRE_EQUIPPED);
-        if (slot < ES_MAX && equipped_item[slot] == NULL) {
+        break;
+        
+        case ERR_TOO_CLOSE:
+        {
+            entity * target = (entity*)args->get_vector(ARG_ACTION_PATIENT)->front();
+            int dist = tile::distance_between(this, (mapentity*)target);
+            return std::min(0, ac->args->get_int(ARG_TARGET_MIN_DISTANCE) - dist);
+        }
+        break;
+        
+        // Generic version - TODO - for when I introduce error objects
+        /*case ERR_NEED_WEAPON:
+        {
+            int slot = args->get_int(ARG_AI_REQUIRE_EQUIPPED_SLOT)
+        }*/
+        
+        case ERR_NEED_WEAPON:
+        {
+            equip_slot slot = ES_MAINHAND;
             if (objects_for_slot(slot)->size() > 0) {
-                return /*1*/0;
+                return 1;
             } else {
-                return -1000;
+                return 1000;
             }
         }
+        break;
+        
+        default:
+        break;
     }
     
     return 0;
+}
 
+vector<tile*> * actor::path_to(mapentity * target) {
+
+    vector<tile*> * ret;
+    
+    // Get ok movement types
+    vector<action*> * actions = action::defs_for(get_actions_for(ACTPUR_MOVE));
+
+    ret = path_astar(target, actions);
+    
+    return ret;
+}
+
+vector<tile*> * actor::path_astar(mapentity * target, vector<action*> * moves) {
+
+    vector<tile*> * ret = new vector<tile*>();
+    vector<action*>::iterator mov_it;
+    tile * start = &current_map->tiles[x][y];
+    tile * goal = &current_map->tiles[target->x][target->y];
+   
+    vector<tile*> * closed_set = new vector<tile*>();
+    vector<tile*> * open_set = new vector<tile*>();
+    open_set->push_back(start);
+    std::map<tile*,tile*> * came_from = new std::map<tile*,tile*>();
+    std::map<tile*, float> * g_score = new std::map<tile*, float>();
+    std::map<tile*, float> * f_score = new std::map<tile*, float>();;
+    (*g_score)[start] = 0;
+    (*f_score)[start] = heuristic_cost_estimate(start, goal);
+    
+    tile * current;
+    float tent_g;
+    while(open_set->size() > 0) {
+    
+        current = get_lowest_f(open_set, f_score);
+        if (current == goal) {
+            return reconstruct_path(came_from, goal);
+        }
+        
+        open_set->erase(std::find(open_set->begin(), open_set->end(), current));
+        closed_set->push_back(current);
+        vector<tile*> * adj = tile::adjacent_to(current);
+        for(int i = 0; i < adj->size(); ++i) {
+            tile * neighbor = adj->at(i);
+            if(std::find(closed_set->begin(), closed_set->end(), neighbor) != closed_set->end()) {
+                continue;
+            }
+            
+            tent_g = (*g_score)[current] + tile::distance_between(current, neighbor);
+            if (neighbor->x != current->x && neighbor->y != current->y) {
+                tent_g += .001; // Prefer straight paths
+            }
+            
+            bool neigh_in_open = std::find(open_set->begin(), open_set->end(), neighbor) != open_set->end();
+            if(!neigh_in_open || tent_g < (*g_score)[neighbor]) {
+                
+                if (current != start) {
+                    (*came_from)[neighbor] = current; // Don't include start tile in path
+                }
+                (*g_score)[neighbor] = tent_g;
+                (*f_score)[neighbor] = (*g_score)[neighbor] + heuristic_cost_estimate(neighbor, goal);
+                if (!neigh_in_open) {
+                    open_set->push_back(neighbor);
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
+tile * get_lowest_f(vector<tile*> * tiles, std::map<tile*, float> * vals) {
+
+    tile * best_t = NULL;
+    float best_v = 0;
+    vector<tile*>::iterator it = tiles->begin();
+    for(; it != tiles->end(); ++it) {
+        if(best_t == NULL || (*vals)[(*it)] < best_v) {
+            best_t = *it;
+            best_v = (*vals)[(*it)];
+        }
+    }
+    
+    return best_t;
+}
+
+float heuristic_cost_estimate(tile * start, tile * goal) {
+
+    float r = tile::distance_between(start, goal);
+    return r - 1.0;
+}
+
+vector<tile*> * reconstruct_path(std::map<tile*,tile*> * came_from, tile * goal) {
+
+    vector<tile*> * ret = new vector<tile*>();
+    ret->push_back(goal);
+    tile * current = goal;
+    while(came_from->count(current) > 0) {
+    
+        current = (*came_from)[current];
+        ret->push_back(current);
+    }
+    
+    return ret;
 }
 
 bool actor::move_toward(mapentity * target) {
     
     vector<action*> * actions = action::defs_for(get_actions_for(ACTPUR_MOVE));
     vector<action*>::iterator it = actions->begin();
+    tile * cur_tile = &current_map->tiles[x][y];
     
-    vector<tile*> * line = tile::line_between(this, target);
+    //vector<tile*> * line = tile::line_between(this, target);
+    vector<tile*> * line = path_astar(target, NULL);
     action * best_action = NULL;
     int best_dist = 0;
     
     for(;it != actions->end(); ++it) {
     
         int range = -1;
-        if ((*it)->args->has_value(ARG_AI_MAX_DISTANCE)) {
-            range = (*it)->args->get_int(ARG_AI_MAX_DISTANCE);
-        }
+
         for(int i = 0; i < line->size() && (range == -1 || i < range); ++i) {
             
-            if (best_action == NULL || best_dist < i
-             || can_move_to(*it, line->at(i))) {
+            if (best_action == NULL
+             || (can_travel_with(*it, cur_tile, line->at(i)) == NULL) && best_dist < i ) {
                 best_action = (*it);
                 best_dist = i;
-                break;
+                continue;
             }
         }        
     }
@@ -323,29 +477,11 @@ bool actor::move_toward(mapentity * target) {
     }
     
     argmap * args = new argmap();
+    args->add_actor(ARG_ACTION_AGENT, this);
     vector<void*> * pat = new vector<void*>();
     pat->push_back((void*)line->at(best_dist));
-    args->add_vector(ARG_ACTION_PATIENT, pat);
+    args->add_vector(ARG_ACTION_LOCATION, pat);
     execute_action(best_action, args, false);
-    return true;
-}
-
-bool actor::can_move_to(action * ac, tile * t) {
-
-    int dist = tile::distance_between(this, t);
-    act_can_t can = check_can(ac, t);
-    
-    if (can != ACTCAN_CAN_USE) {
-        return false;
-    }
-
-    if ((ac->args->has_flag(FLAG_ACTION_WALK) && !t->has_flag(FLAG_TILE_CAN_WALK))
-     || (ac->args->has_flag(FLAG_ACTION_SWIM) && !t->has_flag(FLAG_TILE_CAN_SWIM))
-     || (ac->args->has_flag(FLAG_ACTION_FLY) && !t->has_flag(FLAG_TILE_CAN_FLY))) {
-     
-        return false;
-    }
-    
     return true;
 }
 
@@ -402,33 +538,43 @@ void actor::queue_turn(int t) {
     map_current->add_timer(new timer(new effect(EFF_TURN), args, t, 0, 0));
 }
 
-bool actor::execute_action(action * in) {
+set<error_t> * actor::execute_action(action * in) {
     
-    return execute_action(in, NULL, true);
+    return execute_action(in, NULL, true, false);
+}
+
+set<error_t> * actor::test_action(action * in, argmap * args) {
+    return execute_action(in, args, false, true);
+}
+
+set<error_t> * actor::execute_action(action * in, argmap * args, bool get_targets) {
+    return execute_action(in, args, get_targets, false);
 }
 
 // Execute an action, including selecting targets. Returns whether or not the action
 // completed. If false, actor turn should not be spent.
-bool actor::execute_action(action * in, argmap * args, bool get_targets) {
+set<error_t> * actor::execute_action(action * in, argmap * args, bool get_targets, bool test) {
 
+    set<error_t> * errs = new set<error_t>();
+    
     if (in->blocks == NULL) {
-        return false;
+        errs->insert(ERR_BAD_INPUT);
+        return errs;
     }
 
     actionBlock * curBlock;
-    
     bool failedReq = false;
+
     // implement stack for loops
     argmap * roles = new argmap(); // NOT using normal arg keys. Using action role keys instead.
-    roles->add_actor((args_t)ACTROLE_AGENT, this);
-    vector<void*> * nvect;
-    
+    roles->add_actor((args_t)ACTROLE_AGENT, this);      
     if (args) {
         if (args->has_value(ARG_ACTION_AGENT)) roles->add_actor((args_t)ACTROLE_AGENT, args->get_actor(ARG_ACTION_AGENT));
         if (args->has_value(ARG_ACTION_PATIENT)) roles->add_vector((args_t)ACTROLE_PATIENT, args->get_vector(ARG_ACTION_PATIENT));
         if (args->has_value(ARG_ACTION_INSTRUMENT)) roles->add_vector((args_t)ACTROLE_INSTRUMENT, args->get_vector(ARG_ACTION_INSTRUMENT));
+        if (args->has_value(ARG_ACTION_LOCATION)) roles->add_vector((args_t)ACTROLE_LOCATION, args->get_vector(ARG_ACTION_LOCATION));
     }
-
+    
     // Process each block in the action in order
     for (int i = 0; i < in->blocks->size(); ++i) {
     
@@ -447,93 +593,126 @@ bool actor::execute_action(action * in, argmap * args, bool get_targets) {
             if(roles->has_value((args_t)ACTROLE_INSTRUMENT)) {
                 curBlock->args->add_vector(ARG_ACTION_INSTRUMENT, roles->get_vector((args_t)ACTROLE_INSTRUMENT));
             }
+            if(roles->has_value((args_t)ACTROLE_LOCATION)) {
+                curBlock->args->add_vector(ARG_ACTION_LOCATION, roles->get_vector((args_t)ACTROLE_LOCATION));
+            }
+            
         }
         
         switch (curBlock->block_type) {
         
             // TARGET BLOCK - get vector returned by target function, set semantic role
             case TARGET_BLOCK:
+            {
                 if (get_targets) {
-                    nvect = select_target((targetActionBlock *)curBlock);
+                    vector<void*> * targets = select_target((targetActionBlock *)curBlock);
                     switch(((targetActionBlock *)curBlock)->position) {
                     
                         case ACTROLE_AGENT:
-                            roles->add_actor((args_t)ACTROLE_AGENT, (actor*)nvect->at(0));
+                            roles->add_actor((args_t)ACTROLE_AGENT, (actor*)targets->at(0));
                         break;
                         case ACTROLE_PATIENT:
-                        case ACTROLE_PATIENT_2:
-                            roles->add_vector((args_t)ACTROLE_PATIENT, nvect);
+                            roles->add_vector((args_t)ACTROLE_PATIENT, targets);
                         break;
                         case ACTROLE_INSTRUMENT:
-                            roles->add_vector((args_t)ACTROLE_INSTRUMENT, nvect);
+                            roles->add_vector((args_t)ACTROLE_INSTRUMENT, targets);
                         break;
                         case ACTROLE_LOCATION:
-                            roles->add_vector((args_t)ACTROLE_LOCATION, nvect);
+                            roles->add_vector((args_t)ACTROLE_LOCATION, targets);
                         break;
                     }
+                } else if(test) {
+                
+                    // Make sure targets fit the requirements and target arguments
+                    vector<void*> * targs = (vector<void*> *)args->get_vector(actrole_to_arg(((targetActionBlock *)curBlock)->position));
+                    set<error_t> * targerrs = new set<error_t>();
+                    vector<void*>::iterator it = targs->begin();
+                    for(; it != targs->end(); ++it) {
+                        set<error_t> * newerrs = verify_target((targetActionBlock *)curBlock, (entity*)(*it));
+                        if (newerrs != NULL) {
+                            targerrs->insert(newerrs->begin(), newerrs->end());
+                        }
+                    }
+                    
+                    if (targerrs->size() > 0) {
+                        return targerrs;
+                    }
                 }
+            }
             break;
             
             // EXTRACT BLOCK - take role, run extraction function, store in new role
             case EXTRACT_BLOCK:
-            
+            {
+                vector<void*> * extracted;
                 switch (((extractActionBlock *)curBlock)->from_position) {
                     case ACTROLE_AGENT:
-                        nvect = new vector<void*>();
-                        nvect->push_back((void*)roles->get_actor((args_t)ACTROLE_AGENT));
+                        extracted = new vector<void*>();
+                        extracted->push_back((void*)roles->get_actor((args_t)ACTROLE_AGENT));
                     break;
                     default:
-                        nvect = roles->get_vector((args_t)((extractActionBlock *)curBlock)->from_position);
+                        extracted = roles->get_vector((args_t)((extractActionBlock *)curBlock)->from_position);
                     break;
                 }
             
                 switch (((extractActionBlock *)curBlock)->extract_type) {
+                    case EXT_COPY:
+                        // Do nothing! Write to the destination as it is
+                    break;
                     case EXT_ACTOR:
-                        nvect = (vector<void*>*)UI::extract_actors((vector<tile*> *)nvect, curBlock->requirements);
+                        extracted = (vector<void*>*)UI::extract_actors((vector<tile*> *)extracted, curBlock->requirements);
                     break;
                     case EXT_OBJECTS:
-                        nvect = (vector<void*>*)UI::extract_objects((vector<tile*> *)nvect, curBlock->requirements);
+                        extracted = (vector<void*>*)UI::extract_objects((vector<tile*> *)extracted, curBlock->requirements);
                     break;
                     case EXT_INVENTORY:
-                        nvect = (vector<void*>*)UI::extract_inventories((vector<tile*> *)nvect, curBlock->requirements);
+                        extracted = (vector<void*>*)UI::extract_inventories((vector<tile*> *)extracted, curBlock->requirements);
                     break;
                     case EXT_FEATURE:
-                        nvect = (vector<void*>*)UI::extract_features((vector<tile*> *)nvect, curBlock->requirements);
+                        extracted = (vector<void*>*)UI::extract_features((vector<tile*> *)extracted, curBlock->requirements);
                     break;
                 }
                 
                 switch(((extractActionBlock *)curBlock)->to_position) {
                 
                     case ACTROLE_AGENT:
-                        roles->add_actor((args_t)ARG_ACTION_AGENT, (actor*)nvect->at(0));
+                        roles->add_actor((args_t)ACTROLE_AGENT, (actor*)extracted->at(0));
                     break;
                     default:
-                        roles->add_vector((args_t)((extractActionBlock *)curBlock)->to_position, nvect);
+                        roles->add_vector((args_t)((extractActionBlock *)curBlock)->to_position, extracted);
                     break;
                 }
+            }
             break;
             
             // EFFECT BLOCK - set roles, process effect
             case EFFECT_BLOCK:
-                do_effect(curBlock->args, ((effectActionBlock *)curBlock)->eff);
+                if (test) { // If we're testing, return if this block says to
+                    if (curBlock->testDone) {
+                        return NULL;
+                    }
+                } else { // Only execute effects if we aren't testing.
+                    do_effect(curBlock->args, ((effectActionBlock *)curBlock)->eff);
+                }
             break;
                 
             // REQUIREMENT BLOCK - set roles, check for requirements
             case REQUIREMENT_BLOCK:
-                
+            {
                 // TODO - Implement loops
-                failedReq = !((requirementActionBlock *)curBlock)->evaluate();
-                if (failedReq && ((requirementActionBlock *)curBlock)->critical) {
+                std::set<error_t> * errset = ((requirementActionBlock *)curBlock)->evaluate();
+                if (errset != NULL && ((requirementActionBlock *)curBlock)->critical) {
                     // Failed requirement means action cannot count as completed
-                    return false;
+                    return errset;
                 }
+            }
             break;
           
         }
         
     }
     
-    return true;
+    return NULL;
 }
 
 vector<void*> * actor::select_target(targetActionBlock * in) {
@@ -575,46 +754,6 @@ void actor::move(tile * new_tile) {
             win_world->should_update = true;
         }
     }
-}
-
-void actor::walk(tile * new_tile) {
-
-	tile * old_tile = &map_current->tiles[x][y];
-    argmap * args = new argmap();
-    args->add_actor(ARG_ACTION_AGENT, this);
-    old_tile->resolve_trigger(TRG_TILE_WALK_OUT, args);
-    move(new_tile);
-    new_tile->resolve_trigger(TRG_TILE_WALK_IN, args);
-    resolve_trigger(TRG_ACT_WALK, new argmap());
-    enter_tile(new_tile);
-}
-
-void actor::swim(tile * new_tile) {
-
-	tile * old_tile = &map_current->tiles[x][y];
-    argmap * args = new argmap();
-    args->add_actor(ARG_ACTION_AGENT, this);
-    
-	old_tile->my_actor = NULL;
-    old_tile->resolve_trigger(TRG_TILE_SWIM_OUT, args);
-	new_tile->my_actor = this;
-    new_tile->resolve_trigger(TRG_TILE_SWIM_IN, args);
-    resolve_trigger(TRG_ACT_SWIM, new argmap());
-    enter_tile(new_tile);
-}
-
-void actor::fly(tile * new_tile) {
-
-	tile * old_tile = &map_current->tiles[x][y];
-    argmap * args = new argmap();
-    args->add_actor(ARG_ACTION_AGENT, this);
-    
-	old_tile->my_actor = NULL;
-    old_tile->resolve_trigger(TRG_TILE_FLY_OUT, args);
-	new_tile->my_actor = this;
-    new_tile->resolve_trigger(TRG_TILE_FLY_IN, args);
-    resolve_trigger(TRG_ACT_FLY, new argmap());
-    enter_tile(new_tile);
 }
 
 void actor::enter_tile(tile * t) {
@@ -929,43 +1068,48 @@ void actor::do_unequip(object * item, int slot) {
 
 // REQUIREMENT FUNCTIONS =========================================
 
+bool actor::can_travel(tile * to) {
+
+    tile * cur = &(current_map->tiles[x][y]);
+    return can_travel(cur, to);
+}
+
 // Returns true if this actor is able to enter the tile
-int actor::can_travel(tile * t) {
+bool actor::can_travel(tile * from, tile * to) {
 
-    if (can_walk(t) || can_swim(t) || can_fly(t)) {
-        return ERR_NONE;
-    } else {
-        return ERR_SILENT;
-    }
-}
-
-int actor::can_walk(tile * t) {
-
-    feature * feat = t->my_feature;
-    if (t->my_actor == NULL && has_flag(FLAG_ACT_CAN_WALK) && t->has_flag(FLAG_TILE_CAN_WALK) && !(feat && feat->has_flag(FLAG_FEAT_NO_WALK))){
-        return ERR_NONE;
+    vector<action*> * r = how_to_travel(from, to);
+    if (r->size() == 0) {
+        return false;
     }
     
-    return ERR_SILENT;
+    return true;
 }
 
-int actor::can_swim(tile * t) {
+// Returns list of movement actions that can be used to move to the specified tile.
+vector<action*> * actor::how_to_travel(tile * from, tile * to) {
 
-    feature * feat = t->my_feature;
-    if (t->my_actor == NULL && has_flag(FLAG_ACT_CAN_SWIM) && t->has_flag(FLAG_TILE_CAN_SWIM) && !(feat && feat->has_flag(FLAG_FEAT_NO_SWIM))){
-        return ERR_NONE;
+    vector<action*> * ret = new vector<action*>();
+    vector<action*> * actions = action::defs_for(get_actions_for(ACTPUR_MOVE));
+    vector<action*>::iterator it = actions->begin();;
+    for(;it != actions->end(); ++it) {
+        if (can_travel_with(*it, from, to) == NULL) {
+            ret->push_back(*it);
+        }
     }
     
-    return ERR_SILENT;
+    return ret;
 }
 
-int actor::can_fly(tile * t) {
-
-    feature * feat = t->my_feature;
-    if (t->my_actor == NULL && has_flag(FLAG_ACT_CAN_FLY) && t->has_flag(FLAG_TILE_CAN_FLY) && !(feat && feat->has_flag(FLAG_FEAT_NO_FLY))){
-        return ERR_NONE;
-    }
-    return ERR_SILENT;
+// Returns true if the actor could move from one tile to another using the specified action
+set<error_t> * actor::can_travel_with(action * ac, tile * from, tile * to) {
+    
+    argmap * args = new argmap();
+    args->add_actor(ARG_ACTION_AGENT, this);
+    vector<void*> * pat = new vector<void*>();
+    pat->push_back((void*)to);
+    args->add_vector(ARG_ACTION_LOCATION, pat);
+    //args->add_entity(ARG_ACTION_LOCATION, (entity*)from);
+    return test_action(ac, args);
 }
 
 int actor::can_take(object * obj) {
