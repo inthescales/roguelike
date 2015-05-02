@@ -165,6 +165,10 @@ goal * AI::select_goal(actor * decider) {
     return ret;
 }
 
+/*
+    Calclate an attraction value for the idea of doing a certain purpose
+    to a certain target.
+*/
 int AI::idea_value(actor * decider, entity * target, idea * thought) {
 
     int ret = thought->base;
@@ -198,7 +202,7 @@ int AI::idea_value(actor * decider, entity * target, idea * thought) {
     return ret;
 }
 
-void AI::take_action(actor * act, goal * g) {
+bool AI::take_action(actor * act, goal * g) {
     
     argmap * args = new argmap();
     args->add_actor(ARG_ACTION_AGENT, act);
@@ -232,23 +236,35 @@ void AI::take_action(actor * act, goal * g) {
             }
         }
         
-        if (errs == NULL) {
-            // No errors, use the action right away
-            act->execute_action(best_action, args, false);
-        } else {
+        if (best_action != NULL) {
         
-            // We want to use this action, but need to do something else first
-            error_t to_fix = act->easiest_to_fix(best_action, args, errs);
-            goal * new_goal = goal_to_solve(act, g, to_fix);
+            if (errs == NULL) {
+                // No errors, use the action right away
+                act->execute_action(best_action, args, false);
+                return true;
+            } else {
+            
+                // We want to use this action, but need to do something else first
+                error_t to_fix = act->easiest_to_fix(best_action, args, errs);
+                goal * new_goal = goal_to_solve(act, g, to_fix);
 
-            if (new_goal != NULL) {
-                take_action(act, new_goal);
+                if (new_goal != NULL) {
+                    return take_action(act, new_goal);
+                } else {
+                    return false;
+                }
             }
+        
+        } else {
+            // We didn't have any available actions to accomplish this purpose - we'll have
+            // to try something else.
+            return false;
         }
         
     } else if(g->purpose == ACTPUR_MOVE) {
         // Movement is a special case due to the need for pathing
         act->move_toward((mapentity *)g->target);
+        return true;
     } else {
         // If abstract, resolve that here
         if (g->purpose == ACTPUR_WANDER) {
@@ -257,6 +273,8 @@ void AI::take_action(actor * act, goal * g) {
             
         }
     }
+    
+    return false;
 }
 
 /*

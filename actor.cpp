@@ -8,6 +8,7 @@
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
+#include "pathing.h"
 #include "rogue.h"
 #include "stringutils.h"
 #include "tile.h"
@@ -229,14 +230,14 @@ set<error_t> * actor::verify_target(targetActionBlock * block, entity * target) 
     }
 
     if (block->args->has_value(ARG_TARGET_MIN_DISTANCE)) {
-        int dist = tile::distance_between(this, (mapentity*)target);
+        int dist = pathing::distance_between(this, (mapentity*)target);
         if (dist < block->args->get_int(ARG_TARGET_MIN_DISTANCE)) {
             errs->insert(ERR_TOO_CLOSE);
         }
     }
     
     if (block->args->has_value(ARG_TARGET_MAX_DISTANCE)) {
-        int dist = tile::distance_between(this, (mapentity*)target);
+        int dist = pathing::distance_between(this, (mapentity*)target);
         if (dist > block->args->get_int(ARG_TARGET_MAX_DISTANCE)) {
             errs->insert(ERR_TOO_FAR);
         }
@@ -306,7 +307,7 @@ int actor::effort_to_fix(action * ac, argmap * args, error_t err) {
         case ERR_TOO_FAR:
         {
             entity * target = (entity*)args->get_vector(ARG_ACTION_PATIENT)->front();
-            int dist = tile::distance_between(this, (mapentity*)target);
+            int dist = pathing::distance_between(this, (mapentity*)target);
             return std::min(0, dist - ac->args->get_int(ARG_TARGET_MAX_DISTANCE));
         }
         break;
@@ -314,7 +315,7 @@ int actor::effort_to_fix(action * ac, argmap * args, error_t err) {
         case ERR_TOO_CLOSE:
         {
             entity * target = (entity*)args->get_vector(ARG_ACTION_PATIENT)->front();
-            int dist = tile::distance_between(this, (mapentity*)target);
+            int dist = pathing::distance_between(this, (mapentity*)target);
             return std::min(0, ac->args->get_int(ARG_TARGET_MIN_DISTANCE) - dist);
         }
         break;
@@ -382,14 +383,14 @@ vector<tile*> * actor::path_astar(mapentity * target, vector<action*> * moves) {
         
         open_set->erase(std::find(open_set->begin(), open_set->end(), current));
         closed_set->push_back(current);
-        vector<tile*> * adj = tile::adjacent_to(current);
+        vector<tile*> * adj = pathing::adjacent_to(current);
         for(int i = 0; i < adj->size(); ++i) {
             tile * neighbor = adj->at(i);
             if(std::find(closed_set->begin(), closed_set->end(), neighbor) != closed_set->end()) {
                 continue;
             }
             
-            tent_g = (*g_score)[current] + tile::distance_between(current, neighbor);
+            tent_g = (*g_score)[current] + pathing::distance_between(current, neighbor);
             if (neighbor->x != current->x && neighbor->y != current->y) {
                 tent_g += .001; // Prefer straight paths
             }
@@ -428,7 +429,7 @@ tile * get_lowest_f(vector<tile*> * tiles, std::map<tile*, float> * vals) {
 
 float heuristic_cost_estimate(tile * start, tile * goal) {
 
-    float r = tile::distance_between(start, goal);
+    float r = pathing::distance_between(start, goal);
     return r - 1.0;
 }
 

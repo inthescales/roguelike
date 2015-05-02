@@ -8,6 +8,7 @@
 #include "map.h"
 #include "object.h"
 #include "objclass.h"
+#include "pathing.h"
 #include "requirement.h"
 #include "rogue.h"
 #include "stringdefs.h"
@@ -362,11 +363,11 @@ vector<tile*> * UI::prompt_tile(string prompt, bool line, tile * origin, argmap 
             float dist;
             colorName col;
             bool broken = false;
-            cur_sel = tile::line_between(origin, &m->tiles[cur_x][cur_y]);
+            cur_sel = pathing::line_between(origin, &m->tiles[cur_x][cur_y]);
             if (cur_sel->size() > 0) {
                 vector<tile*>::iterator it = cur_sel->begin();
                 for(; it != cur_sel->end(); ++it) {
-                    dist = tile::distance_between(origin, (*it));
+                    dist = pathing::distance_between(origin, (*it));
                     col = (!broken && dist >= minDist && dist <= maxDist) ? C_YELLOW : C_RED;
                     w->display_glyph(glyph(symboldef[CHAR_X], col), w->x + (*it)->x, w->y + (*it)->y);
                     
@@ -497,7 +498,7 @@ vector<tile*> * UI::assume_self(extract_t extr, argmap * args, vector<requiremen
 
 vector<tile*> * UI::assume_adjacent(extract_t extr, argmap * args, vector<requirement*> * reqs) {
 
-    vector<tile*> * tiles = tile::adjacent_to(&(act_player->current_map->tiles[act_player->x][act_player->y]));
+    vector<tile*> * tiles = pathing::adjacent_to(&(act_player->current_map->tiles[act_player->x][act_player->y]));
     return assume(tiles, extr, args, reqs);
 }
 
