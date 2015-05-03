@@ -27,7 +27,7 @@ bool timer::execute() {
 
     bool can_continue = true;
     
-    do_effect(effect_args, executed_effect);
+    executed_effect->resolve(effect_args);
       
     // Process decay on any linked conditions. Check whetehr the effect is able to continue.
     if (effect_args->get_condition(ARG_HOLDER_CONDITION) != NULL) {

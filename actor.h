@@ -77,7 +77,6 @@ class actor : public mapentity {
     void enter_tile(tile *);
     
     // AI
-    set<error_t> * verify_target(targetActionBlock *, entity *);
     int effort_heuristic(action *, argmap *, set<error_t> *);
     error_t easiest_to_fix(action *, argmap *, set<error_t> *);
     int effort_to_fix(action *, argmap *, error_t);
@@ -92,10 +91,6 @@ class actor : public mapentity {
     // Actions
     int take_turn();
     void queue_turn(int);
-    set<error_t> * execute_action(action *);
-    set<error_t> * test_action(action *, argmap *);
-    set<error_t> * execute_action(action *, argmap *, bool);
-    set<error_t> * execute_action(action *, argmap *, bool, bool);
     vector<void*> * select_target(targetActionBlock *);
     
 	bool pick_up(object *, tile *);

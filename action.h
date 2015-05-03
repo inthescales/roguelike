@@ -147,11 +147,21 @@ class action {
     argmap * args;
     vector<actionBlock *> * blocks;
     
+    // Setup function
     action();
     action(argmap *);
     action(argmap *, vector<actionBlock *> *);
     void add_block(actionBlock *);
-    
+   
+    // Execution function
+    set<error_t> * execute();
+    set<error_t> * execute(argmap *, bool);
+    set<error_t> * execute(argmap *, bool, bool);
+    set<error_t> * test(argmap *);
+
+    set<error_t> * verify_target(targetActionBlock *, entity *, entity *);
+        
+    //
     static vector<action*> * defs_for(vector<int>*);
 };
 

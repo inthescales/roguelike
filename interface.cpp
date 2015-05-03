@@ -91,7 +91,9 @@ void UI::get_action(){
             
             default:
                 if (action_key->count(input) != 0) {
-                    done = act_player->execute_action(action_key->at(input));
+                    argmap * args = new argmap();
+                    args->add_actor(ARG_ACTION_AGENT, act_player);
+                    done = action_key->at(input)->execute(args, true);
                 }
                 break;
         }
@@ -146,7 +148,7 @@ bool UI::command_direction(direction_t dir) {
             vect->push_back((void*)dest);
             args->add_actor(ARG_ACTION_AGENT, act_player);
             args->add_vector(ARG_ACTION_LOCATION, vect);
-            return (act_player->execute_action(moves->front(), args, false) == NULL);
+            return (moves->front()->execute(args, false) == NULL);
         }
 	}
 	
@@ -155,7 +157,7 @@ bool UI::command_direction(direction_t dir) {
     bool done = false;
 	vector<int> * actions = get_context_action(purpose);
     for(int i = 0; !done && i < actions->size(); ++i) {
-        done = (act_player->execute_action(actiondef[actions->at(i)], args, false) == NULL);
+        done = (actiondef[actions->at(i)]->execute(args, false) == NULL);
     }
 		
 	return done;

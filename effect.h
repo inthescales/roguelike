@@ -39,6 +39,7 @@ class effect {
     argmap * args;
     
     effect(effect_t);
+    bool resolve(argmap *);
 };
 
 class trigger_effect : public effect {
@@ -58,7 +59,5 @@ class timer_effect : public effect {
     
     timer_effect(effect_t, int, int, int);
 };
-
-bool do_effect(argmap *, effect *);
 
 #endif

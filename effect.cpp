@@ -30,20 +30,16 @@ timer_effect::timer_effect(effect_t e, int n_time, int n_iters, int n_delta) : e
 }
 
 /*
-	Process an effect
-	Takes in some relevant arguments
+	Process an effect with given arguments
 */
-bool do_effect(argmap * args, effect * eff){
-
-    if (eff == NULL)
-        return false;
+bool effect::resolve(argmap * args){
     
     bool ok = true;
     bool success = false;
     vector<entity*> * successes = new vector<entity*>();
     string output;
     
-	switch(eff->type){
+	switch(type){
     
         /*
             Take a turn as an actor

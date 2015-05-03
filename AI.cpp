@@ -224,7 +224,7 @@ bool AI::take_action(actor * act, goal * g) {
         vector<action*>::iterator it = actions->begin();
         for(; it != actions->end(); ++it) {
             
-            set<error_t> * cur_errs = act->test_action(*it, args);
+            set<error_t> * cur_errs = (*it)->test(args);
             int mod_pri = (*it)->priority - act->effort_heuristic(*it, args, cur_errs);
             
             if ((best_action == NULL || best_priority < mod_pri)
@@ -240,7 +240,7 @@ bool AI::take_action(actor * act, goal * g) {
         
             if (errs == NULL) {
                 // No errors, use the action right away
-                act->execute_action(best_action, args, false);
+                best_action->execute(args, false);
                 return true;
             } else {
             

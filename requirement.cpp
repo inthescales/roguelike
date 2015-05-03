@@ -186,7 +186,7 @@ set<error_t> * requirement::check() {
             if (has_used_arg(ARG_ACTION_PATIENT)) {
                 object * patient = (object*)get_used_arg(ARG_ACTION_PATIENT);
                 if (patient != NULL) {
-                    if (!((actor*)get_used_arg(ARG_ACTION_AGENT))->can_take(patient)) {
+                    if (!((actor*)get_used_arg(ARG_ACTION_AGENT))->can_take(patient)  != ERR_NONE) {
                         errs->insert(ERR_FAIL);
                     }
                 } else {
@@ -298,7 +298,7 @@ set<error_t> * requirement::check() {
                 vector<feature*> * patients = (vector<feature*> *)get_used_arg(ARG_ACTION_PATIENT);
                 if (patients->size() > 0){
                     for(int i = 0; ok && i < patients->size(); ++i) {
-                        if ( !((actor*)get_used_arg(ARG_ACTION_AGENT))->can_open(patients->at(i)) ) {
+                        if ( ((actor*)get_used_arg(ARG_ACTION_AGENT))->can_open(patients->at(i)) != ERR_NONE) {
                             errs->insert(ERR_FAIL);
                             ok = false;
                         }
@@ -317,7 +317,7 @@ set<error_t> * requirement::check() {
                 vector<feature*> * patients = (vector<feature*> *)get_used_arg(ARG_ACTION_PATIENT);
                 if (patients->size() > 0) {
                     for(int i = 0; ok && i < patients->size(); ++i) {
-                        if ( !((actor*)get_used_arg(ARG_ACTION_AGENT))->can_close(patients->at(i)) ) {
+                        if ( !((actor*)get_used_arg(ARG_ACTION_AGENT))->can_close(patients->at(i))  != ERR_NONE) {
                             errs->insert(ERR_FAIL);
                             ok = false;
                         }
