@@ -70,6 +70,7 @@ bool effect::resolve(argmap * args){
             
             if (patient != NULL && location != NULL) {
                 patient->move(location);
+                success = true;
             }
             
             return success;

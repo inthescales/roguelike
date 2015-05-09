@@ -216,36 +216,37 @@ bool AI::take_action(actor * act, goal * g) {
         
         // For each action, see if it's possible or how much work it would take to make
         // it possible, and weigh that against its priority.
-        vector<action*> * actions = action::defs_for(act->get_actions_for(g->purpose));
+        vector<action*> * actions = act->get_actions_for(g->purpose);
         int best_priority = -1000;
         action * best_action = NULL;
-        set<error_t> * errs; // Errors for chosen action
+        vector<error*> * errs; // Errors for chosen action
         
         vector<action*>::iterator it = actions->begin();
         for(; it != actions->end(); ++it) {
             
-            set<error_t> * cur_errs = (*it)->test(args);
-            int mod_pri = (*it)->priority - act->effort_heuristic(*it, args, cur_errs);
+            action_resp * test_resp = (*it)->test(args);
+            int mod_pri = (*it)->priority - act->effort_heuristic(*it, args, test_resp->errors);
             
             if ((best_action == NULL || best_priority < mod_pri)
-             && (cur_errs == NULL || !cur_errs->count(ERR_FAIL)) ) {
+             /*&& Later, we want a way to test generally for doability.
+                  For now we'll just use a high effort if we can't*/ ) {
               
                 best_action = (*it);
                 best_priority = mod_pri;
-                errs = cur_errs;
+                errs = test_resp->errors;
             }
         }
         
         if (best_action != NULL) {
         
-            if (errs == NULL) {
+            if (errs->size() == 0) {
                 // No errors, use the action right away
                 best_action->execute(args, false);
                 return true;
             } else {
             
                 // We want to use this action, but need to do something else first
-                error_t to_fix = act->easiest_to_fix(best_action, args, errs);
+                error * to_fix = act->easiest_to_fix(best_action, args, errs);
                 goal * new_goal = goal_to_solve(act, g, to_fix);
 
                 if (new_goal != NULL) {
@@ -281,10 +282,10 @@ bool AI::take_action(actor * act, goal * g) {
     We want to do the specified goal, but need a new subgoal to solve
     the specified error.
 */
-goal * AI::goal_to_solve(actor * act, goal * g, error_t err) {
+goal * AI::goal_to_solve(actor * act, goal * g, error * err) {
 
     
-    switch(err) {
+    switch(err->code) {
         case ERR_BAD_INPUT:
         case ERR_ENTITY_TYPE:
         case ERR_CANT_TARGET_SELF:

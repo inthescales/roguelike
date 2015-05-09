@@ -1,5 +1,45 @@
 #include "error.h"
 
+// Error class =====================================================
+
+error::error(error_t nc) {
+
+    code = nc;
+    str = "";
+    args = new argmap();
+}
+
+error::error(error_t nc, string ns) {
+
+    code = nc;
+    str = ns;
+    args = new argmap();
+}
+
+error::error(error_t nc, string ns, argmap * narg) {
+
+    code = nc;
+    str = ns;
+    args = narg;
+}
+
+// Static functions =============================================
+
+bool error::contains_error(vector<error*> * errors, error_t code) {
+
+    vector<error*>::iterator it = errors->begin();
+    for (; it != errors->end(); ++it) {
+        
+        if ((*it)->code == code) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// Error string defs ====================================================================
+
 string error_string[ERR_MAX];
 
 void define_errors() {
@@ -32,3 +72,4 @@ void define_errors() {
     error_string[ERR_NOTHING_TO_OPEN] = "There is nothing to open there.";
     error_string[ERR_NOTHING_TO_CLOSE] = "There is nothing to close there.";
 };
+

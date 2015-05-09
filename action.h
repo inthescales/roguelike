@@ -132,7 +132,26 @@ class requirementActionBlock : public actionBlock {
     
     requirementActionBlock(bool, bool, bool);
     requirementActionBlock(bool, bool, bool, argmap *);
-    set<error_t> * evaluate();
+    require_resp * evaluate();
+};
+
+enum action_result_t {
+
+    ACTRES_UNKNOWN = 0,
+    ACTRES_SUCCESS,
+    ACTRES_PARTIAL,
+    ACTRES_FAILURE
+};
+
+class action_resp {
+
+    public:
+    action_result_t status;
+    vector<void*> * successes;
+    vector<error*> * errors;
+    
+    action_resp();
+    void merge(action_resp *);
 };
 
 class action {
@@ -154,21 +173,20 @@ class action {
     void add_block(actionBlock *);
    
     // Execution function
-    set<error_t> * execute();
-    set<error_t> * execute(argmap *, bool);
-    set<error_t> * execute(argmap *, bool, bool);
-    set<error_t> * test(argmap *);
+    action_resp * execute();
+    action_resp * execute(argmap *, bool);
+    action_resp * execute(argmap *, bool, bool);
+    action_resp * test(argmap *);
 
-    set<error_t> * verify_target(targetActionBlock *, entity *, entity *);
+    vector<error*> * verify_target(targetActionBlock *, entity *, entity *);
         
     //
     static vector<action*> * defs_for(vector<int>*);
+    static bool priority_comp(action *, action *);
 };
 
 args_t actrole_to_arg(actionRole_t);
 
 extern action * actiondef[];
-
-bool priority_comp(int, int);
 
 #endif

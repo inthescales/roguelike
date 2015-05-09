@@ -122,9 +122,9 @@ bool mapentity::has_flag(flags_t code) {
 }
 // Action management ===========================
 
-vector<int> * mapentity::get_actions() {
+vector<action*> * mapentity::get_actions() {
 
-    vector<int> * r = entity::get_actions();
+    vector<action*> * r = entity::get_actions();
     
     // Get actions from my conditions
     vector<condition*>::iterator cond_it = condition_list->begin();

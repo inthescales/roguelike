@@ -95,7 +95,7 @@ void UI::get_action(){
                     args->add_actor(ARG_ACTION_AGENT, act_player);
                     done = action_key->at(input)->execute(args, true);
                 }
-                break;
+            break;
         }
     
         if (win_output->should_update) {
@@ -129,53 +129,56 @@ bool UI::command_direction(direction_t dir) {
     args->add_actor(ARG_ACTION_AGENT, act_player);
 	
 	if(dest->my_actor != NULL) {
+    
         purpose = ACTPUR_HARM;
         vector<void*> * vect = new vector<void*>();
         vect->push_back((void*)(dest->my_actor));
         args->add_vector(ARG_ACTION_PATIENT, vect);
     } else if(dest->my_feature != NULL
            && act_player->can_open(dest->my_feature) == ERR_NONE) {
+           
         purpose = ACTPUR_OPEN_FEAT;
         vector<void*> * vect = new vector<void*>();
         vect->push_back((void*)(dest->my_feature));
         args->add_vector(ARG_ACTION_PATIENT, vect);
     } else {
-        // Check for a way to move and do so if possible.
-        vector<action*> * moves = act_player->how_to_travel(&act_player->current_map->tiles[act_player->x][act_player->y], dest);
-		if(moves->size() > 0) {
-			purpose = ACTPUR_MOVE;
-            vector<void*> * vect = new vector<void*>();
-            vect->push_back((void*)dest);
-            args->add_actor(ARG_ACTION_AGENT, act_player);
-            args->add_vector(ARG_ACTION_LOCATION, vect);
-            return (moves->front()->execute(args, false) == NULL);
-        }
+    
+        purpose = ACTPUR_MOVE;
+        vector<void*> * vect = new vector<void*>();
+        vect->push_back((void*)dest);
+        args->add_actor(ARG_ACTION_AGENT, act_player);
+        args->add_vector(ARG_ACTION_LOCATION, vect);
 	}
 	
     // Pick an action for a non-move purpose and do it. May merge with above later - but currently
     // only move actions are tested fully before attempting.
-    bool done = false;
-	vector<int> * actions = get_context_action(purpose);
-    for(int i = 0; !done && i < actions->size(); ++i) {
-        done = (actiondef[actions->at(i)]->execute(args, false) == NULL);
+    action_resp * resp = NULL;
+	vector<action*> * actions = get_context_action(purpose);
+    for(int i = 0; i < actions->size(); ++i) {
+        resp = (actions->at(i)->execute(args, false));
+        
+        if(resp->status == ACTRES_SUCCESS
+        || resp->status == ACTRES_PARTIAL) {
+            return true;
+        }
     }
 		
-	return done;
+	return false;
 }
 
-vector<int> * UI::get_context_action(actionPurpose_t purp) {
+vector<action*> * UI::get_context_action(actionPurpose_t purp) {
 
-    vector<int> * actions = act_player->get_actions_for(purp);
+    vector<action*> * actions = act_player->get_actions_for(purp);
     action * r = NULL;
     
-    vector<int>::iterator it = actions->begin();
+    vector<action*>::iterator it = actions->begin();
     for(; it != actions->end(); ++it) {
-        if (!actiondef[*it]->contextOk) {
+        if (!(*it)->contextOk) {
             it = actions->erase(it);
         }
     }
     
-    std::sort(actions->begin(), actions->end(), priority_comp);
+    std::sort(actions->begin(), actions->end(), action::priority_comp);
     
     return actions;
 }
@@ -310,7 +313,7 @@ vector<tile*> * UI::prompt_adjacent(string prompt, argmap * args, vector<require
     for(int i = minDist; i <= maxDist && r->size() < maxNum; ++i) {
     
         tile * cur_tile = &map_current->tiles[cur.first][cur.second];
-        if (requirement::check_requirements_for(reqs, cur_tile, NULL)) {
+        if (requirement::check_requirements_for(reqs, cur_tile, new argmap())) {
             r->push_back(cur_tile);
         }
         cur.first += offset.first;
@@ -469,7 +472,7 @@ vector<object*> * UI::prompt_inventory(string prompt, argmap * args, vector<requ
 		
 		if(input == '$' && gold_ok){
             object * goldObj = prompt_gold_to_object();
-            if (requirement::check_requirements_for(reqs, goldObj, NULL)) {
+            if (requirement::check_requirements_for(reqs, goldObj, new argmap())) {
                 ret->push_back(goldObj);
             }
 			return ret;
@@ -506,11 +509,10 @@ vector<tile*> * UI::assume_adjacent(extract_t extr, argmap * args, vector<requir
 
 vector<tile*> * UI::assume(vector<tile*> * tiles, extract_t extr, argmap * args, vector<requirement*> * reqs) {
 
-    
     vector<tile*> * ret = new vector<tile*>();
     int found = 0;
     
-    // For each adjacent tile, see if it has the kind of thing we're looking for
+    // For each tile, see if it has the kind of thing we're looking for
     // Add to the return list, but return NULL if there are too many
     vector<tile*>::iterator it = tiles->begin();
     for(; it != tiles->end(); ++it) {
@@ -518,7 +520,7 @@ vector<tile*> * UI::assume(vector<tile*> * tiles, extract_t extr, argmap * args,
         // Check relevant entities in each tile, return NULL if too many are found
         if (extr == EXT_ACTOR) {
         
-            if ((*it)->my_actor != NULL && requirement::check_requirements_for(reqs, *it, NULL)) {
+            if ((*it)->my_actor != NULL && requirement::check_requirements_for(reqs, *it, new argmap())) {
                 ret->push_back(*it);
                 ++found;
             }
@@ -532,7 +534,7 @@ vector<tile*> * UI::assume(vector<tile*> * tiles, extract_t extr, argmap * args,
                     vector<object*>::iterator it2 = (*it)->my_objects->begin();
                     bool newly_found = 0;
                     for(; it2 != (*it)->my_objects->end(); ++it2) {
-                        if(requirement::check_requirements_for(reqs, *it2, NULL)) {
+                        if(requirement::check_requirements_for(reqs, *it2, new argmap())) {
                             ++newly_found;
                         }
                     }
@@ -545,7 +547,7 @@ vector<tile*> * UI::assume(vector<tile*> * tiles, extract_t extr, argmap * args,
             }
         } else if (extr == EXT_FEATURE) {
         
-            if ((*it)->my_feature != NULL && requirement::check_requirements_for(reqs, *it, NULL)) {
+            if ((*it)->my_feature != NULL && requirement::check_requirements_for(reqs, *it, new argmap())) {
                 ret->push_back(*it);
                 ++found;
             }
@@ -572,7 +574,7 @@ vector<actor*> * UI::extract_actors(vector<tile*> * tiles, vector<requirement*> 
     vector<tile*>::iterator it = tiles->begin();
     for(; it != tiles->end(); ++it) {
         if ((*it)->my_actor != NULL) {
-            if (requirement::check_requirements_for(reqs, (*it)->my_actor, NULL)) {
+            if (requirement::check_requirements_for(reqs, (*it)->my_actor, new argmap())) {
                 r->push_back((*it)->my_actor);
             }
         }
@@ -589,7 +591,7 @@ vector<object*> * UI::extract_objects(vector<tile*> * tiles, vector<requirement*
     for(; it != tiles->end(); ++it) {
         vector<object*>::iterator it2 = (*it)->my_objects->begin();
         for(; it2 != (*it)->my_objects->end(); ++it2) {
-            if (requirement::check_requirements_for(reqs, *it2, NULL)) {
+            if (requirement::check_requirements_for(reqs, *it2, new argmap())) {
                 r->push_back(*it2);
             }
         }
@@ -608,7 +610,7 @@ vector<object*> * UI::extract_inventories(vector<tile*> * tiles, vector<requirem
             actor * cur_act = (*it)->my_actor;
             vector<object*>::iterator it2 = cur_act->inventory->begin();
             for(; it2 != cur_act->inventory->end(); ++it2) {
-                if (requirement::check_requirements_for(reqs, *it2, NULL)) {
+                if (requirement::check_requirements_for(reqs, *it2, new argmap())) {
                     r->push_back((*it2));
                 }
             }
@@ -625,7 +627,7 @@ vector<feature*> * UI::extract_features(vector<tile*> * tiles, vector<requiremen
     vector<tile*>::iterator it = tiles->begin();
     for(; it != tiles->end(); ++it) {
         if ((*it)->my_feature != NULL) {
-            if (requirement::check_requirements_for(reqs, (*it)->my_feature, NULL)) {
+            if (requirement::check_requirements_for(reqs, (*it)->my_feature, new argmap())) {
                 r->push_back((*it)->my_feature);
             }
         }

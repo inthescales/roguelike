@@ -87,6 +87,45 @@ requirementActionBlock::requirementActionBlock(bool nloop, bool nend, bool ncrit
     testDone = false;
 }
 
+// Action response ===================
+
+action_resp::action_resp() {
+    
+    status = ACTRES_UNKNOWN;
+    successes = new vector<void*>();
+    errors = new vector<error*>();
+}
+
+/*
+    Merge two require responses.
+    Result has intersection of successes, union of errors.
+    State is set accordingly.
+*/
+void action_resp::merge(action_resp * other) {
+
+    // Keep my successes only if the other agrees
+    vector<void*> * new_succs = new vector<void*>();
+    vector<void*>::iterator it = successes->begin();
+    vector<void*>::iterator it2 = other->successes->begin();
+    for(; it != successes->end(); ++it) {
+        for(; it2 != other->successes->end(); ++it2) {
+        
+            if((*it) == (*it2)) {
+                new_succs->push_back(*it);
+                break;
+            }
+        }
+    }
+
+    // Add other's errors to my own - they won't overlap
+    vector<error*>::iterator err_it = other->errors->begin();
+    for(; err_it != other->errors->end(); ++err_it) {
+        errors->push_back(*err_it);
+    }
+    
+    successes = new_succs;
+}
+
 // Action itself =====================
 
 action::action() {
@@ -126,7 +165,7 @@ void actionBlock::add_requirement(requirement * nreq) {
     requirements->push_back(nreq);
 }
 
-set<error_t> * requirementActionBlock::evaluate() {
+require_resp * requirementActionBlock::evaluate() {
 
     vector<requirement*>::iterator it = requirements->begin();
 
@@ -136,24 +175,24 @@ set<error_t> * requirementActionBlock::evaluate() {
 // Functions for executing and testing actions ======================
 
 
-set<error_t> * action::execute() {
+action_resp * action::execute() {
     
     return execute(NULL, true, false);
 }
 
-set<error_t> * action::execute(argmap * args, bool get_targets) {
+action_resp * action::execute(argmap * args, bool get_targets) {
     return execute(args, get_targets, false);
 }
 
 // Execute an action, including selecting targets. Returns set of errors. If NULL,
 // action completed successfully
-set<error_t> * action::execute(argmap * args, bool get_targets, bool test) {
+action_resp * action::execute(argmap * args, bool get_targets, bool test) {
 
-    set<error_t> * errs = new set<error_t>();
+    action_resp * response = new action_resp();
     
     if (blocks == NULL) {
-        errs->insert(ERR_BAD_INPUT);
-        return errs;
+        response->errors->push_back(new error(ERR_BAD_INPUT));
+        return response;
     }
 
     actionBlock * curBlock;
@@ -221,17 +260,18 @@ set<error_t> * action::execute(argmap * args, bool get_targets, bool test) {
                     entity * agent = (entity*)roles->get_actor((args_t)ACTROLE_AGENT);
                     vector<void*> * targs = (vector<void*> *)args->get_vector(actrole_to_arg(((targetActionBlock *)curBlock)->position));
                     vector<void*>::iterator it = targs->begin();
-                    set<error_t> * targerrs = new set<error_t>();
+                    vector<error*> * targerrs = new vector<error*>();
                                         
                     for(; it != targs->end(); ++it) {
-                        set<error_t> * newerrs = verify_target((targetActionBlock *)curBlock, agent, (entity*)(*it));
+                        vector<error*> * newerrs = verify_target((targetActionBlock *)curBlock, agent, (entity*)(*it));
                         if (newerrs != NULL) {
-                            targerrs->insert(newerrs->begin(), newerrs->end());
+                            targerrs->insert(targerrs->end(), newerrs->begin(), newerrs->end());
                         }
                     }
                     
                     if (targerrs->size() > 0) {
-                        return targerrs;
+                        response->errors->insert(response->errors->end(), targerrs->begin(), targerrs->end());
+                        return response;
                     }
                 }
             }
@@ -283,23 +323,26 @@ set<error_t> * action::execute(argmap * args, bool get_targets, bool test) {
             
             // EFFECT BLOCK - set roles, process effect
             case EFFECT_BLOCK:
-                if (test) { // If we're testing, return if this block says to
-                    if (curBlock->testDone) {
-                        return NULL;
+            
+                if (curBlock->testDone) {
+                    response->status = ACTRES_SUCCESS;
+                    if (test) { // If we're testing, return if this block says to
+                        return response;
                     }
-                } else { // Only execute effects if we aren't testing.
-                     ((effectActionBlock *)curBlock)->eff->resolve(curBlock->args);
                 }
+
+                ((effectActionBlock *)curBlock)->eff->resolve(curBlock->args);
             break;
                 
             // REQUIREMENT BLOCK - set roles, check for requirements
             case REQUIREMENT_BLOCK:
             {
                 // TODO - Implement loops
-                std::set<error_t> * errset = ((requirementActionBlock *)curBlock)->evaluate();
-                if (errset != NULL && ((requirementActionBlock *)curBlock)->critical) {
+                require_resp * reqresp = ((requirementActionBlock *)curBlock)->evaluate();
+                if (reqresp->result != REQRES_SUCCESS && ((requirementActionBlock *)curBlock)->critical) {
                     // Failed requirement means action cannot count as completed
-                    return errset;
+                    response->errors->insert(response->errors->end(), reqresp->errors->begin(), reqresp->errors->end());
+                    return response;
                 }
             }
             break;
@@ -308,10 +351,10 @@ set<error_t> * action::execute(argmap * args, bool get_targets, bool test) {
         
     }
     
-    return NULL;
+    return response;
 }
 
-set<error_t> * action::test(argmap * args) {
+action_resp * action::test(argmap * args) {
     return execute(args, false, true);
 }
 
@@ -319,40 +362,40 @@ set<error_t> * action::test(argmap * args) {
     Check whether an action target block could be used to target the specified
     entity. Return a set of errors if any, NULL otherwise.
 */
-set<error_t> * action::verify_target(targetActionBlock * block, entity * agent, entity * target) {
+vector<error*> * action::verify_target(targetActionBlock * block, entity * agent, entity * target) {
 
-    set<error_t> * errs = new set<error_t>();
+    vector<error*> * errs = new vector<error*>();
     
     // Check the block's targeting args
     if (block->args->has_value(ARG_TARGET_ENTITY_TYPE)) {
 
         if (agent == target && block->args->has_flag(FLAG_TARGET_NOT_SELF)) {
-            errs->insert(ERR_CANT_TARGET_SELF);
+            errs->push_back(new error(ERR_CANT_TARGET_SELF));
         } else
         if (agent != target && block->args->has_flag(FLAG_TARGET_SELF_ONLY)) {
-            errs->insert(ERR_MUST_TARGET_SELF);
+            errs->push_back(new error(ERR_MUST_TARGET_SELF));
         }
     }
 
     if (block->args->has_value(ARG_TARGET_MIN_DISTANCE)) {
         int dist = pathing::distance_between((mapentity*)agent, (mapentity*)target);
         if (dist < block->args->get_int(ARG_TARGET_MIN_DISTANCE)) {
-            errs->insert(ERR_TOO_CLOSE);
+            errs->push_back(new error(ERR_TOO_CLOSE));
         }
     }
     
     if (block->args->has_value(ARG_TARGET_MAX_DISTANCE)) {
         int dist = pathing::distance_between((mapentity*)agent, (mapentity*)target);
         if (dist > block->args->get_int(ARG_TARGET_MAX_DISTANCE)) {
-            errs->insert(ERR_TOO_FAR);
+            errs->push_back(new error(ERR_TOO_FAR));
         }
     }
     
     // Check the block's requirements
     vector<requirement*>::iterator it = block->requirements->begin();
     for(; it != block->requirements->end(); ++it) {
-        set<error_t> * reqerrs = (*it)->check_for(target);
-        errs->insert(reqerrs->begin(), reqerrs->end());
+        require_resp * reqresp = (*it)->check_for(target);
+        errs->insert(errs->end(), reqresp->errors->begin(), reqresp->errors->end());
     }
     
     if (errs->size() > 0) {
@@ -365,9 +408,9 @@ set<error_t> * action::verify_target(targetActionBlock * block, entity * agent, 
 // Helper functions ============================
 
 // Compare priority of two actions
-bool priority_comp(int a, int b) {
+bool action::priority_comp(action * a, action * b) {
 
-    return actiondef[a]->priority >= actiondef[b]->priority;
+    return a->priority >= b->priority;
 }
 
 vector<action*> * action::defs_for(vector<int> * in) {

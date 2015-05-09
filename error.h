@@ -1,9 +1,12 @@
 #ifndef ERROR_H
 #define ERROR_H
 
+#include "argmap.h"
 #include <string>
+#include <vector>
 
 using std::string;
+using std::vector;
 
 enum error_t {
 
@@ -37,6 +40,20 @@ enum error_t {
     ERR_NOTHING_TO_OPEN,
     ERR_NOTHING_TO_CLOSE,
     ERR_MAX
+};
+
+class error {
+
+    public:
+    error_t code;
+    string str;
+    argmap * args;
+    
+    error(error_t);
+    error(error_t, string);
+    error(error_t, string, argmap *);
+    
+    static bool contains_error(vector<error*> *, error_t);
 };
 
 extern string error_string[ERR_MAX];

@@ -58,17 +58,19 @@ string actor::get_name_color() {
     return color_string(entity::get_name(), get_color());
 }
 
-vector<int> * actor::get_actions() {
+vector<action*> * actor::get_actions() {
 
-    vector<int> * r = mapentity::get_actions();
+    vector<action*> * r = mapentity::get_actions();
     
     // Get actions from my inventory
     vector<object*>::iterator item_it = inventory->begin();
     for(; item_it != inventory->end(); ++item_it) {
-        vector<int> * acts = (*item_it)->get_actions();
-        vector<int>::iterator inv_it = acts->begin();
+    
+        vector<action*> * acts = (*item_it)->get_actions();
+        vector<action*>::iterator inv_it = acts->begin();
         for(; inv_it != acts->end(); ++inv_it) {
-            if(!actiondef[(*inv_it)]->equipOnly || (*item_it)->equipped) {
+        
+            if(!(*inv_it)->equipOnly || (*item_it)->equipped) {
                 r->insert(r->end(), *inv_it);
             }
         }
@@ -77,13 +79,13 @@ vector<int> * actor::get_actions() {
     return r;
 }
 
-vector<int> * actor::get_actions_for(actionPurpose_t purp) {
+vector<action*> * actor::get_actions_for(actionPurpose_t purp) {
 
-    vector<int> * all = get_actions();
+    vector<action*> * all = get_actions();
 
-    vector<int> * r = new vector<int>();
+    vector<action*> * r = new vector<action*>();
     for(int i = 0; i < all->size(); ++i) {
-        if(actiondef[all->at(i)]->purpose == purp) {
+        if(all->at(i)->purpose == purp) {
             r->push_back(all->at(i));
         }
     }
@@ -225,12 +227,12 @@ vector<void*> * actor::select_target(targetActionBlock * in) {
 /*
     Estimate amount of effort (roughly, time) needed to perform an action.
 */
-int actor::effort_heuristic(action * ac, argmap * args, set<error_t> * errors) {
+int actor::effort_heuristic(action * ac, argmap * args, vector<error*> * errors) {
 
     int effort = 0;
     
     if (errors != NULL) {
-        set<error_t>::iterator err_it = errors->begin();
+        vector<error*>::iterator err_it = errors->begin();
         for(;err_it != errors->end(); ++err_it) {
             
             effort += effort_to_fix(ac, args, *err_it);
@@ -240,16 +242,16 @@ int actor::effort_heuristic(action * ac, argmap * args, set<error_t> * errors) {
     return effort;
 }
 
-error_t actor::easiest_to_fix(action * ac, argmap * args, set<error_t> * errors) {
+error * actor::easiest_to_fix(action * ac, argmap * args, vector<error*> * errors) {
 
-    error_t easiest = ERR_NONE;
+    error * easiest = NULL;
     int effort = 1000;
     
-    set<error_t>::iterator it = errors->begin();
+    vector<error*>::iterator it = errors->begin();
     for(; it != errors->end(); ++it) {
         
         int eff = effort_to_fix(ac, args, *it);
-        if (easiest == ERR_NONE || eff < effort) {
+        if (easiest == NULL || eff < effort) {
             easiest = *it;
             effort = eff;
         }
@@ -258,9 +260,9 @@ error_t actor::easiest_to_fix(action * ac, argmap * args, set<error_t> * errors)
     return easiest;
 }
 
-int actor::effort_to_fix(action * ac, argmap * args, error_t err) {
+int actor::effort_to_fix(action * ac, argmap * args, error * err) {
 
-    switch(err) {
+    switch(err->code) {
         
         case ERR_BAD_INPUT:
         case ERR_ENTITY_TYPE:
@@ -314,7 +316,7 @@ vector<tile*> * actor::path_to(mapentity * target) {
     vector<tile*> * ret;
     
     // Get ok movement types
-    vector<action*> * actions = action::defs_for(get_actions_for(ACTPUR_MOVE));
+    vector<action*> * actions = get_actions_for(ACTPUR_MOVE);
 
     ret = path_astar(target, actions);
     
@@ -414,7 +416,7 @@ vector<tile*> * reconstruct_path(std::map<tile*,tile*> * came_from, tile * goal)
 
 bool actor::move_toward(mapentity * target) {
     
-    vector<action*> * actions = action::defs_for(get_actions_for(ACTPUR_MOVE));
+    vector<action*> * actions = get_actions_for(ACTPUR_MOVE);
     vector<action*>::iterator it = actions->begin();
     tile * cur_tile = &current_map->tiles[x][y];
     
@@ -430,7 +432,7 @@ bool actor::move_toward(mapentity * target) {
         for(int i = 0; i < line->size() && (range == -1 || i < range); ++i) {
             
             if (best_action == NULL
-             || (can_travel_with(*it, cur_tile, line->at(i)) == NULL) && best_dist < i ) {
+             || (can_travel_with(*it, cur_tile, line->at(i))->size() == 0) && best_dist < i ) {
                 best_action = (*it);
                 best_dist = i;
                 continue;
@@ -484,8 +486,6 @@ vector<object*> * actor::objects_for_slot(equip_slot slot) {
 
 // Action and turn setup ====================================================================
 
-// get_actions
-
 int actor::take_turn() {
 
     if (this == act_player) {
@@ -516,6 +516,7 @@ void actor::move(tile * new_tile) {
     
     // Move the window's frame if necessary
     if (this == act_player) {
+    
         if (x < win_world->frame_x + scroll_border && win_world->frame_x > 0) {
             win_world->frame_x = x - scroll_border;
             win_world->should_update = true;
@@ -867,10 +868,10 @@ bool actor::can_travel(tile * from, tile * to) {
 vector<action*> * actor::how_to_travel(tile * from, tile * to) {
 
     vector<action*> * ret = new vector<action*>();
-    vector<action*> * actions = action::defs_for(get_actions_for(ACTPUR_MOVE));
+    vector<action*> * actions = get_actions_for(ACTPUR_MOVE);
     vector<action*>::iterator it = actions->begin();;
     for(;it != actions->end(); ++it) {
-        if (can_travel_with(*it, from, to) == NULL) {
+        if (can_travel_with(*it, from, to)->size() == 0) {
             ret->push_back(*it);
         }
     }
@@ -879,15 +880,15 @@ vector<action*> * actor::how_to_travel(tile * from, tile * to) {
 }
 
 // Returns true if the actor could move from one tile to another using the specified action
-set<error_t> * actor::can_travel_with(action * ac, tile * from, tile * to) {
+vector<error*> * actor::can_travel_with(action * ac, tile * from, tile * to) {
     
     argmap * args = new argmap();
     args->add_actor(ARG_ACTION_AGENT, this);
     vector<void*> * pat = new vector<void*>();
     pat->push_back((void*)to);
     args->add_vector(ARG_ACTION_LOCATION, pat);
-    //args->add_entity(ARG_ACTION_LOCATION, (entity*)from);
-    return ac->test(args);
+    action_resp * resp = ac->test(args);
+    return resp->errors;
 }
 
 int actor::can_take(object * obj) {

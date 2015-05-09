@@ -69,174 +69,206 @@ void define_actions() {
     _finish_action
 
     //#TAKE_BASIC
-    new_action = new action();
-    new_target_block = new targetActionBlock("Take what?", TAR_SELF, RAD_SINGLE, EXT_OBJECTS, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, -1);
-    new_target_block->args->add_int(ARG_TARGET_ASSUME, 1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_TAKE));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock(new effect(EFF_TAKE)));
-    new_action->purpose = ACTPUR_TAKE;
-    actiondef[++c] = new_action;
-    
+    _new_action
+        _new_target_block("Take what?", TAR_SELF, RAD_SINGLE, EXT_OBJECTS, ACTROLE_PATIENT)
+            _add_target_block_arg(ARG_TARGET_NUMBER, -1)
+            _add_target_block_arg(ARG_TARGET_ASSUME, 1)
+        _append_target
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_CAN_TAKE)
+            _add_require_block_req
+        _append_require
+        _new_effect_block(EFF_TAKE)
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_TAKE)
+    _action_priority(6)
+    _finish_action
+        
     //#DROP_BASIC
-    new_action = new action();
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_HAS_ITEMS));
-    new_action->add_block(new_require_block);
-    new_target_block = new targetActionBlock("Drop what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, -1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_DROP));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock(new effect(EFF_DROP)));
-    new_action->purpose = ACTPUR_DROP;
-    actiondef[++c] = new_action;
+    _new_action
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_HAS_ITEMS)
+            _add_require_block_arg(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT)
+            _add_require_block_req
+        _append_require
+        _new_target_block("Drop what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT)
+            _add_target_block_arg(ARG_TARGET_NUMBER, -1)
+        _append_target
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_CAN_DROP)
+            _add_require_block_req
+        _append_require
+        _new_effect_block(EFF_DROP)
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_DROP)
+    _action_priority(10)
+    _finish_action
     
     //#EQUIP_BASIC
     // target inv(obj.1), require item can be eaten, effect eating on item
-    new_action = new action();
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_HAS_ITEMS));
-    new_action->add_block(new_require_block);
-    new_target_block = new targetActionBlock("Equip what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_EQUIP));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock(new effect(EFF_EQUIP)));
-    new_action->purpose = ACTPUR_EQUIP;
-    actiondef[++c] = new_action;
+    _new_action
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_HAS_ITEMS)
+            _add_require_block_arg(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT) // TODO - change this to primary / secondary roles - set roles function
+            _add_require_block_req
+        _append_require
+        _new_target_block("Equip what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT)
+            _add_target_block_arg(ARG_TARGET_NUMBER, 1)
+        _append_target
+        _new_require_block(false, false, true);
+            _new_requirement(REQ_ACTOR_CAN_EQUIP)
+        _add_require_block_req
+        _new_effect_block(EFF_EQUIP)
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_EQUIP)
+    _action_priority(10)
+    _finish_action
     
     //#UNEQUIP_BASIC
     // target inv(obj.1), require item can be eaten, effect eating on item
-    new_action = new action();
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_HAS_ITEMS));
-    new_action->add_block(new_require_block);
-    new_target_block = new targetActionBlock("Unequip what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_UNEQUIP));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock(new effect(EFF_UNEQUIP)));
-    new_action->purpose = ACTPUR_EQUIP;
-    actiondef[++c] = new_action;
-    
+    _new_action
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_HAS_ITEMS)
+            _add_require_block_arg(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT)
+            _add_require_block_req
+        _append_require
+        _new_target_block("Unequip what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT)
+            _add_target_block_arg(ARG_TARGET_NUMBER, 1)
+        _append_target
+        _new_require_block(false, false, true);
+            _new_requirement(REQ_ACTOR_CAN_UNEQUIP)
+        _add_require_block_req
+        _new_effect_block(EFF_UNEQUIP)
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_UNEQUIP)
+    _action_priority(10)
+    _finish_action   
     
     //#EAT_BASIC
     // target inv(obj.1), require item can be eaten, effect eating on item
-    new_action = new action();
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_HAS_ITEMS));
-    new_action->add_block(new_require_block);
-    new_target_block = new targetActionBlock("Eat what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_EAT));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock(new effect(EFF_EAT)));
-    new_action->purpose = ACTPUR_EAT;
-    actiondef[++c] = new_action;
+    _new_action
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_HAS_ITEMS)
+            _add_require_block_arg(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT)
+            _add_require_block_req
+        _append_require
+        _new_target_block("Eat what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT)
+            _add_target_block_arg(ARG_TARGET_NUMBER, 1)
+        _append_target
+        _new_require_block(false, false, true);
+            _new_requirement(REQ_ACTOR_CAN_EAT)
+        _add_require_block_req
+        _new_effect_block(EFF_EAT)
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_EAT)
+    _action_priority(10)
+    _finish_action
     
     //#DRINK_BASIC
     // target inv(obj.1), require item can be drunk, effect drinking item
-    new_action = new action();
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_HAS_ITEMS));
-    new_action->add_block(new_require_block);
-    new_target_block = new targetActionBlock("Drink what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_DRINK));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock( new effect(EFF_DRINK)));
-    new_action->purpose = ACTPUR_DRINK;
-    actiondef[++c] = new_action;
+    _new_action
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_HAS_ITEMS)
+            _add_require_block_arg(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT)
+            _add_require_block_req
+        _append_require
+        _new_target_block("Drink what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT)
+            _add_target_block_arg(ARG_TARGET_NUMBER, 1)
+        _append_target
+        _new_require_block(false, false, true);
+            _new_requirement(REQ_ACTOR_CAN_DRINK)
+        _add_require_block_req
+        _new_effect_block(EFF_EAT)
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_DRINK)
+    _action_priority(10)
+    _finish_action
 
     //#OPEN_BASIC
     // target adj(tile.1), 
-    new_action = new action();
-    new_target_block = new targetActionBlock("Open what?", TAR_ADJ, RAD_SINGLE, EXT_FEATURE, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_target_block->args->add_int(ARG_TARGET_ASSUME, 1);
-    new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
-    new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_OPEN_FEAT));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock(new effect(EFF_FEAT_OPEN)));
-    
-    new_action->purpose = ACTPUR_OPEN_FEAT;
-    new_action->priority = 10;
-    new_action->contextOk = true;
-    actiondef[++c] = new_action;
+    _new_action
+        _new_target_block("Open what?", TAR_ADJ, RAD_SINGLE, EXT_FEATURE, ACTROLE_PATIENT)
+            _add_target_block_arg(ARG_TARGET_NUMBER, 1)
+            _add_target_block_arg(ARG_TARGET_ASSUME, 1)
+            _add_target_block_arg(ARG_TARGET_MIN_DISTANCE, 1)
+            _add_target_block_arg(ARG_TARGET_MAX_DISTANCE, 1)
+        _append_target
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_CAN_OPEN_FEAT)
+            _add_require_block_req
+        _append_require
+        _new_effect_block(EFF_FEAT_OPEN)
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_OPEN_FEAT)
+    _action_priority(10)
+    _action_is_context_ok
+    _finish_action
     
     //#CLOSE_BASIC
-    // target adj(tile.1), 
-    new_action = new action();
-    new_target_block = new targetActionBlock("Close what?", TAR_ADJ, RAD_SINGLE, EXT_FEATURE, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_target_block->args->add_int(ARG_TARGET_ASSUME, 1);
-    new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
-    new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_CLOSE_FEAT));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock(new effect(EFF_FEAT_CLOSE)));
-    
-    new_action->purpose = ACTPUR_CLOSE_FEAT;
-    new_action->priority = 10;
-    new_action->contextOk = true;
-    
-    actiondef[++c] = new_action;
+    // target adj(tile.1),
+    _new_action
+        _new_target_block("Close what?", TAR_ADJ, RAD_SINGLE, EXT_FEATURE, ACTROLE_PATIENT)
+            _add_target_block_arg(ARG_TARGET_NUMBER, 1)
+            _add_target_block_arg(ARG_TARGET_ASSUME, 1)
+            _add_target_block_arg(ARG_TARGET_MIN_DISTANCE, 1)
+            _add_target_block_arg(ARG_TARGET_MAX_DISTANCE, 1)
+        _append_target
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_CAN_CLOSE_FEAT)
+            _add_require_block_req
+        _append_require
+        _new_effect_block(EFF_FEAT_CLOSE)
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_CLOSE_FEAT)
+    _action_priority(10)
+    _action_is_context_ok
+    _finish_action
 
     //#STRIKE
     // target adj(tile.1), 
-    new_action = new action();
-    new_target_block = new targetActionBlock("Attack what?", TAR_ADJ, RAD_SINGLE, EXT_ACTOR, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
-    new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_STRIKE));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock(new effect(EFF_STRIKE)));
-    
-    new_action->purpose = ACTPUR_HARM;
-    new_action->priority = 10;
-    new_action->contextOk = true;
-    
-    actiondef[++c] = new_action;
+    _new_action
+        _new_target_block("Attack what?", TAR_ADJ, RAD_SINGLE, EXT_ACTOR, ACTROLE_PATIENT)
+            _add_target_block_arg(ARG_TARGET_NUMBER, 1)
+            _add_target_block_arg(ARG_TARGET_MIN_DISTANCE, 1)
+            _add_target_block_arg(ARG_TARGET_MAX_DISTANCE, 1)
+        _append_target
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_CAN_STRIKE)
+            _add_require_block_req
+        _append_require
+        _new_effect_block(EFF_STRIKE)
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_HARM)
+    _action_priority(10)
+    _finish_action
     
     //#PUNCH
     // target adj(tile.1), 
-    new_action = new action();
-    new_target_block = new targetActionBlock("Attack what?", TAR_ADJ, RAD_SINGLE, EXT_ACTOR, ACTROLE_PATIENT);
-    new_target_block->args->add_int(ARG_TARGET_NUMBER, 1);
-    new_target_block->args->add_int(ARG_TARGET_MIN_DISTANCE, 1);
-    new_target_block->args->add_int(ARG_TARGET_MAX_DISTANCE, 1);
-    new_action->add_block(new_target_block);
-    new_require_block = new requirementActionBlock(false, false, true);
-    new_require_block->requirements->push_back(new requirement(REQ_ACTOR_CAN_PUNCH));
-    new_action->add_block(new_require_block);
-    new_action->add_block(new effectActionBlock(new effect(EFF_PUNCH)));
-    
-    new_action->purpose = ACTPUR_HARM;
-    new_action->priority = 5;
-    new_action->contextOk = true;
-    
-    actiondef[++c] = new_action;
+    _new_action
+        _new_target_block("Attack what?", TAR_ADJ, RAD_SINGLE, EXT_ACTOR, ACTROLE_PATIENT)
+            _add_target_block_arg(ARG_TARGET_NUMBER, 1)
+            _add_target_block_arg(ARG_TARGET_MIN_DISTANCE, 1)
+            _add_target_block_arg(ARG_TARGET_MAX_DISTANCE, 1)
+        _append_target
+        _new_require_block(false, false, true)
+            _new_requirement(REQ_ACTOR_CAN_PUNCH)
+            _add_require_block_req
+        _append_require
+        _new_effect_block(EFF_PUNCH)
+            _effect_block_ends_test
+        _append_effect
+    _action_purpose(ACTPUR_HARM)
+    _action_priority(5)
+    _finish_action
     
     //#POINT
     // target adj(tile.1), 

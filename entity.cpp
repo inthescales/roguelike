@@ -1,3 +1,4 @@
+#include "action.h"
 #include "entity.h"
 #include "map.h"
 
@@ -114,8 +115,7 @@ bool entity::change_state(state_t code) {
 
 // Action management =======================
 
-vector<int> * entity::get_actions() {
+vector<action*> * entity::get_actions() {
 
-    vector<int> * r = new vector<int>(*(get_class()->actions));
-    return r;
+    return action::defs_for(get_class()->actions);
 }

@@ -1,8 +1,6 @@
 #ifndef REQUIREMENT_H
 #define REQUIREMENT_H
 
-#include "error.h"
-
 #include <set>
 #include <string>
 #include <vector>
@@ -11,6 +9,7 @@ using std::string;
 using std::set;
 
 class argmap;
+class error;
 class mapentity;
 
 enum requirement_t {
@@ -38,22 +37,41 @@ enum requirement_t {
     
 };
 
+enum require_result_t {
+
+    REQRES_UNKNOWN = 0,
+    REQRES_SUCCESS,
+    REQRES_PARTIAL,
+    REQRES_FAILURE
+};
+
+class require_resp {
+
+    public:
+    require_result_t result;
+    vector<void*> * successes;
+    vector<error*> * errors;
+    
+    require_resp();
+    void merge(require_resp *);
+};
+
 class requirement {
 
     public:
     bool negated, req_all;
     requirement_t req_type;
-    string error;
+    string req_error_string;
     argmap * args, * externalArgs;
     
     requirement(requirement_t);
     requirement(string, requirement_t);
     requirement(string, requirement_t, bool, bool);
     
-    set<error_t> * check();
-    set<error_t> * check_for(entity *);
-    static set<error_t> * check_requirements(vector<requirement*> *, argmap *);
-    static set<error_t> * check_requirements_for(vector<requirement*> *, entity *, argmap *);
+    require_resp * check();
+    require_resp * check_for(entity *);
+    static require_resp * check_requirements(vector<requirement*> *, argmap *);
+    static require_resp * check_requirements_for(vector<requirement*> *, entity *, argmap *);
     
     void clear_external_args();
     void * get_used_arg(args_t);

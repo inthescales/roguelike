@@ -55,8 +55,8 @@ class actor : public mapentity {
     actclass * get_class();
     string get_name();
     string get_name_color();
-    vector<int> * get_actions();
-    vector<int> * get_actions_for(actionPurpose_t);        
+    vector<action*> * get_actions();
+    vector<action*> * get_actions_for(actionPurpose_t);        
 
     // Effects
     void resolve_trigger(trigger_t, argmap *);
@@ -77,9 +77,9 @@ class actor : public mapentity {
     void enter_tile(tile *);
     
     // AI
-    int effort_heuristic(action *, argmap *, set<error_t> *);
-    error_t easiest_to_fix(action *, argmap *, set<error_t> *);
-    int effort_to_fix(action *, argmap *, error_t);
+    int effort_heuristic(action *, argmap *, vector<error*> *);
+    error * easiest_to_fix(action *, argmap *, vector<error*> *);
+    int effort_to_fix(action *, argmap *, error *);
     vector<tile*> * path_to(mapentity *);
     vector<tile*> * path_astar(mapentity *, vector<action*> *);
     
@@ -112,7 +112,7 @@ class actor : public mapentity {
     bool can_travel(tile*);
     bool can_travel(tile *, tile *);
     vector<action*> * how_to_travel(tile *, tile *);
-    set<error_t> * can_travel_with(action *, tile *, tile *);
+    vector<error*> * can_travel_with(action *, tile *, tile *);
     int can_take(object *);
     int can_drop(object *);
     int can_equip(object *);
