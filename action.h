@@ -106,10 +106,10 @@ class extractActionBlock : public actionBlock {
 
     public:
     extract_t extract_type;
-    actionRole_t from_position;
-    actionRole_t to_position;
+    args_t from_position;
+    args_t to_position;
     
-    extractActionBlock(extract_t, actionRole_t, actionRole_t);
+    extractActionBlock(extract_t, args_t, args_t);
 };
 
 // Continue affecting targets as long as the condition is true
@@ -132,7 +132,7 @@ class requirementActionBlock : public actionBlock {
     
     requirementActionBlock(bool, bool, bool);
     requirementActionBlock(bool, bool, bool, argmap *);
-    require_resp * evaluate();
+    require_resp * evaluate(argmap *);
 };
 
 enum action_result_t {

@@ -35,8 +35,9 @@ enum args_t {
     ARG_REQUIRE_STAT, // ===== REQUIREMENTS =======
     ARG_REQUIRE_FLAG,
     ARG_REQUIRE_VALUE,
-    ARG_REQUIRE_PATIENT, 
-    ARG_REQUIRE_UNARY_ROLE,
+    ARG_REQUIRE_PRIMARY,
+    ARG_REQUIRE_SECONDARY,
+    ARG_REQUIRE_PARTIAL_TYPE,
     ARG_AI_TARG_TYPE, // ============= AI ANNOTATION ================
     ARG_AI_MOVE_TYPE,
     ARG_AI_MIN_DISTANCE, 
@@ -70,6 +71,7 @@ enum flags_t {
     FLAG_TARGET_NOT_SELF, // Targeting ------------ 
     FLAG_TARGET_SELF_ONLY,
     FLAG_TARGET_GOLDOK, // Can gold be chosen from inventory
+    FLAG_REQ_NEGATED, // Requirements ---------------------
     FLAG_MENU_SORT, // MENUS ==============
     FLAG_MENU_PLAYER,
     FLAG_TARGET_BREAK_PROJECTILE // Target options =========
@@ -143,6 +145,10 @@ class argmap {
     bool add_flag(flags_t);
     bool remove_flag(flags_t);
     bool has_flag(flags_t);
+    
+    // Various helpers
+    bool add_into_vector(args_t, entity*);
+    entity * get_from_vector(args_t);
 };
 
 typedef argmap statmap;

@@ -57,8 +57,8 @@ class UI {
 	static bool command_move(direction_t);
 	static bool command_quit();
 	
-    static vector<tile*> * prompt_self(actor *);
     static vector<void*> * prompt_target(targetActionBlock *);
+    static vector<tile*> * prompt_self(actor *);
     static vector<tile*> * prompt_adjacent(string, argmap *, vector<requirement*> *);
     static vector<object*> * prompt_objects(string, vector<object*>*, argmap *, vector<requirement*> *);
     static vector<object*> * prompt_inventory(string, argmap *, vector<requirement*> *);

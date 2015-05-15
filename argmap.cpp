@@ -272,3 +272,22 @@ bool argmap::has_flag(flags_t code) {
     set<flags_t> * the_set = (set<flags_t>*)((*the_map)[ARG_FLAGS]);
     return the_set->count(code);
 }
+
+// Other helpers ==============================================
+
+bool argmap::add_into_vector(args_t code, entity * inent) {
+
+    vector<void*> * vect = new vector<void*>();
+    vect->push_back((void*)inent);
+    return add_vector(code, vect);
+}
+
+entity * argmap::get_from_vector(args_t code) {
+
+    vector<void*> * vect = get_vector(code);
+    if (vect != NULL && vect->size() == 1) {
+        return (entity*)vect->at(0);
+    }
+    
+    return NULL;
+}

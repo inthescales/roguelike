@@ -9,6 +9,7 @@
 using std::string;
 
 class actor;
+class error;
 class object;
 class tile;
 class feature;
@@ -32,6 +33,25 @@ enum effect_t {
     EFF_FEAT_CLOSE
 };
 
+enum effect_result_t {
+
+    EFFRES_UNKNOWN = 0,
+    EFFRES_SUCCESS,
+    EFFRES_PARTIAL,
+    EFFRES_FAILURE
+};
+
+class effect_resp {
+
+    public:
+    effect_result_t result;
+    vector<void*> * successes;
+    vector<error*> * errors;
+    
+    effect_resp();
+    void merge(effect_resp *);
+};
+
 class effect {
 
 	public:
@@ -39,7 +59,9 @@ class effect {
     argmap * args;
     
     effect(effect_t);
-    bool resolve(argmap *);
+    effect_resp * resolve();
+    effect_resp * resolve(argmap *);
+    static effect_resp * resolve(effect_t, argmap *, argmap *);
 };
 
 class trigger_effect : public effect {

@@ -445,10 +445,9 @@ bool actor::move_toward(mapentity * target) {
     }
     
     argmap * args = new argmap();
-    args->add_actor(ARG_ACTION_AGENT, this);
-    vector<void*> * pat = new vector<void*>();
-    pat->push_back((void*)line->at(best_dist));
-    args->add_vector(ARG_ACTION_LOCATION, pat);
+    args->add_into_vector(ARG_ACTION_AGENT, (entity*)this);
+    args->add_into_vector(ARG_ACTION_PATIENT, (entity*)line->at(best_dist));
+    args->add_into_vector(ARG_ACTION_LOCATION, (entity*)line->at(best_dist));
     best_action->execute(args, false);
     return true;
 }
@@ -500,7 +499,7 @@ int actor::take_turn() {
 
 void actor::queue_turn(int t) {
     argmap * args = new argmap();
-    args->add_actor(ARG_ACTION_AGENT, this);
+    args->add_into_vector(ARG_ACTION_AGENT, this);
     map_current->add_timer(new timer(new effect(EFF_TURN), args, t, 0, 0));
 }
 
@@ -699,7 +698,7 @@ bool actor::unequip(object * item){
 bool actor::eat(object * item){
 	
     argmap * m = new argmap();
-	m->add_actor(ARG_ACTION_AGENT, this);
+	m->add_into_vector(ARG_ACTION_AGENT, this);
     if(this == act_player) {
         win_output->print("You eat the " + item->get_name_color() +".");
 	}
@@ -710,7 +709,7 @@ bool actor::eat(object * item){
 bool actor::drink(object * item){
 	
     argmap * m = new argmap();
-	m->add_actor(ARG_ACTION_AGENT, this);
+	m->add_into_vector(ARG_ACTION_AGENT, this);
     if(this == act_player) {
         win_output->print("You drink the " + item->get_name_color() +".");
 	}
@@ -883,10 +882,9 @@ vector<action*> * actor::how_to_travel(tile * from, tile * to) {
 vector<error*> * actor::can_travel_with(action * ac, tile * from, tile * to) {
     
     argmap * args = new argmap();
-    args->add_actor(ARG_ACTION_AGENT, this);
-    vector<void*> * pat = new vector<void*>();
-    pat->push_back((void*)to);
-    args->add_vector(ARG_ACTION_LOCATION, pat);
+    args->add_into_vector(ARG_ACTION_AGENT, (entity*)this);
+    args->add_into_vector(ARG_ACTION_PATIENT, (entity*)to);
+    args->add_into_vector(ARG_ACTION_LOCATION, (entity*)to);
     action_resp * resp = ac->test(args);
     return resp->errors;
 }

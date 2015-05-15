@@ -174,27 +174,23 @@ int AI::idea_value(actor * decider, entity * target, idea * thought) {
     int ret = thought->base;
     vector<void*> * pat = NULL;
     vector<motivator*>::iterator it = thought->motivators->begin();
+    argmap * instanceArgs = new argmap();
     
     for(; it != thought->motivators->end();++it) {
     
         if ((*it)->self) {
-            (*it)->req->args->add_entity(ARG_ACTION_AGENT, (entity*)decider);
+            instanceArgs->add_into_vector(ARG_ACTION_AGENT, (entity*)decider);
             if (target != NULL) {
-                pat = new vector<void*>();
-                pat->push_back((void*)target);
-                (*it)->req->args->add_vector(ARG_ACTION_PATIENT, pat);
+                instanceArgs->add_into_vector(ARG_ACTION_PATIENT, (entity*)target);
             }            
         } else {
-            (*it)->req->args->add_entity(ARG_ACTION_AGENT, (entity*)target);
+            instanceArgs->add_into_vector(ARG_ACTION_AGENT, (entity*)target);
             if (decider != NULL) {
-                pat = new vector<void*>();
-                pat->push_back((void*)decider);
-                (*it)->req->args->add_vector(ARG_ACTION_PATIENT, pat);
+                instanceArgs->add_into_vector(ARG_ACTION_PATIENT, (entity*)decider);
             }
         }
-        (*it)->req->args->add_int(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT);
         
-        if((*it)->req->check() == NULL) {
+        if((*it)->req->evaluate(instanceArgs)->result == REQRES_SUCCESS) {
             ret += (*it)->value;
         }    
     }
@@ -205,10 +201,8 @@ int AI::idea_value(actor * decider, entity * target, idea * thought) {
 bool AI::take_action(actor * act, goal * g) {
     
     argmap * args = new argmap();
-    args->add_actor(ARG_ACTION_AGENT, act);
-    vector<void*> * pat = new vector<void*>();
-    pat->push_back((void*)g->target);
-    args->add_vector(ARG_ACTION_PATIENT, pat);
+    args->add_into_vector(ARG_ACTION_AGENT, act);
+    args->add_into_vector(ARG_ACTION_PATIENT, g->target);
     
     if (g->purpose < ACTPUR_ABSTRACT && g->purpose != ACTPUR_MOVE) {
     

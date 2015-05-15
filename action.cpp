@@ -36,7 +36,7 @@ targetActionBlock::targetActionBlock(string nprompt, target_t ntarg, radius_t nr
     testDone = false;
 }
 
-extractActionBlock::extractActionBlock(extract_t etype, actionRole_t frompos, actionRole_t topos) {
+extractActionBlock::extractActionBlock(extract_t etype, args_t frompos, args_t topos) {
 
     args = new argmap();
     requirements = new vector<requirement*>();
@@ -124,6 +124,16 @@ void action_resp::merge(action_resp * other) {
     }
     
     successes = new_succs;
+    
+    if (errors->size() > 0) {
+        if (successes->size() > 0) {
+            status = ACTRES_PARTIAL;
+        } else {
+            status = ACTRES_FAILURE;
+        }        
+    } else {
+        status = ACTRES_SUCCESS;
+    }
 }
 
 // Action itself =====================
@@ -165,11 +175,11 @@ void actionBlock::add_requirement(requirement * nreq) {
     requirements->push_back(nreq);
 }
 
-require_resp * requirementActionBlock::evaluate() {
+require_resp * requirementActionBlock::evaluate(argmap * instanceArgs) {
 
     vector<requirement*>::iterator it = requirements->begin();
 
-    return requirement::check_requirements(requirements, args);
+    return requirement::evaluate_multiple(requirements, instanceArgs);
 }
 
 // Functions for executing and testing actions ======================
@@ -199,13 +209,8 @@ action_resp * action::execute(argmap * args, bool get_targets, bool test) {
     bool failedReq = false;
 
     // implement stack for loops
-    argmap * roles = new argmap(); // NOT using normal arg keys. Using action role keys instead.
-    if (args) {
-        if (args->has_value(ARG_ACTION_AGENT)) roles->add_actor((args_t)ACTROLE_AGENT, args->get_actor(ARG_ACTION_AGENT));
-        if (args->has_value(ARG_ACTION_PATIENT)) roles->add_vector((args_t)ACTROLE_PATIENT, args->get_vector(ARG_ACTION_PATIENT));
-        if (args->has_value(ARG_ACTION_INSTRUMENT)) roles->add_vector((args_t)ACTROLE_INSTRUMENT, args->get_vector(ARG_ACTION_INSTRUMENT));
-        if (args->has_value(ARG_ACTION_LOCATION)) roles->add_vector((args_t)ACTROLE_LOCATION, args->get_vector(ARG_ACTION_LOCATION));
-    }
+    argmap * instanceArgs = new argmap();
+    args->add_args(instanceArgs, true);
     
     // Process each block in the action in order
     for (int i = 0; i < blocks->size(); ++i) {
@@ -215,49 +220,33 @@ action_resp * action::execute(argmap * args, bool get_targets, bool test) {
         // If we failed the last requirement block and haven't seen an end yet, skip instruction.
         if (failedReq && !(curBlock->block_type == REQUIREMENT_BLOCK && ((requirementActionBlock *)curBlock)->endBlock)) continue;
         
-        if (curBlock->block_type != TARGET_BLOCK) {
-            if(roles->has_value((args_t)ACTROLE_AGENT)) {
-                curBlock->args->add_actor(ARG_ACTION_AGENT, roles->get_actor((args_t)ACTROLE_AGENT));
-            }
-            if(roles->has_value((args_t)ACTROLE_PATIENT)) {
-                curBlock->args->add_vector(ARG_ACTION_PATIENT, roles->get_vector((args_t)ACTROLE_PATIENT));
-            }
-            if(roles->has_value((args_t)ACTROLE_INSTRUMENT)) {
-                curBlock->args->add_vector(ARG_ACTION_INSTRUMENT, roles->get_vector((args_t)ACTROLE_INSTRUMENT));
-            }
-            if(roles->has_value((args_t)ACTROLE_LOCATION)) {
-                curBlock->args->add_vector(ARG_ACTION_LOCATION, roles->get_vector((args_t)ACTROLE_LOCATION));
-            }
-            
-        }
-        
         switch (curBlock->block_type) {
         
             // TARGET BLOCK - get vector returned by target function, set semantic role
             case TARGET_BLOCK:
             {
                 if (get_targets) {
-                    actor * agent = roles->get_actor((args_t)ACTROLE_AGENT);
+                    actor * agent = (actor *)instanceArgs->get_from_vector(ARG_ACTION_AGENT);
                     vector<void*> * targets = agent->select_target((targetActionBlock *)curBlock);
                     switch(((targetActionBlock *)curBlock)->position) {
                     
                         case ACTROLE_AGENT:
-                            roles->add_actor((args_t)ACTROLE_AGENT, (actor*)targets->at(0));
+                            instanceArgs->add_vector((args_t)ARG_ACTION_AGENT, targets);
                         break;
                         case ACTROLE_PATIENT:
-                            roles->add_vector((args_t)ACTROLE_PATIENT, targets);
+                            instanceArgs->add_vector((args_t)ARG_ACTION_PATIENT, targets);
                         break;
                         case ACTROLE_INSTRUMENT:
-                            roles->add_vector((args_t)ACTROLE_INSTRUMENT, targets);
+                            instanceArgs->add_vector((args_t)ARG_ACTION_INSTRUMENT, targets);
                         break;
                         case ACTROLE_LOCATION:
-                            roles->add_vector((args_t)ACTROLE_LOCATION, targets);
+                            instanceArgs->add_vector((args_t)ARG_ACTION_LOCATION, targets);
                         break;
                     }
                 } else if(test) {
                 
                     // Make sure targets fit the requirements and target arguments
-                    entity * agent = (entity*)roles->get_actor((args_t)ACTROLE_AGENT);
+                    entity * agent = (entity*)instanceArgs->get_from_vector((args_t)ARG_ACTION_AGENT);
                     vector<void*> * targs = (vector<void*> *)args->get_vector(actrole_to_arg(((targetActionBlock *)curBlock)->position));
                     vector<void*>::iterator it = targs->begin();
                     vector<error*> * targerrs = new vector<error*>();
@@ -281,16 +270,8 @@ action_resp * action::execute(argmap * args, bool get_targets, bool test) {
             case EXTRACT_BLOCK:
             {
                 vector<void*> * extracted;
-                switch (((extractActionBlock *)curBlock)->from_position) {
-                    case ACTROLE_AGENT:
-                        extracted = new vector<void*>();
-                        extracted->push_back((void*)roles->get_actor((args_t)ACTROLE_AGENT));
-                    break;
-                    default:
-                        extracted = roles->get_vector((args_t)((extractActionBlock *)curBlock)->from_position);
-                    break;
-                }
-            
+                extracted = instanceArgs->get_vector((args_t)((extractActionBlock *)curBlock)->from_position);
+
                 switch (((extractActionBlock *)curBlock)->extract_type) {
                     case EXT_COPY:
                         // Do nothing! Write to the destination as it is
@@ -308,22 +289,29 @@ action_resp * action::execute(argmap * args, bool get_targets, bool test) {
                         extracted = (vector<void*>*)UI::extract_features((vector<tile*> *)extracted, curBlock->requirements);
                     break;
                 }
+
+                instanceArgs->add_vector((args_t)((extractActionBlock *)curBlock)->to_position, extracted);
+            }
+            break;
+            
+            // REQUIREMENT BLOCK - set args, check for requirements
+            case REQUIREMENT_BLOCK:
+            {
+                // TODO - Implement loops
+                require_resp * reqresp = ((requirementActionBlock *)curBlock)->evaluate(instanceArgs);
                 
-                switch(((extractActionBlock *)curBlock)->to_position) {
-                
-                    case ACTROLE_AGENT:
-                        roles->add_actor((args_t)ACTROLE_AGENT, (actor*)extracted->at(0));
-                    break;
-                    default:
-                        roles->add_vector((args_t)((extractActionBlock *)curBlock)->to_position, extracted);
-                    break;
+                // If this requirement is critical, abort the action
+                if (reqresp->result != REQRES_SUCCESS && ((requirementActionBlock *)curBlock)->critical) {
+
+                    response->errors->insert(response->errors->end(), reqresp->errors->begin(), reqresp->errors->end());
+                    return response;
                 }
             }
             break;
             
-            // EFFECT BLOCK - set roles, process effect
+            // EFFECT BLOCK - set args, process effect
             case EFFECT_BLOCK:
-            
+            {
                 if (curBlock->testDone) {
                     response->status = ACTRES_SUCCESS;
                     if (test) { // If we're testing, return if this block says to
@@ -331,19 +319,7 @@ action_resp * action::execute(argmap * args, bool get_targets, bool test) {
                     }
                 }
 
-                ((effectActionBlock *)curBlock)->eff->resolve(curBlock->args);
-            break;
-                
-            // REQUIREMENT BLOCK - set roles, check for requirements
-            case REQUIREMENT_BLOCK:
-            {
-                // TODO - Implement loops
-                require_resp * reqresp = ((requirementActionBlock *)curBlock)->evaluate();
-                if (reqresp->result != REQRES_SUCCESS && ((requirementActionBlock *)curBlock)->critical) {
-                    // Failed requirement means action cannot count as completed
-                    response->errors->insert(response->errors->end(), reqresp->errors->begin(), reqresp->errors->end());
-                    return response;
-                }
+                effect_resp * eff_resp = ((effectActionBlock *)curBlock)->eff->resolve(instanceArgs);
             }
             break;
           
@@ -394,7 +370,7 @@ vector<error*> * action::verify_target(targetActionBlock * block, entity * agent
     // Check the block's requirements
     vector<requirement*>::iterator it = block->requirements->begin();
     for(; it != block->requirements->end(); ++it) {
-        require_resp * reqresp = (*it)->check_for(target);
+        require_resp * reqresp = (*it)->evaluate_for(target, NULL);
         errs->insert(errs->end(), reqresp->errors->begin(), reqresp->errors->end());
     }
     

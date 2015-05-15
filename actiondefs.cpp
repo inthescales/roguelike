@@ -17,6 +17,8 @@
 #define _new_requirement(type)                                           new_requirement = new requirement(type);
 #define _add_requirement_arg(code,val)                                   new_requirement->args->add_int((args_t)code,(int)val);
 #define _add_require_block_req                                           new_require_block->requirements->push_back(new_requirement);
+#define _set_require_role(p)                                             new_requirement->set_roles(p);
+#define _set_require_roles(p,m)                                          new_requirement->set_roles(p,m);
 #define _append_require                                                  new_action->add_block(new_require_block);
 
 #define _new_extract_block(type,from,to)                                 new_extract_block = new extractActionBlock(type,from,to);
@@ -56,10 +58,9 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_CAN_WALK_TO)
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_LOCATION)
             _add_require_block_req
         _append_require
-        _new_extract_block(EXT_COPY, ACTROLE_AGENT, ACTROLE_PATIENT)
-        _append_extract
         _new_effect_block(EFF_MOVE_ACT);
             _effect_block_ends_test
         _append_effect
@@ -76,6 +77,7 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_CAN_TAKE)
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_PATIENT)
             _add_require_block_req
         _append_require
         _new_effect_block(EFF_TAKE)
@@ -89,7 +91,7 @@ void define_actions() {
     _new_action
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_HAS_ITEMS)
-            _add_require_block_arg(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT)
+                _set_require_role(ARG_ACTION_AGENT)
             _add_require_block_req
         _append_require
         _new_target_block("Drop what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT)
@@ -97,6 +99,7 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_CAN_DROP)
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_PATIENT)
             _add_require_block_req
         _append_require
         _new_effect_block(EFF_DROP)
@@ -111,7 +114,7 @@ void define_actions() {
     _new_action
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_HAS_ITEMS)
-            _add_require_block_arg(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT) // TODO - change this to primary / secondary roles - set roles function
+                _set_require_role(ARG_ACTION_AGENT)
             _add_require_block_req
         _append_require
         _new_target_block("Equip what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT)
@@ -119,7 +122,9 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true);
             _new_requirement(REQ_ACTOR_CAN_EQUIP)
-        _add_require_block_req
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_PATIENT)
+            _add_require_block_req
+        _append_require
         _new_effect_block(EFF_EQUIP)
             _effect_block_ends_test
         _append_effect
@@ -132,7 +137,7 @@ void define_actions() {
     _new_action
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_HAS_ITEMS)
-            _add_require_block_arg(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT)
+                _set_require_role(ARG_ACTION_AGENT)
             _add_require_block_req
         _append_require
         _new_target_block("Unequip what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT)
@@ -140,7 +145,9 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true);
             _new_requirement(REQ_ACTOR_CAN_UNEQUIP)
-        _add_require_block_req
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_PATIENT)
+            _add_require_block_req
+        _append_require
         _new_effect_block(EFF_UNEQUIP)
             _effect_block_ends_test
         _append_effect
@@ -153,7 +160,7 @@ void define_actions() {
     _new_action
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_HAS_ITEMS)
-            _add_require_block_arg(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT)
+                _set_require_role(ARG_ACTION_AGENT)
             _add_require_block_req
         _append_require
         _new_target_block("Eat what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT)
@@ -161,7 +168,9 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true);
             _new_requirement(REQ_ACTOR_CAN_EAT)
-        _add_require_block_req
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_PATIENT)
+            _add_require_block_req
+        _append_require
         _new_effect_block(EFF_EAT)
             _effect_block_ends_test
         _append_effect
@@ -174,7 +183,7 @@ void define_actions() {
     _new_action
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_HAS_ITEMS)
-            _add_require_block_arg(ARG_REQUIRE_UNARY_ROLE, ARG_ACTION_AGENT)
+                _set_require_role(ARG_ACTION_AGENT)
             _add_require_block_req
         _append_require
         _new_target_block("Drink what?", TAR_SELF, RAD_SINGLE, EXT_INVENTORY, ACTROLE_PATIENT)
@@ -182,8 +191,10 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true);
             _new_requirement(REQ_ACTOR_CAN_DRINK)
-        _add_require_block_req
-        _new_effect_block(EFF_EAT)
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_PATIENT)
+            _add_require_block_req
+        _append_require
+        _new_effect_block(EFF_DRINK)
             _effect_block_ends_test
         _append_effect
     _action_purpose(ACTPUR_DRINK)
@@ -201,6 +212,7 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_CAN_OPEN_FEAT)
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_PATIENT)
             _add_require_block_req
         _append_require
         _new_effect_block(EFF_FEAT_OPEN)
@@ -222,6 +234,7 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_CAN_CLOSE_FEAT)
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_PATIENT)
             _add_require_block_req
         _append_require
         _new_effect_block(EFF_FEAT_CLOSE)
@@ -242,6 +255,7 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_CAN_STRIKE)
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_PATIENT)
             _add_require_block_req
         _append_require
         _new_effect_block(EFF_STRIKE)
@@ -261,6 +275,7 @@ void define_actions() {
         _append_target
         _new_require_block(false, false, true)
             _new_requirement(REQ_ACTOR_CAN_PUNCH)
+                _set_require_roles(ARG_ACTION_AGENT, ARG_ACTION_PATIENT)
             _add_require_block_req
         _append_require
         _new_effect_block(EFF_PUNCH)

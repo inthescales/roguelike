@@ -37,6 +37,13 @@ enum requirement_t {
     
 };
 
+enum require_partial_t {
+
+    REQPAR_PARTIAL_OK = 0,
+    REQPAR_PARTIAL_SUCCEEDS,
+    REQPAR_PARTIAL_FAILS
+};
+
 enum require_result_t {
 
     REQRES_UNKNOWN = 0,
@@ -59,24 +66,23 @@ class require_resp {
 class requirement {
 
     public:
-    bool negated, req_all;
+    require_partial_t partials;
     requirement_t req_type;
     string req_error_string;
-    argmap * args, * externalArgs;
+    argmap * args;
     
     requirement(requirement_t);
     requirement(string, requirement_t);
-    requirement(string, requirement_t, bool, bool);
+    void set_roles(args_t);
+    void set_roles(args_t, args_t);
+    static vector<void*> * get_primary(argmap *, argmap *);
+    static vector<void*> * get_secondary(argmap *, argmap *);
     
-    require_resp * check();
-    require_resp * check_for(entity *);
-    static require_resp * check_requirements(vector<requirement*> *, argmap *);
-    static require_resp * check_requirements_for(vector<requirement*> *, entity *, argmap *);
-    
-    void clear_external_args();
-    void * get_used_arg(args_t);
-    bool has_used_arg(args_t);
-    vector<void*> * get_unary();
+    require_resp * evaluate(argmap *);
+    require_resp * evaluate_for(entity *, argmap *);
+    static require_resp * evaluate_multiple(vector<requirement*> *, argmap *);
+    static require_resp * evaluate_multiple_for(vector<requirement*> *, entity *, argmap *);
+    static require_resp * evaluate(requirement_t, argmap *,  argmap *);
 };
 
 #endif
