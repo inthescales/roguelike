@@ -52,6 +52,8 @@ void UI::setup_ui() {
     (*action_key)['q'] = actiondef[ACTION_DRINK_BASIC];
     (*action_key)['o'] = actiondef[ACTION_OPEN_BASIC];
     (*action_key)['c'] = actiondef[ACTION_CLOSE_BASIC];
+    (*action_key)['s'] = actiondef[ACTION_WAIT];
+    (*action_key)['.'] = actiondef[ACTION_WAIT];
     
     (*action_key)['p'] = actiondef[ACTION_POINT];
     (*action_key)['l'] = actiondef[ACTION_LINE];
@@ -83,10 +85,6 @@ void UI::get_action(){
             break;
             case 'Q':
                 command_quit();
-            break;
-            
-            case 's':
-            case '.':
             break;
             
             default:

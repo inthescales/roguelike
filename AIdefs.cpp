@@ -18,5 +18,6 @@ void define_AI () {
     new_requirement->args->add_int(ARG_REQUIRE_PRIMARY, ARG_ACTION_AGENT);
     new_idea->motivators->push_back(new motivator(false, new_requirement, 50));
     aimod[c]->add_idea(new_idea);
-    aimod[c]->add_idea(new idea(ENT_TYPE_NONE, ACTPUR_WANDER, 50));
+    //aimod[c]->add_idea(new idea(ENT_TYPE_NONE, ACTPUR_WANDER, 50));
+    aimod[c]->add_idea(new idea(ENT_TYPE_NONE, ACTPUR_WAIT, 0));
 }

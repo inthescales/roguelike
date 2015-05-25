@@ -37,9 +37,10 @@
 #define ACTION_CLOSE_BASIC 8
 #define ACTION_STRIKE 9
 #define ACTION_PUNCH 10
-#define ACTION_POINT 11
-#define ACTION_LINE 12
-#define ACTION_MAX 13
+#define ACTION_WAIT 11
+#define ACTION_POINT 12
+#define ACTION_LINE 13
+#define ACTION_MAX 14
 
 #define AI_ATTACK_CLOSEST 0
 #define AI_MAX 1

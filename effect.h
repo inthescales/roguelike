@@ -17,6 +17,7 @@ class feature;
 //The actual effect that occurs
 enum effect_t {
     EFF_TURN = 0,
+    EFF_WAIT,
     EFF_MOVE_ACT,
     EFF_TAKE,
     EFF_DROP,

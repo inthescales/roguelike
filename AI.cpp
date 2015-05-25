@@ -53,6 +53,34 @@ goal::goal(entity * targ, actionPurpose_t purp) {
     purpose = purp;
 }
 
+consider_resp::consider_resp(actionPurpose_t p, entity * t, action * a, int d) {
+
+    main_purpose = p;
+    sub_purpose = p;
+    main_target = t;
+    sub_target = t;
+    ac = a;
+    desire = d;
+}
+
+consider_resp::consider_resp(actionPurpose_t p, actionPurpose_t p2, entity * t, entity* t2, action * a, int d) {
+
+    main_purpose = p;
+    sub_purpose = p2;
+    main_target = t;
+    sub_target = t2;
+    ac = a;
+    desire = d;
+}
+
+best_act_resp::best_act_resp(actionPurpose_t p, action * a, entity * t, int e) {
+
+    purpose = p;
+    ac = a;
+    target = t;
+    effort = e;
+}
+
 /*
   Not in use because I don't have a good way to return
   all the things. I guess I could have sense return a map
@@ -64,9 +92,9 @@ vector<entity*> * AI::sense_entities(actor * act) {
     return NULL;
 }
 
-goal * AI::select_goal(actor * decider) {
+consider_resp * AI::consider_turn(actor * decider) {
 
-    // Find entities
+    // Find entities for consideration ------
     set<tile*> * tiles = vision::tiles_in_view(decider);
     set<actor*> * actors = new set<actor*>();
     set<object*> * objects = new set<object*>();
@@ -89,80 +117,114 @@ goal * AI::select_goal(actor * decider) {
         }
     }
     
+    // Test ideas for each one --------------
+    
     vector<idea*> * ideas;
-    int best_val = -1000;
-    entity * best_target = NULL;
-    actionPurpose_t best_purpose = ACTPUR_NONE;
     vector<idea*>::iterator idea_it;
+    consider_resp * best_consider = NULL;
     
     ideas = (*decider->my_mind->module->ideas)[ENT_TYPE_ACTOR];
-    if(ideas != NULL) {
-        set<actor*>::iterator act_it = actors->begin();
-        for(; act_it != actors->end(); ++act_it) {
-            
-            idea_it = ideas->begin();
-            for(; idea_it != ideas->end(); ++idea_it) {
-            
-                int val = idea_value(decider, (*act_it), (*idea_it));
-                if (val > best_val && decider->get_actions_for((*idea_it)->purpose)->size() > 0) {
-                    best_val = val;
-                    best_target = (*act_it);
-                    best_purpose = (*idea_it)->purpose;
-                }
-            }
-        }
-    }
-    
-    ideas = (*decider->my_mind->module->ideas)[ENT_TYPE_OBJECT];    
-    if(ideas != NULL) {
-        set<object*>::iterator obj_it = objects->begin();
-        for(; obj_it != objects->end(); ++obj_it) {
-            
-            idea_it = ideas->begin();
-            for(; idea_it != ideas->end(); ++idea_it) {
-                int val = idea_value(decider, (entity*)(*obj_it), (*idea_it));
-                if (val > best_val && decider->get_actions_for((*idea_it)->purpose)->size() > 0) {
-                    best_val = val;
-                    best_target = (*obj_it);
-                    best_purpose = (*idea_it)->purpose;
-                }
-            }
-        }
-    }
-    
-    ideas = (*decider->my_mind->module->ideas)[ENT_TYPE_FEATURE];    
-    if(ideas != NULL) {
-        set<feature*>::iterator feat_it = features->begin();
-        for(; feat_it != features->end(); ++feat_it) {
-           
-            idea_it = ideas->begin();
-            for(; idea_it != ideas->end(); ++idea_it) {
-                int val = idea_value(decider, (*feat_it), (*idea_it));
-                if (val > best_val && decider->get_actions_for((*idea_it)->purpose)->size() > 0) {
-                    best_val = val;
-                    best_target = (*feat_it);
-                    best_purpose = (*idea_it)->purpose;
-                }
-            }
-        }
-    }
-    
-    ideas = (*decider->my_mind->module->ideas)[ENT_TYPE_NONE];
-    if(ideas != NULL) {
+    if (ideas != NULL) {
+        set<actor*>::iterator act_it;
         idea_it = ideas->begin();
         for(; idea_it != ideas->end(); ++idea_it) {
-        
-            int val = idea_value(decider, decider, (*idea_it));
-            if (val > best_val && decider->get_actions_for((*idea_it)->purpose)->size() > 0) {
-                best_val = val;
-                best_target = decider;
-                best_purpose = (*idea_it)->purpose;
+            act_it = actors->begin();
+            for(; act_it != actors->end(); ++act_it) {
+
+                int val = idea_value(decider, *act_it, *idea_it);
+                if ( best_consider == NULL || val > best_consider->desire) {
+                
+                    best_act_resp * best_ac = choose_action((*idea_it)->purpose, decider, *act_it);
+                    if (best_ac && (best_consider == NULL || val - best_ac->effort > best_consider->desire)) {
+                    
+                        best_consider = new consider_resp((*idea_it)->purpose, best_ac->purpose, *act_it, best_ac->target, best_ac->ac, val - best_ac->effort);
+                    }
+                }
             }
         }
     }
     
-    goal * ret = new goal(best_target, best_purpose);
-    return ret;
+    ideas = (*decider->my_mind->module->ideas)[ENT_TYPE_OBJECT];
+    if (ideas != NULL) {
+        set<object*>::iterator obj_it;
+        idea_it = ideas->begin();
+        for(; idea_it != ideas->end(); ++idea_it) {
+            obj_it = objects->begin();
+            for(; obj_it != objects->end(); ++obj_it) {
+
+                int val = idea_value(decider, *obj_it, *idea_it);
+                if ( best_consider == NULL || val > best_consider->desire) {
+                
+                    best_act_resp * best_ac = choose_action((*idea_it)->purpose, decider, *obj_it);
+                    if (best_ac && (best_consider == NULL || val - best_ac->effort > best_consider->desire)) {
+                    
+                        best_consider = new consider_resp((*idea_it)->purpose, best_ac->purpose, *obj_it, best_ac->target, best_ac->ac, val - best_ac->effort);
+                    }
+                }
+            }
+        }
+    }
+    
+    ideas = (*decider->my_mind->module->ideas)[ENT_TYPE_FEATURE];
+    if (ideas != NULL) {
+        set<feature*>::iterator feat_it;
+        idea_it = ideas->begin();
+        for(; idea_it != ideas->end(); ++idea_it) {
+            feat_it = features->begin();
+            for(; feat_it != features->end(); ++feat_it) {
+
+                int val = idea_value(decider, *feat_it, *idea_it);
+                if ( best_consider == NULL || val > best_consider->desire) {
+                
+                    best_act_resp * best_ac = choose_action((*idea_it)->purpose, decider, *feat_it);
+                    if (best_ac && (best_consider == NULL || val - best_ac->effort > best_consider->desire)) {
+                    
+                        best_consider = new consider_resp((*idea_it)->purpose, best_ac->purpose, *feat_it, best_ac->target, best_ac->ac, val - best_ac->effort);
+                    }
+                }
+            }
+        }
+    }
+    
+    ideas = (*decider->my_mind->module->ideas)[ENT_TYPE_TILE];
+    if (ideas != NULL) {
+        set<tile*>::iterator tile_it;
+        idea_it = ideas->begin();
+        for(; idea_it != ideas->end(); ++idea_it) {
+            tile_it = tiles->begin();
+            for(; tile_it != tiles->end(); ++tile_it) {
+
+                int val = idea_value(decider, *tile_it, *idea_it);
+                if ( best_consider == NULL || val > best_consider->desire) {
+                
+                    best_act_resp * best_ac = choose_action((*idea_it)->purpose, decider, *tile_it);
+                    if (best_ac && (best_consider == NULL || val - best_ac->effort > best_consider->desire)) {
+                    
+                        best_consider = new consider_resp((*idea_it)->purpose, best_ac->purpose, *tile_it, best_ac->target, best_ac->ac, val - best_ac->effort);
+                    }
+                }
+            }
+        }
+    }
+
+    ideas = (*decider->my_mind->module->ideas)[ENT_TYPE_NONE];
+    idea_it = ideas->begin();
+    if (ideas != NULL) {
+        for(; idea_it != ideas->end(); ++idea_it) {
+
+            int val = idea_value(decider, NULL, *idea_it);
+            if ( best_consider == NULL || val > best_consider->desire) {
+            
+                best_act_resp * best_ac = choose_action((*idea_it)->purpose, decider, NULL);
+                if (best_ac && (best_consider == NULL || val - best_ac->effort > best_consider->desire)) {
+                
+                    best_consider = new consider_resp((*idea_it)->purpose, best_ac->purpose, NULL, best_ac->target, best_ac->ac, val - best_ac->effort);
+                }
+            }
+        }
+    }
+    
+    return best_consider;
 }
 
 /*
@@ -198,19 +260,21 @@ int AI::idea_value(actor * decider, entity * target, idea * thought) {
     return ret;
 }
 
-bool AI::take_action(actor * act, goal * g) {
-    
+/*
+    Choose the best action for accomplishing a purpose and a target, and note how
+    much effort it would take to perform that outside the core action itself.
+*/
+best_act_resp * AI::choose_action(actionPurpose_t purpose, actor * act, entity * target) {
+
     argmap * args = new argmap();
     args->add_into_vector(ARG_ACTION_AGENT, act);
-    args->add_into_vector(ARG_ACTION_PATIENT, g->target);
+    args->add_into_vector(ARG_ACTION_PATIENT, target);
     
-    if (g->purpose < ACTPUR_ABSTRACT && g->purpose != ACTPUR_MOVE) {
+    if (purpose < ACTPUR_ABSTRACT && purpose != ACTPUR_MOVE) {
     
-        // If concrete, find actions, determine range, move if needed
-        
         // For each action, see if it's possible or how much work it would take to make
         // it possible, and weigh that against its priority.
-        vector<action*> * actions = act->get_actions_for(g->purpose);
+        vector<action*> * actions = act->get_actions_for(purpose);
         int best_priority = -1000;
         action * best_action = NULL;
         vector<error*> * errs; // Errors for chosen action
@@ -231,45 +295,53 @@ bool AI::take_action(actor * act, goal * g) {
             }
         }
         
+        // Do something with the action we like
         if (best_action != NULL) {
         
             if (errs->size() == 0) {
-                // No errors, use the action right away
-                best_action->execute(args, false);
-                return true;
+                // No errors, this is the one we want!
+                
+                best_act_resp * ret = new best_act_resp(purpose, best_action, target, best_priority);
+                return ret;
             } else {
             
                 // We want to use this action, but need to do something else first
                 error * to_fix = act->easiest_to_fix(best_action, args, errs);
-                goal * new_goal = goal_to_solve(act, g, to_fix);
+                goal * new_goal = goal_to_solve(act, new goal(target, purpose), to_fix);
 
-                if (new_goal != NULL) {
-                    return take_action(act, new_goal);
+                if (to_fix != NULL && new_goal != NULL) {
+                    return choose_action(new_goal->purpose, act, new_goal->target);
                 } else {
-                    return false;
+                    return NULL;
                 }
             }
         
         } else {
             // We didn't have any available actions to accomplish this purpose - we'll have
             // to try something else.
-            return false;
+            return NULL;
         }
         
-    } else if(g->purpose == ACTPUR_MOVE) {
+    } else if(purpose == ACTPUR_MOVE) {
         // Movement is a special case due to the need for pathing
-        act->move_toward((mapentity *)g->target);
-        return true;
+        
+        best_act_resp * best = act->best_move_toward((mapentity *)target);
+        best_act_resp * ret = new best_act_resp(purpose, best->ac, best->target, 1);
+
+        return ret;
     } else {
         // If abstract, resolve that here
-        if (g->purpose == ACTPUR_WANDER) {
+        
+        
+        /*if (purpose == ACTPUR_WANDER) {
             tile * destination;
             int x, y;
             
-        }
+        }*/
     }
     
-    return false;
+    return NULL;
+
 }
 
 /*
@@ -310,4 +382,19 @@ goal * AI::goal_to_solve(actor * act, goal * g, error * err) {
     }
     
     return NULL;
+}
+
+int AI::take_action(actor * agent, consider_resp * decision) {
+
+    argmap * args = new argmap();
+    args->add_into_vector(ARG_ACTION_AGENT, agent);
+    
+    args_t a_role = (args_t)decision->ac->args->get_int(ARG_ACTION_TARGET_ROLE);
+    
+    if (a_role != 0) {
+        args->add_into_vector(a_role, decision->sub_target);
+    }
+    action_resp * actres = decision->ac->execute(args, false);
+    return 5;
+
 }

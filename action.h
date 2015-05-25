@@ -55,6 +55,7 @@ enum actionRole_t {
 
 enum actionPurpose_t {
     ACTPUR_NONE = 0,
+    ACTPUR_WAIT,
     ACTPUR_MOVE,
     ACTPUR_TAKE,
     ACTPUR_DROP,

@@ -120,6 +120,13 @@ effect_resp * effect::resolve(effect_t type, argmap * args, argmap * instanceArg
         }
         break;
         
+        case EFF_WAIT:
+        {
+            actor * agent = (actor *)instanceArgs->get_from_vector(ARG_ACTION_AGENT);
+            response->successes->push_back((void*)agent);
+        }
+        break;
+        
         /*
             Move an actor to a new tile.
             Agent: Actor moving

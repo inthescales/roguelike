@@ -23,6 +23,7 @@ using std::vector;
 
 class actclass;
 class action;
+class best_act_resp;
 class mind;
 class object;
 class targetActionBlock;
@@ -83,6 +84,7 @@ class actor : public mapentity {
     vector<tile*> * path_to(mapentity *);
     vector<tile*> * path_astar(mapentity *, vector<action*> *);
     
+    best_act_resp * best_move_toward(mapentity *);
     bool move_toward(mapentity *);
     bool can_move_to(action *, tile *);
     vector<object*> * objects_of_type(object_type, object_subtype);

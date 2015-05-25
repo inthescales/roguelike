@@ -24,6 +24,7 @@ void define_actors(){
     aclass[c]->add_action(ACTION_CLOSE_BASIC);
     aclass[c]->add_action(ACTION_STRIKE);
     aclass[c]->add_action(ACTION_PUNCH);
+    aclass[c]->add_action(ACTION_WAIT);
     
 	//#ROBOT
 	aclass[++c] = new actclass("robot", symboldef[SYM_ROBOT], C_ORANGE);
@@ -37,5 +38,6 @@ void define_actors(){
     aclass[c]->add_action(ACTION_CLOSE_BASIC);
     aclass[c]->add_action(ACTION_STRIKE);
     aclass[c]->add_action(ACTION_PUNCH);
-    aclass[c]->aimod = aimod[AI_ATTACK_CLOSEST];
+    aclass[c]->add_action(ACTION_WAIT);
+    aclass[c]->aimod = aimod[AI_ATTACK_CLOSEST];    
 };

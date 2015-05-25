@@ -24,6 +24,7 @@ enum args_t {
     ARG_ACTION_PATIENT,
     ARG_ACTION_INSTRUMENT,
     ARG_ACTION_LOCATION,
+    ARG_ACTION_TARGET_ROLE, // The role slot to put the target (the entity weighed by the AI routine) into,
     ARG_FEAT_CLOSEDSTATE, // ===== FEATURE STATES =======
     ARG_FEAT_OPENSTATE,
     ARG_EFFECT_RADIUS, // ===== EFFECTS =======

@@ -414,6 +414,40 @@ vector<tile*> * reconstruct_path(std::map<tile*,tile*> * came_from, tile * goal)
     return ret;
 }
 
+best_act_resp * actor::best_move_toward(mapentity * target) {
+
+    vector<action*> * actions = get_actions_for(ACTPUR_MOVE);
+    vector<action*>::iterator it = actions->begin();
+    tile * cur_tile = &current_map->tiles[x][y];
+    
+    //vector<tile*> * line = tile::line_between(this, target);
+    vector<tile*> * line = path_astar(target, NULL);
+    action * best_action = NULL;
+    int best_dist = 0;
+    
+    for(;it != actions->end(); ++it) {
+    
+        int range = -1;
+
+        for(int i = 0; i < line->size() && (range == -1 || i < range); ++i) {
+            
+            if (best_action == NULL
+             || (can_travel_with(*it, cur_tile, line->at(i))->size() == 0) && best_dist < i ) {
+                best_action = (*it);
+                best_dist = i;
+                continue;
+            }
+        }        
+    }
+    
+    if (best_action == NULL) {
+        return NULL;
+    }
+    
+    best_act_resp * ret = new best_act_resp(ACTPUR_MOVE, best_action, (entity*)line->at(best_dist), 1);
+    return ret;
+}
+
 bool actor::move_toward(mapentity * target) {
     
     vector<action*> * actions = get_actions_for(ACTPUR_MOVE);
@@ -490,11 +524,11 @@ int actor::take_turn() {
     if (this == act_player) {
         UI::get_action(); // This should return delay until next turn
     } else {
-        goal * my_goal = AI::select_goal(this);
-        AI::take_action(this, my_goal);
+        consider_resp * consideration = AI::consider_turn(this);
+        AI::take_action(this, consideration);
     }
     
-    return 5; // Return time until next action - effect resolutio will handle requeueing
+    return 5; // Return time until next action - effect resolution will handle requeueing
 }
 
 void actor::queue_turn(int t) {

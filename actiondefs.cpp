@@ -30,6 +30,7 @@
 #define _add_effect_arg(code,val)                                        new_effect->args->add_int((args_t)code,(int)val);
 #define _append_effect                                                   new_action->add_block(new_effect_block);
 
+#define _add_action_arg(code,val)                                        new_action->args->add_int(code,val);
 #define _action_purpose(purp)                                            new_action->purpose = purp;
 #define _action_priority(pri)                                            new_action->priority = pri;
 #define _action_is_context_ok                                            new_action->contextOk = true;
@@ -49,7 +50,7 @@ void define_actions() {
     argmap * new_effect_args;
     set<int> * new_set;
     
-    //#WALK_BASIC    
+    //#WALK_BASIC
     _new_action
         _new_target_block("Walk where?", TAR_ADJ, RAD_SINGLE, EXT_TILE, ACTROLE_LOCATION)
             _add_target_block_arg(ARG_TARGET_NUMBER, 1)
@@ -67,6 +68,7 @@ void define_actions() {
     _action_purpose(ACTPUR_MOVE)
     _action_priority(10)
     _action_is_context_ok
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_LOCATION);
     _finish_action
 
     //#TAKE_BASIC
@@ -85,6 +87,7 @@ void define_actions() {
         _append_effect
     _action_purpose(ACTPUR_TAKE)
     _action_priority(6)
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_PATIENT);
     _finish_action
         
     //#DROP_BASIC
@@ -107,6 +110,7 @@ void define_actions() {
         _append_effect
     _action_purpose(ACTPUR_DROP)
     _action_priority(10)
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_PATIENT);
     _finish_action
     
     //#EQUIP_BASIC
@@ -130,6 +134,7 @@ void define_actions() {
         _append_effect
     _action_purpose(ACTPUR_EQUIP)
     _action_priority(10)
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_PATIENT);
     _finish_action
     
     //#UNEQUIP_BASIC
@@ -153,6 +158,7 @@ void define_actions() {
         _append_effect
     _action_purpose(ACTPUR_UNEQUIP)
     _action_priority(10)
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_PATIENT);
     _finish_action   
     
     //#EAT_BASIC
@@ -176,6 +182,7 @@ void define_actions() {
         _append_effect
     _action_purpose(ACTPUR_EAT)
     _action_priority(10)
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_PATIENT);
     _finish_action
     
     //#DRINK_BASIC
@@ -199,6 +206,7 @@ void define_actions() {
         _append_effect
     _action_purpose(ACTPUR_DRINK)
     _action_priority(10)
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_PATIENT);
     _finish_action
 
     //#OPEN_BASIC
@@ -221,6 +229,7 @@ void define_actions() {
     _action_purpose(ACTPUR_OPEN_FEAT)
     _action_priority(10)
     _action_is_context_ok
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_PATIENT);
     _finish_action
     
     //#CLOSE_BASIC
@@ -243,6 +252,7 @@ void define_actions() {
     _action_purpose(ACTPUR_CLOSE_FEAT)
     _action_priority(10)
     _action_is_context_ok
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_PATIENT);
     _finish_action
 
     //#STRIKE
@@ -263,6 +273,7 @@ void define_actions() {
         _append_effect
     _action_purpose(ACTPUR_HARM)
     _action_priority(10)
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_PATIENT);
     _finish_action
     
     //#PUNCH
@@ -283,6 +294,16 @@ void define_actions() {
         _append_effect
     _action_purpose(ACTPUR_HARM)
     _action_priority(5)
+    _add_action_arg(ARG_ACTION_TARGET_ROLE, ARG_ACTION_PATIENT);
+    _finish_action
+    
+    //#WAIT
+    _new_action
+    _new_effect_block(EFF_WAIT)
+        _effect_block_ends_test
+    _append_effect
+    _action_purpose(ACTPUR_WAIT)
+    _action_priority(0)
     _finish_action
     
     //#POINT
